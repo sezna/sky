@@ -21,7 +21,7 @@ fn main() -> Result<(), &'static str> {
         Err(_) => return Err("failed to read file to string"),
     };
 
-    let syntax_tree = parse(program);
+    let _syntax_tree = parse(program);
 
     Ok(())
 }

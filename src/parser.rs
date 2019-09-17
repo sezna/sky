@@ -1,15 +1,25 @@
-use combine::parser::char::{char, letter, spaces};
+use combine::parser::char::{letter, spaces};
 use combine::{between, choice, many1, parser, sep_by, Parser, tokens, token};
-use combine::error::{ParseError};
-use combine::stream::{Stream, Positioned};
-use combine::stream::state::State;
-use combine::parser::regex::find;
-use regex::Regex;
+
+use combine::stream::{Stream};
+
+
+
+
 
 #[derive(Clone)]
 pub struct SyntaxTree {
     steps: Vec<Transition>,
     return_type: Type
+}
+
+impl SyntaxTree {
+    pub fn new() -> SyntaxTree {
+        SyntaxTree {
+            steps: Vec::new(),
+            return_type: Type::Nothing
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -67,39 +77,46 @@ enum Type {
     Nothing
 }
 
+#[derive(Debug)]
 struct VarDecl {
-    name: String,
-    value: String
+    name: Vec<char>,
+    value: String 
 }
 
 pub fn parse(prog_str: String) -> Result<(SyntaxTree, &'static str), &'static str> {
-    let parser = sky_parser();
-    return Ok(parser.parse(prog_str.as_str()).unwrap());
+    let mut parser = sky_parser();
+    println!("parsed: ");
+    let prog =  parser.easy_parse(prog_str.as_str()).unwrap().0;
+    for c in prog.name.iter() {
+        print!("{:?}", c);
+    }
+    println!("==");
+        print!("{:?}", prog.value);
+    return Ok((SyntaxTree::new(), ""));
 }
 
 parser! {
 //    lazy_static! { static ref note_literal_regex: Regex = Regex::new("(\\^|_)?[1-7](s|e|q|h|w)(\\.?)").unwrap(); }
-    fn sky_parser[I]()(I) -> SyntaxTree
+    fn sky_parser[I]()(I) -> VarDecl
     where [I: Stream<Item = char>] {
-        let note_literal_regex = Regex::new("(\\^|_)?[1-7](s|e|q|h|w)(\\.?)").unwrap();
+//        let note_literal_regex = Regex::new("(\\^|_)?[1-7](s|e|q|h|w)(\\.?)").unwrap();
 
-        let word = many1(letter());
 
         // For now, we just support literal expressions.
-        let note_literal = find(&note_literal_regex);
+//        let note_literal = find(&note_literal_regex);
 
         let var_decl = struct_parser! {
             VarDecl {
                 _: tokens("let".chars()),
                 _: spaces(),
-                name: word,
+                name: many1(letter()),
                 _: spaces(),
                 _: token('='),
-                _: spaces,
-                value: note_literal // TODO make this match any expression
+                _: spaces(),
+                value: tokens("test".chars()).map(|c| c.as_str().to_string()) //note_literal // TODO make this match any expression
             }
         };
 
-        return var_decl;
+        var_decl
     }
 }
