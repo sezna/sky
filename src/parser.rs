@@ -1,3 +1,9 @@
+use combine::parser::char::{char, letter, spaces};
+use combine::{between, choice, many1, parser, sep_by, Parser, tokens, token};
+use combine::error::{ParseError};
+use combine::stream::{Stream, Positioned};
+use combine::stream::state::State;
+use combine::parser::regex::find;
 use regex::Regex;
 
 #[derive(Clone)]
@@ -26,16 +32,11 @@ enum Transition {
     }
 }
 
-struct OpBody {
-}
-
-
 #[derive(Clone)]
 enum Operator {
     ChordalAdd,
     RhythmicAdd,
 }
-
 
 #[derive(Clone)]
 enum Expression {
@@ -66,91 +67,39 @@ enum Type {
     Nothing
 }
 
-
-/// Returns `true` if a token contains a literal, and `false` if a token doesn't.
-fn is_note_literal(token: &str) -> bool {
-    lazy_static! {
-        static ref regex: Regex =Regex::new(r"(\^|_)?[1-7](s|e|q|h|w)(\.?)").unwrap();
-    }
-    return regex.is_match(token);
+struct VarDecl {
+    name: String,
+    value: String
 }
 
-/// Returns `true` if a token contains a numeric literal (0, 1, 2, ...etc), `false` if it doesn't.
-fn is_numeric_literal(token: &str) -> bool {
-    // Regex compilation is expensive so we wrap this in a lazy static, meaning it is only
-    // initialized once and then reused.
-    lazy_static! {
-        static ref regex: Regex = Regex::new(r"\d+").unwrap();
-    }
-    return regex.is_match(token);
+pub fn parse(prog_str: String) -> Result<(SyntaxTree, &'static str), &'static str> {
+    let parser = sky_parser();
+    return Ok(parser.parse(prog_str.as_str()).unwrap());
 }
 
-pub fn parse(prog_str: String) -> Result<SyntaxTree, &'static str> {
-    let tokens: Vec<&str> = prog_str.split(' ').collect();
-    let mut i = 0; 
-    let mut syntax_tree = SyntaxTree { steps: Vec::new(), return_type: Type::Nothing};
+parser! {
+//    lazy_static! { static ref note_literal_regex: Regex = Regex::new("(\\^|_)?[1-7](s|e|q|h|w)(\\.?)").unwrap(); }
+    fn sky_parser[I]()(I) -> SyntaxTree
+    where [I: Stream<Item = char>] {
+        let note_literal_regex = Regex::new("(\\^|_)?[1-7](s|e|q|h|w)(\\.?)").unwrap();
 
-    while i < tokens.len() {
-        let token = tokens[i].trim();
-        match token {
-            "let" => {
-                // If this is a "let" expression, consume the next x tokens as well (let [name] =
-                // [value]) until we hit a semicolon
-                if i + 3 > tokens.len() {
-                    println!("Error while parsing let expression: not enough tokens to consume");
-                }
-                i += 1;
-                let name = tokens[i];
-                i += 1;
-                let mut rover = tokens[i]; // rover here should be =
-                if rover != "=" {
-                    println!("Malformed let expression: encountered let {} not followed by an equals sign", name);
-                }
-                // This is an expression which represents the value of the variable being declared.
-                let mut value: Vec<String> = Vec::new();
-                while !rover.contains(';') {
-                      i += 1;
-                      rover = tokens[i];
-                      value.push(tokens[i].to_string());
-                }
-                let value_len = value.len();
-                value[value_len - 1] = value[value_len - 1].clone().replace(";", ""); 
-                let var_value = parse(value.join(" ")).expect(&format!("Failed to parse body of let expression {}", name));
-                syntax_tree.steps.push(Transition::VarDeclaration { name: name.to_string(), value: Box::new(var_value.clone()), var_type: var_value.return_type});
-            },
-            "fn" => {
-                // function declaration
-                // of the form fn [name]([args]): [return_type] { [function_body] }
-                // e.g. fn get_note(a: Note):Number {
-                //      return 1q;
-                // }
-                //
-                i += 1;
-                let name = if tokens[i].contains("(") {
-                    tokens[i].split("(").collect::Vec<String>()[0];
-                } else { tokens[i] };
-               
-                let args =  // alex you left off here
-                
+        let word = many1(letter());
 
-            },
-            token if is_note_literal(token) => {
-                syntax_tree.return_type = Type::Note;
-                syntax_tree.steps.push(Transition::Expression(Expression::Literal { value: token.to_string(), val_type: Type::Note }));
-            },
-            token if is_numeric_literal(token) => {
-                syntax_tree.return_type = Type::Number;
-                syntax_tree.steps.push(Transition::Expression(Expression::Literal { value: token.to_string(), val_type: Type::Number }));
+        // For now, we just support literal expressions.
+        let note_literal = find(&note_literal_regex);
+
+        let var_decl = struct_parser! {
+            VarDecl {
+                _: tokens("let".chars()),
+                _: spaces(),
+                name: word,
+                _: spaces(),
+                _: token('='),
+                _: spaces,
+                value: note_literal // TODO make this match any expression
             }
-            _ => {
-                println!("unimplemented token: {}", token);   
-            },
+        };
+
+        return var_decl;
     }
-
-        i += 1;
-    }
-
-    println!("parsed {} expressions", syntax_tree.steps.len());
-
-    return Ok(syntax_tree);
 }

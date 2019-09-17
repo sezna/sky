@@ -5,6 +5,8 @@ use std::path::Path;
 extern crate lazy_static;
 mod parser;
 use parser::parse;
+#[macro_use]
+extern crate combine;
 extern crate regex;
 
 fn main() -> Result<(), &'static str> {
