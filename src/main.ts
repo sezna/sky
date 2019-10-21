@@ -1,16 +1,16 @@
-import * as fs from "fs";
-import { tokenize } from "./tokenizer";
+import * as fs from 'fs';
+import { tokenize } from './tokenizer';
 
 function main() {
-  let args = process.argv;
-  // For now, the final argument is the filename.
-  let filename = args[args.length - 1];
-  
-  let input = fs.readFileSync(filename).toString();
+    let args = process.argv;
+    // For now, the final argument is the filename.
+    let filename = args[args.length - 1];
 
-  let tokens = tokenize(input);
+    let input = fs.readFileSync(filename).toString();
 
-  console.log(tokens);
+    let tokens = tokenize(input);
+
+    console.log(tokens);
 }
 
-main()
+main();
