@@ -20,6 +20,7 @@ type TokenType =
     | 'numeric-literal'
     | 'assignment-operator'
     | 'structural-keyword'
+    | 'loop-keyword'
     | 'name';
 
 export function tokenize(input: string): Tokens {
@@ -39,8 +40,10 @@ export function tokenize(input: string): Tokens {
             tokens.push({ tokenType: 'operator', value: symbol });
         } else if (symbolValue.match(new RegExp('^[0-9]*$'))) {
             tokens.push({ tokenType: 'numeric-literal', value: symbol });
-        } else if (['let', 'for', 'while', 'fn'].includes(symbolValue)) {
+        } else if (['let', 'fn'].includes(symbolValue)) {
             tokens.push({ tokenType: 'structural-keyword', value: symbol });
+        } else if (['for', 'while'].includes(symbolValue)) {
+            tokens.push({ tokenType: 'loop-keyword', value: symbol });
         } else if ('='.includes(symbolValue)) {
             tokens.push({ tokenType: 'assignment-operator', value: symbol });
         } else {
