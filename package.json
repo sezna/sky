@@ -8,12 +8,21 @@
   "scripts": {
     "build": "tsc",
     "start": "tsc; node ./dist/main.js",
-    "format": "prettier --write src/**/*"
+    "format": "prettier --write src/**/*",
+    "commit": "npx git-cz"
   },
-  "license": "GNU GPL 3.0",
+  "license": "GPL-3.0-only",
   "private": false,
   "devDependencies": {
     "@types/node": "^12.11.1",
     "prettier": "^1.18.2"
+  },
+  "dependencies": {
+    "cz-conventional-changelog": "^3.0.2"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
