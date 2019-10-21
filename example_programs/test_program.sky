@@ -1,0 +1,59 @@
+-- comments are of this form
+
+fn foo(x: note y: chord): boolean {
+  -- functions look like this
+  number x = 20  -- basic integers for computation and keeping track of things
+  pitch  y = c#4 -- an intuitive way to declare pitches
+  degree z = iii -- supports scale degrees which can be rendered to a key
+
+
+  note  a = y + quarter          -- a note is the combination of a pitch or degree and a duration. the + operator is overloaded for this
+  pitch b = z in the key of cmaj -- instantiate a degree into a key, resulting in a pitch.
+}
+
+fn twinkle_twinkle(): song {
+  -- a note is either a pitch and a degree plus a duration. this could be improved
+  notes melody = i quarter,  i quarter,  v quarter,   v quarter,   vi quarter, vi quarter, v half,
+                 iv quarter, iv quarter, iii quarter, iii quarter, ii quarter, ii quarter, i whole
+  
+  notes bass   = i whole,                                          iv half,                v half,
+                 iv whole,                                         v half,                 i whole
+
+  -- a `song` can have multiple parts overlapping. 
+  -- adding a part is denoted with a ++
+
+  song twinkle_twinkle = melody ++ bass -- this would error if they didn't have the same number of beats.
+
+  
+  compose twinkle_twinkle in the key of cmaj -- this instantiates the scale degrees into actual pitches. i defaults to
+                                             -- c4, unless you specify an octave like this:
+                                             -- compose twinkle_twinkle in the key of cmaj(1)
+                                             -- which would transpose the root to c1
+}
+
+-- a program enters through the "main" function, which must return a song
+
+fn main(): song {
+  compose twinkle_twinkle()
+}
+
+
+-- many things can be coerced into songs simply for convenience. You can return bare rhythms, bare notes, bare degrees (which will default to c major),
+-- and more.
+
+fn other_operators(): song {
+  -- other operators are supported for convenience.
+  -- for writing a longer piece, you may want to do something like this:
+
+  -- denote + or - octaves on degrees with + or -
+  notes melody = v quarter, vi eighth, vii eighth, i+quarter, ii quarter, iii quarter, ii quarter, i quarter
+  notes bass   = i whole                                                , vi dotted half                   
+
+  melody += vii sixteenth, viib sixteenth, vi sixteenth, vib sixteenth, i whole 
+  bass   += iv quarter                                                , v whole
+
+  compose melody ++ bass -- autocoerced into the key of C
+}
+
+
+

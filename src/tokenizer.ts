@@ -1,3 +1,4 @@
+import { isScaleDegree } from "./scale-degree-utils"
 export type Tokens = Token[];
 export interface Token {
     tokenType: TokenType;
@@ -18,6 +19,7 @@ type TokenType =
     | 'parens'
     | 'operator'
     | 'numeric-literal'
+    | 'scale-degree-literal'
     | 'assignment-operator'
     | 'structural-keyword'
     | 'loop-keyword'
@@ -55,6 +57,8 @@ export function tokenize(input: string): Tokens {
             tokens.push({tokenType: 'return-keyword', value: symbol });
         } else if ([":"].includes(symbolValue)) {
             tokens.push({tokenType: 'type-ascription', value: symbol });
+        } else if (isScaleDegree(symbolValue)) {
+            tokens.push({tokenType: 'scale-degree-literal', value: symbol });
         } else {
             // `name` here denotes that it is the name of either a function or a variable in the
             // environment.
