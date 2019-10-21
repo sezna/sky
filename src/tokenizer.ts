@@ -52,11 +52,16 @@ export function tokenize(input: string): Tokens {
     return tokens;
 }
 
+/// Splits on any delimiter or symbol in the language and also
+/// throws out any comments.
 function splitOnSpaceOrDelimiter(input: string): InputSymbol[] {
     let line = 0;
     let column = 0;
     let currentSymbol = '';
     let symbolsThusFar: InputSymbol[] = [];
+    // Toggle "comment mode" when we encounter a -- until the end of the line.
+    let commentLookback = false;
+    let comment = false;
     for (const character of input) {
         switch (character) {
             case '(':
@@ -67,32 +72,48 @@ function splitOnSpaceOrDelimiter(input: string): InputSymbol[] {
             case '}':
             case '<':
             case '>':
-                symbolsThusFar.push({
-                    line,
-                    column,
-                    value: character,
-                });
+                if (!comment) {
+                    symbolsThusFar.push({
+                        line,
+                        column,
+                        value: character,
+                    });
+                }
                 break;
             case ' ':
-                symbolsThusFar.push({
-                    line,
-                    column,
-                    value: currentSymbol,
-                });
-                currentSymbol = '';
+                if (!comment) {
+                    symbolsThusFar.push({
+                        line,
+                        column,
+                        value: currentSymbol,
+                    });
+                    currentSymbol = '';
+                }
+                break;
+            case '-':
+                if (commentLookback === true) {
+                    comment = true;
+                } else {
+                    commentLookback = true;
+                }
                 break;
             case '\n':
-                symbolsThusFar.push({
-                    line,
-                    column,
-                    value: currentSymbol,
-                });
+                if (!comment) {
+                    symbolsThusFar.push({
+                        line,
+                        column,
+                        value: currentSymbol,
+                    });
+                }
+                comment = false;
                 currentSymbol = '';
                 line = line + 1;
                 column = 0;
                 break;
             default:
-                currentSymbol = currentSymbol + character;
+                if (!comment) {
+                    currentSymbol = currentSymbol + character;
+                }
         }
         column = column + 1;
     }
