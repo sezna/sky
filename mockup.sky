@@ -1,0 +1,47 @@
+-- This is an example of what a sky file will hopefully look like.
+
+-- Support of numeric and boolean literals, as well as variable and 
+-- function declaration. If expressions as well.
+fn foo (x: note y: note) : note {
+  let a = 5;
+  let b = 10;
+  if x.toScaleDegree < a
+    then y
+    else x
+}
+
+-- Expressions can be encapsulated in { }
+-- Primitives:
+-- -- pitch
+-- -- degree
+-- -- number
+-- -- boolean
+-- -- chord
+-- -- duration
+-- Collections:
+-- -- notes
+-- -- polyphony
+-- -- rhythm
+-- Elevated types:
+-- -- note (pitch/degree + rhythm)
+-- -- chord (needs new name) (multiple pitches/degrees + rhythm)
+-- -- song (the type of the output)
+
+-- Any elevated type should be able to have an annotation added to it to be used when it is rendered.
+-- A song is created by returning from the main function.
+-- The `main` function is where the program is entered.
+-- Some standard useful functions like input from stdin, randomness, and others are in scope by default.
+fn main () : song {
+  pitch x = c#4
+  pitch y = random
+  pitch z = if y < x -- less than on notes uses absolute comparison
+    then x
+    else y
+
+  note a = z + q -- addition between a duration primitive and a pitch outputs a note
+
+    
+
+  compose song -- instead of `return` we add a bit of flair with the word "compose". In addition, almost
+               -- any type can be coerced into a song to enable iterative composition.
+}
