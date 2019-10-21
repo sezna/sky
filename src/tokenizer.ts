@@ -21,6 +21,9 @@ type TokenType =
     | 'assignment-operator'
     | 'structural-keyword'
     | 'loop-keyword'
+    | 'type-keyword'
+    | 'return-keyword' 
+    | 'type-ascription'
     | 'name';
 
 export function tokenize(input: string): Tokens {
@@ -28,24 +31,30 @@ export function tokenize(input: string): Tokens {
     let tokens: Tokens = [];
     for (const symbol of symbols) {
         const symbolValue = symbol.value;
-        if ('()'.includes(symbolValue)) {
+        if (["(", ")"].includes(symbolValue)) {
             tokens.push({ tokenType: 'parens', value: symbol });
-        } else if ('[]'.includes(symbolValue)) {
+        } else if (['[', ']'].includes(symbolValue)) {
             tokens.push({ tokenType: 'bracket', value: symbol });
-        } else if ('{}'.includes(symbolValue)) {
+        } else if (['{', '}'].includes(symbolValue)) {
             tokens.push({ tokenType: 'curly-bracket', value: symbol });
-        } else if ('<>'.includes(symbolValue)) {
+        } else if (['<', '>'].includes(symbolValue)) {
             tokens.push({ tokenType: 'angle-bracket', value: symbol });
-        } else if ('+-/%*'.includes(symbolValue)) {
+        } else if (['+', '-', '/', '%', '*'].includes(symbolValue)) {
             tokens.push({ tokenType: 'operator', value: symbol });
-        } else if (symbolValue.match(new RegExp('^[0-9]*$'))) {
+        } else if (symbolValue.match(new RegExp('^[0-9]+$'))) {
             tokens.push({ tokenType: 'numeric-literal', value: symbol });
         } else if (['let', 'fn'].includes(symbolValue)) {
             tokens.push({ tokenType: 'structural-keyword', value: symbol });
         } else if (['for', 'while'].includes(symbolValue)) {
             tokens.push({ tokenType: 'loop-keyword', value: symbol });
-        } else if ('='.includes(symbolValue)) {
+        } else if (['='].includes(symbolValue)) {
             tokens.push({ tokenType: 'assignment-operator', value: symbol });
+        } else if (["pitch", "degree", "number", "boolean", "chord", "duration", "notes", "polyphony", "rhythm", "note", "song"].includes(symbolValue)) {
+            tokens.push({tokenType: 'type-keyword', value: symbol });
+        } else if (["compose"].includes(symbolValue)) {
+            tokens.push({tokenType: 'return-keyword', value: symbol });
+        } else if ([":"].includes(symbolValue)) {
+            tokens.push({tokenType: 'type-ascription', value: symbol });
         } else {
             // `name` here denotes that it is the name of either a function or a variable in the
             // environment.
@@ -58,8 +67,9 @@ export function tokenize(input: string): Tokens {
 /// Splits on any delimiter or symbol in the language and also
 /// throws out any comments.
 function splitOnSpaceOrDelimiter(input: string): InputSymbol[] {
-    let line = 0;
-    let column = 0;
+    // editors tend to 1-index line and column numbers
+    let line = 1;
+    let column = 1;
     let currentSymbol = '';
     let symbolsThusFar: InputSymbol[] = [];
     // Toggle "comment mode" when we encounter a -- until the end of the line.
@@ -67,6 +77,13 @@ function splitOnSpaceOrDelimiter(input: string): InputSymbol[] {
     let comment = false;
     for (const character of input) {
         switch (character) {
+            case '-':
+                if (commentLookback === true) {
+                    comment = true;
+                } else {
+                    commentLookback = true;
+                }
+                break;
             case '(':
             case ')':
             case '[':
@@ -75,40 +92,44 @@ function splitOnSpaceOrDelimiter(input: string): InputSymbol[] {
             case '}':
             case '<':
             case '>':
+            case ':':
                 if (!comment) {
+                    if (currentSymbol !== '') {
+                        symbolsThusFar.push({
+                          line,
+                          column: column - currentSymbol.length,
+                          value: currentSymbol,
+                        });
+                    }
                     symbolsThusFar.push({
                         line,
                         column,
                         value: character,
                     });
+                  currentSymbol = "";
                 }
                 break;
             case ' ':
-                if (!comment) {
+                if (!comment && currentSymbol !== '') {
                     symbolsThusFar.push({
                         line,
-                        column,
+                        column: column - currentSymbol.length,
                         value: currentSymbol,
                     });
                     currentSymbol = '';
                 }
                 break;
-            case '-':
-                if (commentLookback === true) {
-                    comment = true;
-                } else {
-                    commentLookback = true;
-                }
-                break;
             case '\n':
-                if (!comment) {
+                if (!comment && currentSymbol !== '') {
+                    console.log("pushing symbol: ", currentSymbol);
                     symbolsThusFar.push({
                         line,
-                        column,
+                        column: column - currentSymbol.length,
                         value: currentSymbol,
                     });
                 }
                 comment = false;
+                commentLookback = false;
                 currentSymbol = '';
                 line = line + 1;
                 column = 0;
