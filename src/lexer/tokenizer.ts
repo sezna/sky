@@ -1,4 +1,4 @@
-import { isScaleDegree } from './scale-degree-utils';
+import { isScaleDegree } from '../utils/scale-degree-utils';
 export type Tokens = Token[];
 export interface Token {
     tokenType: TokenType;

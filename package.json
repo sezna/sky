@@ -18,7 +18,8 @@
     "prettier": "^1.18.2"
   },
   "dependencies": {
-    "cz-conventional-changelog": "^3.0.2"
+    "cz-conventional-changelog": "^3.0.2",
+    "fp-ts": "^2.1.1"
   },
   "config": {
     "commitizen": {

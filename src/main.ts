@@ -1,6 +1,6 @@
 import * as fs from 'fs';
-import { tokenize } from './tokenizer';
-import { makeSyntaxTree } from './syntax-tree';
+import { tokenize } from './lexer/tokenizer';
+import { makeSyntaxTree } from './lexer/parser';
 
 function main() {
     let args = process.argv;
