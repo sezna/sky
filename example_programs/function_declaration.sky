@@ -8,8 +8,12 @@ fn foo(x: note y: chord): song {
   compose C#4 whole
 }
 
-fn foo(): song {
+fn bar(): song {
   number z = 20
 
   number abcdefg = 10
 }
+
+-- This next declaration should result in an error being thrown for an invalid function declaration.
+fn baz(x: ): song {}
+-- note the missing type declaration

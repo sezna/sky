@@ -55,75 +55,139 @@ export function makeSyntaxTree(input: Tokens): ParseResult {
         if (input[0].tokenType === 'function-declaration') {
             // Then we expect to see:
             // function-decl, name, parens, name, ascription token, type-keyword, etc, parens, ascription token, type-keyword, curly-bracket
-            let token = input.shift(); // 'fn'
-            const functionName = input.shift()!;
-            token = input.shift();
+            let token = input.shift()!; // 'fn'
+            const functionNameToken = input.shift()!;
+            const functionName = functionNameToken.value.value;
+            let prevToken = token;
+            token = input.shift()!;
             if (token && token!.value.value !== '(') {
-                console.error(
-                    `Malformed function declaration at line ${token.value.line}, column ${token.value.column}`,
-                );
-                return {} as any; // TODO error handling
+                return {
+                    line: token.value.line,
+                    column: token.value.column,
+                    reason: `Malformed function declaration at line ${token.value.line}, column ${token.value.column}. Expected '(' but received '${token.value.value}.`,
+                };
+            }
+            if (token === undefined) {
+                return {
+                    line: prevToken.value.line,
+                    column: prevToken.value.column,
+                    reason: `Unexpected EOF after function keyword ('fn')`,
+                };
             }
             // Get the argument list out of the function signature
-            token = input.shift();
+            prevToken = token;
+            token = input.shift()!;
             let args: [Token, Token][] = [];
             while (token!.tokenType !== 'parens') {
                 if (token === undefined) {
-                    console.error(`Received EOF in function declaration`);
-                    return {} as any; // TODO error handling
+                    return {
+                        line: prevToken.value.line,
+                        column: prevToken.value.column,
+                        reason: `Unexpected EOF in function "${functionName}" declaration after open parenthesis `,
+                    };
                 }
                 const argName = token;
-                token = input.shift();
+                prevToken = token;
+                token = input.shift()!;
                 if (token && token.tokenType !== 'type-ascription') {
-                    console.error(
-                        `Malformed function declaration, missing type information at line ${token.value.line}, column ${token.value.column}`,
-                    );
+                    return {
+                        line: token.value.line,
+                        column: token.value.column,
+                        reason: `Malformed function declaration, missing type information in function "${functionName}". Expected ':' but received '${token.value.value}'. Example:
+                          fn ${functionName}(${argName.value.value}:<TYPE_IDENTIFIER>):<RETURN_TYPE_IDENTIFIER> { function body }`,
+                    };
                 }
-                token = input.shift(); // should be the type name
+                if (token === undefined) {
+                    return {
+                        line: prevToken.value.line,
+                        column: prevToken.value.column,
+                        reason: `Unexpected EOF in function parameters declaration for function "${functionName}". Expected a colon (':') and type name after parameter "${argName.value.value}".`,
+                    };
+                }
+                prevToken = token;
+                token = input.shift()!; // should be the type name
                 if (token && token.tokenType !== 'type-keyword') {
-                    console.error(`Invalid typename at line ${token.value.line}, column ${token.value.column}`);
-                    return {} as any;
+                    return {
+                        line: token.value.line,
+                        column: token.value.column,
+                        reason: `Invalid typename in function declaration for function "${functionName}". Expected a type name for parameter "${argName.value.value}" but received "${token.value.value}".`,
+                    };
+                }
+                if (token === undefined) {
+                    return {
+                        line: prevToken.value.line,
+                        column: prevToken.value.column,
+                        reason: `Unexpected EOF in function declaration for function "${functionName}" after colon (':'). Expected a type name for parameter "${argName.value.value}".`,
+                    };
                 }
                 const typeName = token!;
                 args.push([argName, typeName]);
 
-                token = input.shift();
+                prevToken = token;
+                token = input.shift()!;
             }
-            token = input.shift();
+            prevToken = token;
+            token = input.shift()!;
             if (token && token.tokenType !== 'type-ascription') {
-                console.error(
-                    `Malformed function declaration, missing type information at line ${token.value.line}, column ${token.value.column}`,
-                );
+                return {
+                    line: prevToken.value.line,
+                    column: prevToken.value.column,
+                    reason: `Malformed function declaration, missing type information in function "${functionName}" after the declaration for the parameters of function.`,
+                };
             }
-            token = input.shift();
+            if (token === undefined) {
+                return {
+                    line: prevToken.value.line,
+                    column: prevToken.value.column,
+                    reason: `Unexpected EOF in function declaration for function "${functionName}" after colon (':'). Expected a type name.`,
+                };
+            }
+
+            prevToken = token;
+            token = input.shift()!;
             if (token && token.tokenType !== 'type-keyword') {
                 console.error(
-                    `Missing return type on function ${functionName} at line ${token.value.line}, column ${token.value.column}. Received ${token.value.value} but expected a type name`,
+                    `Missing return type on function "${functionName}." Received "${token.value.value}" but expected a type name`,
                 );
             }
             const returnType = token!;
-            token = input.shift();
+            prevToken = token;
+            token = input.shift()!;
             if (token!.value.value !== '{') {
                 console.error(
-                    `Invalid function body at line ${token!.value.line}, column ${token!.value.column}. Received ${
+                    `Invalid function body in function "${functionName}." Received ${
                         token!.value.value
-                    } but expected '{'`,
+                    } but expected an opening curly bracket ('{').`,
                 );
+            }
+            if (token === undefined) {
+                return {
+                    line: prevToken.value.line,
+                    column: prevToken.value.column,
+                    reason: `Unexpected EOF in function declaration for function "${functionName}." Expected a body enclosed in curly brackets.`,
+                };
             }
             let body: Tokens = [];
             while (token!.value.value !== '}') {
                 body.push(token!);
-                token = input.shift();
+                prevToken = token;
+                token = input.shift()!;
+                if (token === undefined) {
+                    return {
+                        line: prevToken.value.line,
+                        column: prevToken.value.column,
+                        reason: `Missing closing curly bracket ('}') in function body for function "${functionName}".`,
+                    };
+                }
             }
             console.log('parsed function declaration: ', functionName, args, body);
             steps.push({
-                functionName,
+                functionName: functionNameToken,
                 args,
                 body,
                 returnType,
             });
         }
-        break;
     }
     return steps;
 }
