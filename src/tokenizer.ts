@@ -1,4 +1,4 @@
-import { isScaleDegree } from "./scale-degree-utils"
+import { isScaleDegree } from './scale-degree-utils';
 export type Tokens = Token[];
 export interface Token {
     tokenType: TokenType;
@@ -22,9 +22,10 @@ type TokenType =
     | 'scale-degree-literal'
     | 'assignment-operator'
     | 'structural-keyword'
+    | 'function-declaration'
     | 'loop-keyword'
     | 'type-keyword'
-    | 'return-keyword' 
+    | 'return-keyword'
     | 'type-ascription'
     | 'name';
 
@@ -33,7 +34,7 @@ export function tokenize(input: string): Tokens {
     let tokens: Tokens = [];
     for (const symbol of symbols) {
         const symbolValue = symbol.value;
-        if (["(", ")"].includes(symbolValue)) {
+        if (['(', ')'].includes(symbolValue)) {
             tokens.push({ tokenType: 'parens', value: symbol });
         } else if (['[', ']'].includes(symbolValue)) {
             tokens.push({ tokenType: 'bracket', value: symbol });
@@ -45,20 +46,34 @@ export function tokenize(input: string): Tokens {
             tokens.push({ tokenType: 'operator', value: symbol });
         } else if (symbolValue.match(new RegExp('^[0-9]+$'))) {
             tokens.push({ tokenType: 'numeric-literal', value: symbol });
-        } else if (['let', 'fn'].includes(symbolValue)) {
-            tokens.push({ tokenType: 'structural-keyword', value: symbol });
+        } else if (['fn'].includes(symbolValue)) {
+            tokens.push({ tokenType: 'function-declaration', value: symbol });
         } else if (['for', 'while'].includes(symbolValue)) {
             tokens.push({ tokenType: 'loop-keyword', value: symbol });
         } else if (['='].includes(symbolValue)) {
             tokens.push({ tokenType: 'assignment-operator', value: symbol });
-        } else if (["pitch", "degree", "number", "boolean", "chord", "duration", "notes", "polyphony", "rhythm", "note", "song"].includes(symbolValue)) {
-            tokens.push({tokenType: 'type-keyword', value: symbol });
-        } else if (["compose"].includes(symbolValue)) {
-            tokens.push({tokenType: 'return-keyword', value: symbol });
-        } else if ([":"].includes(symbolValue)) {
-            tokens.push({tokenType: 'type-ascription', value: symbol });
+        } else if (
+            [
+                'pitch',
+                'degree',
+                'number',
+                'boolean',
+                'chord',
+                'duration',
+                'notes',
+                'polyphony',
+                'rhythm',
+                'note',
+                'song',
+            ].includes(symbolValue)
+        ) {
+            tokens.push({ tokenType: 'type-keyword', value: symbol });
+        } else if (['compose'].includes(symbolValue)) {
+            tokens.push({ tokenType: 'return-keyword', value: symbol });
+        } else if ([':'].includes(symbolValue)) {
+            tokens.push({ tokenType: 'type-ascription', value: symbol });
         } else if (isScaleDegree(symbolValue)) {
-            tokens.push({tokenType: 'scale-degree-literal', value: symbol });
+            tokens.push({ tokenType: 'scale-degree-literal', value: symbol });
         } else {
             // `name` here denotes that it is the name of either a function or a variable in the
             // environment.
@@ -100,9 +115,9 @@ function splitOnSpaceOrDelimiter(input: string): InputSymbol[] {
                 if (!comment) {
                     if (currentSymbol !== '') {
                         symbolsThusFar.push({
-                          line,
-                          column: column - currentSymbol.length,
-                          value: currentSymbol,
+                            line,
+                            column: column - currentSymbol.length,
+                            value: currentSymbol,
                         });
                     }
                     symbolsThusFar.push({
@@ -110,7 +125,7 @@ function splitOnSpaceOrDelimiter(input: string): InputSymbol[] {
                         column,
                         value: character,
                     });
-                  currentSymbol = "";
+                    currentSymbol = '';
                 }
                 break;
             case ' ':
@@ -125,7 +140,6 @@ function splitOnSpaceOrDelimiter(input: string): InputSymbol[] {
                 break;
             case '\n':
                 if (!comment && currentSymbol !== '') {
-                    console.log("pushing symbol: ", currentSymbol);
                     symbolsThusFar.push({
                         line,
                         column: column - currentSymbol.length,

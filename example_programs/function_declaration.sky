@@ -1,0 +1,15 @@
+-- This file tests declaring functions.
+
+fn foo(x: note y: chord): song {
+  number z = 20
+  number a = 10
+  note   b = C#3 whole
+
+  compose C#4 whole
+}
+
+fn foo(): song {
+  number z = 20
+
+  number abcdefg = 10
+}

@@ -5,8 +5,7 @@ fn foo(x: note y: chord): boolean {
   number x = 20  -- basic integers for computation and keeping track of things
   pitch  y = c#4 -- an intuitive way to declare pitches
   degree z = iii -- supports scale degrees which can be rendered to a key
-
-
+  
   note  a = y + quarter          -- a note is the combination of a pitch or degree and a duration. the + operator is overloaded for this
   pitch b = z in the key of cmaj -- instantiate a degree into a key, resulting in a pitch.
 }
@@ -54,6 +53,3 @@ fn other_operators(): song {
 
   compose melody ++ bass -- autocoerced into the key of C
 }
-
-
-

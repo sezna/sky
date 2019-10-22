@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import { tokenize } from './tokenizer';
+import { makeSyntaxTree } from './syntax-tree';
 
 function main() {
     let args = process.argv;
@@ -10,7 +11,10 @@ function main() {
 
     let tokens = tokenize(input);
 
-    console.log(tokens);
+    let syntaxTree = makeSyntaxTree(tokens);
+
+    //    console.log(tokens);
+    console.log(syntaxTree);
 }
 
 main();
