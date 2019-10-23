@@ -17,7 +17,7 @@ export interface ParseError {
 /// The main entry point to the parser. Takes Tokens and returns either a series of steps (a Syntax Tree) or a ParseError.
 export function makeSyntaxTree(input: Tokens): Either<ParseError, Steps> {
     let steps: Steps = [];
-    console.log("input length is", input.length);
+    console.log('input length is', input.length);
     while (input.length > 0) {
         if (input[0].tokenType === 'function-declaration') {
             const parseResult = functionDeclaration(input);
@@ -31,7 +31,7 @@ export function makeSyntaxTree(input: Tokens): Either<ParseError, Steps> {
             const parseResult = variableDeclaration(input);
             if (isRight(parseResult)) {
                 input = parseResult.right.input;
-                console.log("input length is ", input.length);
+                console.log('input length is ', input.length);
                 steps.push(parseResult.right.declaration);
             } else {
                 return left(parseResult.left);
