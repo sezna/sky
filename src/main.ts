@@ -11,10 +11,10 @@ function main() {
 
     let tokens = tokenize(input);
 
-    let syntaxTree = makeSyntaxTree(tokens);
+    makeSyntaxTree(tokens);
 
     //    console.log(tokens);
-    console.log(JSON.stringify(syntaxTree, null, 2));
+    //console.log(JSON.stringify(syntaxTree, null, 2));
 }
 
 main();
