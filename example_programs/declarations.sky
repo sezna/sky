@@ -1,0 +1,9 @@
+note x = C#4 quarter;
+number y = (20);
+notes z = i quarter, ii quarter, iii quarter, iv quarter, v quarter, i whole;
+number x = ( { 20 } + { 25 } );
+
+fn test_function(x: note): song {
+  note x = C#4 quarter;
+  number x = 20;
+}

@@ -27,6 +27,8 @@ type TokenType =
     | 'type-keyword'
     | 'return-keyword'
     | 'type-ascription'
+    | 'statement-terminator'
+    | 'if-expression'
     | 'name';
 
 export function tokenize(input: string): Tokens {
@@ -52,6 +54,10 @@ export function tokenize(input: string): Tokens {
             tokens.push({ tokenType: 'loop-keyword', value: symbol });
         } else if (['='].includes(symbolValue)) {
             tokens.push({ tokenType: 'assignment-operator', value: symbol });
+        } else if ([';'].includes(symbolValue)) {
+            tokens.push({ tokenType: 'statement-terminator', value: symbol });
+        } else if (['if', 'then', 'else'].includes(symbolValue)) {
+            tokens.push({ tokenType: 'if-expression', value: symbol });
         } else if (
             [
                 'pitch',
@@ -112,6 +118,7 @@ function splitOnSpaceOrDelimiter(input: string): InputSymbol[] {
             case '<':
             case '>':
             case ':':
+            case ';':
                 if (!comment) {
                     if (currentSymbol !== '') {
                         symbolsThusFar.push({
