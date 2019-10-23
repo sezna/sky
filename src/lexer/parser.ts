@@ -36,6 +36,8 @@ export function makeSyntaxTree(input: Tokens): Either<ParseError, Steps> {
             } else {
                 return left(parseResult.left);
             }
+        } else if (input[0].tokenType === 'statement-terminator') {
+            input.shift();
         } else {
             return left({
                 line: input[0].value.line,
