@@ -2,12 +2,11 @@ import { Either, right, left, isRight } from 'fp-ts/lib/Either';
 import { Tokens } from './tokenizer';
 import { FunctionDeclaration, functionDeclaration } from './function-declaration';
 import { variableDeclaration, VariableDeclaration } from './variable-declaration';
-import { Expression } from './expression/expression'
+import { Expression } from './expression/expression';
 
 type Declaration = FunctionDeclaration | VariableDeclaration;
 type Step = Expression | Declaration;
 type Steps = Step[];
-
 
 export interface ParseError {
     line: number;
@@ -24,7 +23,7 @@ export function makeSyntaxTree(input: Tokens): Either<ParseError, Steps> {
             if (isRight(parseResult)) {
                 // Then it wasn't an error.
                 input = parseResult.right.input;
-                console.log("new is: ", input.length);
+                console.log('new is: ', input.length);
                 steps.push(parseResult.right.declaration);
                 functionNamespace.push(parseResult.right.declaration);
             } else {

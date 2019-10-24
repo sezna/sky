@@ -101,12 +101,30 @@ function splitOnSpaceOrDelimiter(input: string): InputSymbol[] {
     let commentLookback = false;
     let comment = false;
     for (const character of input) {
+        // Special case handling for - since they could be indicating
+        // a comment or a subtraction sign.
+        if (commentLookback === true && comment === false && character !== '-') {
+            symbolsThusFar.push({
+                line,
+                column: column - 1,
+                value: '-',
+            });
+            commentLookback = false;
+        }
         switch (character) {
             case '-':
                 if (commentLookback === true) {
                     comment = true;
                 } else {
                     commentLookback = true;
+                    if (currentSymbol !== '') {
+                      symbolsThusFar.push({
+                        line,
+                        column: column - currentSymbol.length,
+                        value: currentSymbol
+                      })
+                      currentSymbol = '';
+                    }
                 }
                 break;
             case '(':
@@ -119,6 +137,10 @@ function splitOnSpaceOrDelimiter(input: string): InputSymbol[] {
             case '>':
             case ':':
             case ';':
+            case '+':
+            case '=':
+            case '/':
+            case '%':
                 if (!comment) {
                     if (currentSymbol !== '') {
                         symbolsThusFar.push({
@@ -165,6 +187,13 @@ function splitOnSpaceOrDelimiter(input: string): InputSymbol[] {
                 }
         }
         column = column + 1;
+    }
+    if (currentSymbol !== '') {
+      symbolsThusFar.push({
+        line, 
+        column: column - currentSymbol.length,
+        value: currentSymbol
+      });
     }
     return symbolsThusFar;
 }

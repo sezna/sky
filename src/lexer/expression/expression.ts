@@ -49,6 +49,15 @@ export function parseExpression(input: Tokens): Either<ParseError, { input: Toke
 /// Consume input tokens that begin with an expression until the end of that expression.
 /// If successful, returns the remaining input with the expression removed.
 function consumeExpression(input: Tokens): Either<ParseError, { input: Tokens; expression: Tokens }> {
+    if (input.length === 0) {
+      return left({
+        line: 0,
+        column: 0,
+        reason: "Attempted to parse an expression that didn't exist. This is an error with the compiler. Please file an issue at https://github.com/sezna/sky and include the code that caused this error."
+      })
+    }
+    // Used for error messages later on
+    const exprBeginningPosition = { ...input[0] };
     // Consume until the end of this expression and fill a buffer.
     let expressionBuffer: Tokens = [];
     // Determine what kind of expression this is
@@ -102,7 +111,6 @@ function consumeExpression(input: Tokens): Either<ParseError, { input: Tokens; e
         // keep track of this for a good error message
         let prevToken = token;
         while (token.tokenType !== 'statement-terminator') {
-          console.log("consuming", token.value.value)
             expressionBuffer.push(token);
             token = input.shift()!;
             if (token === undefined) {
@@ -114,8 +122,13 @@ function consumeExpression(input: Tokens): Either<ParseError, { input: Tokens; e
             }
         }
     }
-
-    console.log('consumed for expression: ', JSON.stringify(expressionBuffer, null, 2));
+    if (expressionBuffer.filter(x => !["(", ")", "{", "}", ";"].includes(x.value.value)).length === 0) {
+      return left({
+        line: exprBeginningPosition.value.line,
+        column: exprBeginningPosition.value.column,
+        reason: `Attempted to parse an empty expression`
+      })
+    }
     return right({
         input: input,
         expression: expressionBuffer,
