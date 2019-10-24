@@ -49,6 +49,8 @@ export function parseExpression(input: Tokens): Either<ParseError, { input: Toke
 /// Consume input tokens that begin with an expression until the end of that expression.
 /// If successful, returns the remaining input with the expression removed.
 function consumeExpression(input: Tokens): Either<ParseError, { input: Tokens; expression: Tokens }> {
+    // It is up to the compiler to only call `parseExpression` on valid expressions. If it is called on empty input, then something
+    // has gone wrong elsewhere in the code.
     if (input.length === 0) {
       return left({
         line: 0,
@@ -60,9 +62,8 @@ function consumeExpression(input: Tokens): Either<ParseError, { input: Tokens; e
     const exprBeginningPosition = { ...input[0] };
     // Consume until the end of this expression and fill a buffer.
     let expressionBuffer: Tokens = [];
-    // Determine what kind of expression this is
     let token = input.shift()!; // if `parseExpression` is called on an empty array of tokens,
-    // we have other problems.
+    // we have other problems. See above for details.
     if (token.value.value === '(') {
         // If the expression is enclosed in parenthesis, consume until the end of the parenthesis.
         const openParens = token; // Keep track of where the opening parenthesis was for error reporting
@@ -122,6 +123,7 @@ function consumeExpression(input: Tokens): Either<ParseError, { input: Tokens; e
             }
         }
     }
+    // If there is no actual content to the expression, i.e. it has only (), {}, or ;, then it is invalid.
     if (expressionBuffer.filter(x => !["(", ")", "{", "}", ";"].includes(x.value.value)).length === 0) {
       return left({
         line: exprBeginningPosition.value.line,
@@ -129,6 +131,7 @@ function consumeExpression(input: Tokens): Either<ParseError, { input: Tokens; e
         reason: `Attempted to parse an empty expression`
       })
     }
+
     return right({
         input: input,
         expression: expressionBuffer,
