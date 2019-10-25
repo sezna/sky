@@ -44,6 +44,9 @@ describe("Expression parsing tests", () => {
   it("Should be able to handle inline if expressions", () => {
     let tokens: Tokens = tokenize("number x = if rand() < 5 then 10 else 0;")
     let result = variableDeclaration(tokens, [], []);
+    if (isLeft(result)) {
+      console.log(result.left);
+    }
     expect(isRight(result)).toBe(true);
   })
 })

@@ -63,7 +63,7 @@ export function variableDeclaration(
     }
 
     // TODO here is where we need to parse an expression or figure out how the declaration terminates
-    let parseResult = parseExpression(input);
+    let parseResult = parseExpression(input, functionNamespace, variableNamespace);
     if (isLeft(parseResult)) {
         return left(parseResult.left);
     }
@@ -72,7 +72,7 @@ export function variableDeclaration(
         input: input,
         declaration: {
             varName,
-            varBody: parseResult.right.declaration, // TODO
+            varBody: parseResult.right.expression, // TODO
             varType: varType,
         },
     });
