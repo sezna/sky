@@ -51,14 +51,14 @@ export function variableDeclaration(
         return left({
             line: prevToken.value.line,
             column: prevToken.value.column,
-            reason: `Incomplete variable declaration for variable "${varName}"`,
+            reason: `Incomplete variable declaration for variable "${varName.value.value}"`,
         });
     }
     if (equals.tokenType !== 'assignment-operator') {
         return left({
             line: equals.value.line,
             column: equals.value.column,
-            reason: `Expected an equals sign ("=") after variable name "${varName}", but instead received "${equals.value.value}."`,
+            reason: `Expected an equals sign ("=") after variable name "${varName.value.value}", but instead received "${equals.value.value}."`,
         });
     }
 

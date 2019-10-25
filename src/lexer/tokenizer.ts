@@ -60,7 +60,7 @@ export function tokenize(input: string): Tokens {
         } else if (['if', 'then', 'else'].includes(symbolValue)) {
             tokens.push({ tokenType: 'if-expression', value: symbol });
         } else if ([','].includes(symbolValue)) {
-            tokens.push({tokenType: 'comma', value: symbol});
+            tokens.push({ tokenType: 'comma', value: symbol });
         } else if (
             [
                 'pitch',
@@ -121,12 +121,12 @@ function splitOnSpaceOrDelimiter(input: string): InputSymbol[] {
                 } else {
                     commentLookback = true;
                     if (currentSymbol !== '') {
-                      symbolsThusFar.push({
-                        line,
-                        column: column - currentSymbol.length,
-                        value: currentSymbol
-                      })
-                      currentSymbol = '';
+                        symbolsThusFar.push({
+                            line,
+                            column: column - currentSymbol.length,
+                            value: currentSymbol,
+                        });
+                        currentSymbol = '';
                     }
                 }
                 break;
@@ -193,11 +193,11 @@ function splitOnSpaceOrDelimiter(input: string): InputSymbol[] {
         column = column + 1;
     }
     if (currentSymbol !== '') {
-      symbolsThusFar.push({
-        line, 
-        column: column - currentSymbol.length,
-        value: currentSymbol
-      });
+        symbolsThusFar.push({
+            line,
+            column: column - currentSymbol.length,
+            value: currentSymbol,
+        });
     }
     return symbolsThusFar;
 }

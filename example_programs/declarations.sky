@@ -1,9 +1,11 @@
-note x = C#4 quarter;
+--note x = C#4 quarter; -- causes infinite loop
 number y = (20);
-notes z = i quarter, ii quarter, iii quarter, iv quarter, v quarter, i whole;
-number x = ( { 20 } + { 25 } );
+notes z = i quarter, ii quarter, iii quarter, iv quarter, v quarter, i whole; -- causes infinite loop
+number x = (  20  +  25  );
 
 fn test_function(x: note): song {
   note x = C#4 quarter;
   number x = 20;
 }
+
+song x = test_function(foo(1, 2, 3))

@@ -13,7 +13,6 @@ function main() {
 
     let syntaxTree = makeSyntaxTree(tokens);
 
-    //    console.log(tokens);
     console.log(JSON.stringify(syntaxTree, null, 2));
 }
 

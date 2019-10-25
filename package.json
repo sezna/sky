@@ -10,7 +10,7 @@
     "start": "tsc; node ./dist/main.js",
     "format": "prettier --write src/**/*",
     "commit": "npx git-cz",
-    "test": "jest"
+    "test": "yarn build; jest"
   },
   "license": "GPL-3.0-only",
   "private": false,

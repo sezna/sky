@@ -23,7 +23,6 @@ export function makeSyntaxTree(input: Tokens): Either<ParseError, Steps> {
             if (isRight(parseResult)) {
                 // Then it wasn't an error.
                 input = parseResult.right.input;
-                console.log('new is: ', input.length);
                 steps.push(parseResult.right.declaration);
                 functionNamespace.push(parseResult.right.declaration);
             } else {
@@ -33,7 +32,6 @@ export function makeSyntaxTree(input: Tokens): Either<ParseError, Steps> {
             const parseResult = variableDeclaration(input, functionNamespace, variableNamespace);
             if (isRight(parseResult)) {
                 input = parseResult.right.input;
-                console.log('input length is ', input.length);
                 steps.push(parseResult.right.declaration);
                 variableNamespace.push(parseResult.right.declaration);
             } else {

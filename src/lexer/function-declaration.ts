@@ -163,7 +163,6 @@ export function functionDeclaration(
             });
         }
     }
-    console.log('parsed function declaration: ', functionName, args, body);
     return right({
         input,
         declaration: {
