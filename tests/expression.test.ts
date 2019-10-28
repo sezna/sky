@@ -51,7 +51,7 @@ describe('Expression parsing tests', () => {
         expect(isRight(result)).toBe(true);
     });
     it('Should be able to parse function applications inside of expressions', () => {
-        let tokens: Tokens = tokenize('fn foo(a: number b: number c: number): number { }; number x = 10 + foo(1, 2, 3);');
+        let tokens: Tokens = tokenize('fn foo(a: number, b: number, c: number): number { }; number x = 10 + foo(1, 2, 3);');
         let result = makeSyntaxTree(tokens);
         if (isLeft(result)) {
             console.log(result.left);

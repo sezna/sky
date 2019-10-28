@@ -38,6 +38,8 @@ interface Literal {
 
 /// If input is a valid expression, determine what type of expression it is and parse
 /// it into an elevated type of that expression. Otherwise, return a ParseError.
+// a lot of this function was inspired by this page
+//     https://www.geeksforgeeks.org/expression-evaluation/
 export function parseExpression(
     input: Tokens,
     functionNamespace: FunctionDeclaration[],
@@ -56,8 +58,10 @@ export function parseExpression(
     let expressionStack: Expression[] = [];
     let operatorStack: Operator[] = [];
 
+    // We continually take the first token in the expression and try to reduce it.
     while (expressionContents.length > 0) {
         if (expressionContents[0].tokenType === 'name') {
+            // If the token is some sort of identifier, it should be in either the function of variable namespace.
             let matchingVariables = variableNamespace.filter(
                 x => x.varName.value.value === expressionContents[0].value.value,
             );
@@ -307,11 +311,7 @@ export function parseExpression(
             }
             expressionContents.shift();
         } else {
-            // TODO:
             // if expressions
-            // pop the stacks on closing parenthesis
-            // basically implement this algorithm
-            // https://www.geeksforgeeks.org/expression-evaluation/
             return left({
                 line: expressionContents[0].value.line,
                 column: expressionContents[0].value.column,

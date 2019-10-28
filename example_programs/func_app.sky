@@ -1,1 +1,1 @@
-fn foo(a: note b: note c: note): number { }; number x = 10 + foo(1, 2, 3);
+fn foo(a: note, b: note, c: note): number { }; number x = 10 + foo(1, 2, 3);
