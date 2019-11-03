@@ -8,6 +8,10 @@ fn foo(x: note, y: chord): song {
   compose C#4 whole
 }
 
+number z = if 10 < 12 then 5 else 20;
+number j = if ( if 10 < 12 then true else false ) then 5 else 20;
+number i = if 10 < 12 then 2 else if 10 < 13 then 3;
+
 fn bar(): song {
   number z = 20
 
