@@ -43,7 +43,7 @@ describe('Expression parsing tests', () => {
         expect(isLeft(result)).toBe(true);
     });
     it('Should be able to handle inline if expressions', () => {
-        let tokens: Tokens = tokenize('number x = if rand() < 5 then 10 else 0;');
+        let tokens: Tokens = tokenize('number x = if 2 < 5 then 10 else 0;');
         let result = variableDeclaration(tokens, [], []);
         if (isLeft(result)) {
             console.log(result.left);
@@ -51,7 +51,9 @@ describe('Expression parsing tests', () => {
         expect(isRight(result)).toBe(true);
     });
     it('Should be able to parse function applications inside of expressions', () => {
-        let tokens: Tokens = tokenize('fn foo(a: number, b: number, c: number): number { }; number x = 10 + foo(1, 2, 3);');
+        let tokens: Tokens = tokenize(
+            'fn foo(a: number, b: number, c: number): number { }; number x = 10 + foo(1, 2, 3);',
+        );
         let result = makeSyntaxTree(tokens);
         if (isLeft(result)) {
             console.log(result.left);

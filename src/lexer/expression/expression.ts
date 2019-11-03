@@ -3,12 +3,14 @@ import { Tokens, Token } from '../tokenizer';
 import { isLeft, Either, left, right } from 'fp-ts/lib/Either';
 import { VariableDeclaration } from '../variable-declaration';
 import { FunctionDeclaration } from '../function-declaration';
+import { consumeExpression, consumeIfUntilThen, consumeThenUntilElse } from './consumers';
+import { isLiteral, precedence } from './utils';
 export type Expression = IfExp | VarExp | OpExp | Literal | FunctionApplication;
 
 interface IfExp {
     condition: Expression;
     thenBranch: Expression;
-    elseBranch: Expression;
+    elseBranch?: Expression;
 }
 
 interface VarExp {
@@ -53,7 +55,7 @@ export function parseExpression(
 
     input = result.right.input;
 
-    let expressionContents = result.right.expression;
+    let expressionContents = result.right.tokens;
 
     let expressionStack: Expression[] = [];
     let operatorStack: Operator[] = [];
@@ -96,7 +98,6 @@ export function parseExpression(
                 expressionStack.push({ varName: expressionContents[0] });
                 expressionContents.shift();
             } else if (matchingFunctions.length === 1) {
-                console.log('looks like this is a function');
                 // get the args out of the following parenthesis
                 const numberOfArgs = matchingFunctions[0].args.length;
                 const functionName = matchingFunctions[0].functionName;
@@ -136,12 +137,9 @@ export function parseExpression(
                     });
                 }
                 while (args.length < numberOfArgs) {
-                    console.log('1');
                     let prevToken = rover;
                     rover = expressionContents.shift()!;
-                    console.log('here, rover is', rover);
                     if (rover === undefined) {
-                        console.log('args thus far: ', JSON.stringify(args));
                         return left({
                             line: prevToken.value.line,
                             column: prevToken.value.column,
@@ -244,7 +242,6 @@ export function parseExpression(
                         if (isLeft(result)) {
                             return result;
                         }
-                        console.log('pushing to args', result.right.expression);
                         args.push(result.right.expression);
                     }
                 }
@@ -310,12 +307,67 @@ export function parseExpression(
                 // discard the left parens
             }
             expressionContents.shift();
+        } else if (expressionContents[0].value.value === 'if') {
+            // consume the stuff in between "if" and "then" and parse an expression out of it
+            let result = consumeIfUntilThen(expressionContents);
+            if (isLeft(result)) {
+                return result;
+            }
+            expressionContents = result.right.input;
+            let conditionResult = parseExpression(
+                [
+                    ...result.right.tokens,
+                    {
+                        tokenType: 'statement-terminator' as const,
+                        value: {
+                            line: 0,
+                            column: 0,
+                            value: ';',
+                        },
+                    },
+                ],
+                functionNamespace,
+                variableNamespace,
+            );
+            if (isLeft(conditionResult)) {
+                return conditionResult;
+            }
+            let condition = conditionResult.right.expression;
+            // Now, get the "then" part of the expression.
+            result = consumeThenUntilElse(expressionContents);
+            if (isLeft(result)) {
+                return result;
+            }
+            let thenBranchResult = parseExpression(
+                [
+                    ...result.right.tokens,
+                    {
+                        tokenType: 'statement-terminator' as const,
+                        value: {
+                            line: 0,
+                            column: 0,
+                            value: ';',
+                        },
+                    },
+                ],
+                functionNamespace,
+                variableNamespace,
+            );
+            if (isLeft(thenBranchResult)) {
+                return thenBranchResult;
+            }
+            let thenBranch = thenBranchResult.right.expression;
+
+            expressionContents = result.right.input;
+            expressionStack.push({
+                condition,
+                thenBranch,
+            });
         } else {
-            // if expressions
             return left({
                 line: expressionContents[0].value.line,
                 column: expressionContents[0].value.column,
-                reason: `Unimplemented feature: ${expressionContents[0].value.value} in this position is unimplemented`,
+                reason: `Unimplemented feature: ${expressionContents[0].value.value} (${expressionContents[0].tokenType}) in this position is unimplemented`,
             });
         }
     }
@@ -342,116 +394,3 @@ export function parseExpression(
         } as any,
     });
 }
-
-/// A utility function to determine if a token is a literal.
-function isLiteral(input: Token): boolean {
-    return ['scale-degree-literal', 'numeric-literal'].includes(input.tokenType);
-}
-
-/// Consume input tokens that begin with an expression until the end of that expression.
-/// If successful, returns the remaining input with the expression removed.
-function consumeExpression(input: Tokens): Either<ParseError, { input: Tokens; expression: Tokens }> {
-    // It is up to the compiler to only call `parseExpression` on valid expressions. If it is called on empty input, then something
-    // has gone wrong elsewhere in the code.
-    if (input.length === 0) {
-        return left({
-            line: 0,
-            column: 0,
-            reason:
-                "Attempted to parse an expression that didn't exist. This is an error with the compiler. Please file an issue at https://github.com/sezna/sky and include the code that caused this error.",
-        });
-    }
-    // Used for error messages later on
-    const exprBeginningPosition = { ...input[0] };
-    // Consume until the end of this expression and fill a buffer.
-    let expressionBuffer: Tokens = [];
-    let token = input.shift()!; // if `parseExpression` is called on an empty array of tokens,
-    // we have other problems. See above for details.
-    if (token.value.value === '(') {
-        // If the expression is enclosed in parenthesis, consume until the end of the parenthesis.
-        const openParens = token; // Keep track of where the opening parenthesis was for error reporting
-        let openParensCount = 1;
-        let closeParensCount = 0;
-        while (openParensCount !== closeParensCount) {
-            expressionBuffer.push(token);
-            token = input.shift()!;
-            if (token === undefined) {
-                return left({
-                    line: openParens.value.line,
-                    column: openParens.value.column,
-                    reason: 'Opening parenthesis is never closed.',
-                });
-            } else if (token.value.value === ')') {
-                closeParensCount += 1;
-            } else if (token.value.value === '(') {
-                openParensCount += 1;
-            }
-        }
-        expressionBuffer.push(token);
-    } else if (token.value.value === '{') {
-        // same as above, but for curly brackets
-        const openCurlyBracket = token;
-        let openCurlyBracketCount = 1;
-        let closeCurlyBracketCount = 0;
-        while (openCurlyBracketCount !== closeCurlyBracketCount) {
-            expressionBuffer.push(token);
-            token = input.shift()!;
-            if (token === undefined) {
-                return left({
-                    line: openCurlyBracket.value.line,
-                    column: openCurlyBracket.value.column,
-                    reason: 'Opening parenthesis is never closed.',
-                });
-            } else if (token.value.value === '}') {
-                closeCurlyBracketCount += 1;
-            } else if (token.value.value === '{') {
-                openCurlyBracketCount += 1;
-            }
-        }
-        expressionBuffer.push(token);
-    }
-    // If there is nothing enclosing the current expression, then we consume until a semicolon.
-    else {
-        // keep track of this for a good error message
-        let prevToken = token;
-        while (token.tokenType !== 'statement-terminator') {
-            expressionBuffer.push(token);
-            token = input.shift()!;
-            if (token === undefined) {
-                return left({
-                    line: prevToken.value.line,
-                    column: prevToken.value.column,
-                    reason: "Expression never terminated. Perhaps there's a missing semicolon here?",
-                });
-            }
-        }
-    }
-    // If there is no actual content to the expression, i.e. it has only (), {}, or ;, then it is invalid.
-    if (expressionBuffer.filter(x => !['(', ')', '{', '}', ';'].includes(x.value.value)).length === 0) {
-        return left({
-            line: exprBeginningPosition.value.line,
-            column: exprBeginningPosition.value.column,
-            reason: `Attempted to parse an empty expression`,
-        });
-    }
-    return right({
-        input: input,
-        expression: expressionBuffer,
-    });
-}
-
-/// The definition of the order of operations.
-/// The higher the number, the higher the precedence of the operation.
-const precedence = (input: string) => {
-    switch (input) {
-        case '-':
-        case '+':
-            return 1;
-        case '/':
-        case '*':
-        case '%':
-            return 2;
-        default:
-            return 0;
-    }
-};

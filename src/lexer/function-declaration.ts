@@ -101,12 +101,12 @@ export function functionDeclaration(
         }
         const typeName = token!;
         args.push([argName, typeName]);
-       
+
         // If this is not the last argument, then there should be a comma here.
         // since we don't know if this is the last one, we will instead just make
         // commas optional in this position and throw them away.
         if (input[0].tokenType === 'comma') {
-          input.shift();
+            input.shift();
         }
 
         prevToken = token;

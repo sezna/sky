@@ -28,8 +28,10 @@ type TokenType =
     | 'return-keyword'
     | 'type-ascription'
     | 'statement-terminator'
-    | 'if-expression'
+    | 'if'
     | 'comma'
+    | 'then'
+    | 'else'
     | 'name';
 
 export function tokenize(input: string): Tokens {
@@ -43,9 +45,7 @@ export function tokenize(input: string): Tokens {
             tokens.push({ tokenType: 'bracket', value: symbol });
         } else if (['{', '}'].includes(symbolValue)) {
             tokens.push({ tokenType: 'curly-bracket', value: symbol });
-        } else if (['<', '>'].includes(symbolValue)) {
-            tokens.push({ tokenType: 'angle-bracket', value: symbol });
-        } else if (['+', '-', '/', '%', '*'].includes(symbolValue)) {
+        } else if (['+', '-', '/', '%', '*', '>', '<'].includes(symbolValue)) {
             tokens.push({ tokenType: 'operator', value: symbol });
         } else if (symbolValue.match(new RegExp('^[0-9]+$'))) {
             tokens.push({ tokenType: 'numeric-literal', value: symbol });
@@ -57,8 +57,12 @@ export function tokenize(input: string): Tokens {
             tokens.push({ tokenType: 'assignment-operator', value: symbol });
         } else if ([';'].includes(symbolValue)) {
             tokens.push({ tokenType: 'statement-terminator', value: symbol });
-        } else if (['if', 'then', 'else'].includes(symbolValue)) {
-            tokens.push({ tokenType: 'if-expression', value: symbol });
+        } else if (['if'].includes(symbolValue)) {
+            tokens.push({ tokenType: 'if', value: symbol });
+        } else if (['then'].includes(symbolValue)) {
+            tokens.push({ tokenType: 'then', value: symbol });
+        } else if (['else'].includes(symbolValue)) {
+            tokens.push({ tokenType: 'else', value: symbol });
         } else if ([','].includes(symbolValue)) {
             tokens.push({ tokenType: 'comma', value: symbol });
         } else if (
