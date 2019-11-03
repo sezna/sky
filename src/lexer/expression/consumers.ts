@@ -148,7 +148,6 @@ export function consumeIfUntilThen(input: Tokens): Either<ParseError, { input: T
     }
 
     input.unshift(token!);
-    console.log('fully consumed: ', expressionBuffer.map(x => x.value.value));
     return right({ input, tokens: expressionBuffer });
 }
 
@@ -182,6 +181,7 @@ export function consumeThenUntilElse(input: Tokens): Either<ParseError, { input:
     let prevToken = initialToken;
     let token = input.shift()!;
     let expressionBuffer = [];
+    let ifCount = 0;
     while (!outerTerminatorSeen) {
         expressionBuffer.push(token);
         prevToken = token;
@@ -193,6 +193,17 @@ export function consumeThenUntilElse(input: Tokens): Either<ParseError, { input:
                 reason: 'Unexpected EOF while parsing "then" expression',
             });
         }
+        console.log(
+            'current token: ',
+            token,
+            'ifCount:',
+            ifCount,
+            'braces counts: ',
+            openParensCount,
+            closeParensCount,
+            openCurlyBraceCount,
+            closeCurlyBraceCount,
+        );
         if (token.value.value === '(') {
             openParensCount += 1;
         } else if (token.value.value === ')') {
@@ -201,10 +212,16 @@ export function consumeThenUntilElse(input: Tokens): Either<ParseError, { input:
             openCurlyBraceCount += 1;
         } else if (token.value.value === '}') {
             closeCurlyBraceCount += 1;
-        } else if (
+        } else if (token.tokenType === 'else') {
+            ifCount -= 1;
+        } else if (token.tokenType === 'if') {
+            ifCount += 1;
+        }
+        if (
             ['else', ';'].includes(token.value.value) &&
             closeParensCount === openParensCount &&
-            closeCurlyBraceCount === openCurlyBraceCount
+            closeCurlyBraceCount === openCurlyBraceCount &&
+            ifCount <= 0
         ) {
             outerTerminatorSeen = true;
         }
@@ -234,7 +251,6 @@ export function consumeThenUntilElse(input: Tokens): Either<ParseError, { input:
     }
 
     input.unshift(token);
-    console.log('fully consumed: ', expressionBuffer.map(x => x.value.value));
     return right({
         input,
         tokens: expressionBuffer,
