@@ -245,3 +245,88 @@ export function consumeThenUntilElse(input: Tokens): Either<ParseError, { input:
         tokens: expressionBuffer,
     });
 }
+
+export function consumeElseUntilEnd(input: Tokens): Either<ParseError, { input: Tokens; tokens: Tokens }> {
+    let initialToken = input.shift();
+    if (initialToken === undefined) {
+        return left({
+            line: 0,
+            column: 0,
+            reason:
+                'Attempted to consume else contents on an empty expression. This is an error within the compiler , please file a bug at https://github.com/sezna/sky and include the code that triggered it',
+        });
+    }
+    if (initialToken.tokenType !== 'else') {
+        return left({
+            line: initialToken.value.line,
+            column: initialToken.value.column,
+            reason:
+                'Attempted to consume if contents on a non-if expression. This is an error within the compiler , please file a bug at https://github.com/sezna/sky and include the code that triggered it',
+        });
+    }
+    // If there is an "outer" semicolon, then we stop.
+    // If the expression started with a curly bracket or a parenthesis, then we consume until that bracket is matched.
+    // If the expression ends, then we stop.
+    // In order to know if something is outer, we have to keep track of all brackets at all times.
+    let openParensCount = 0;
+    let closeParensCount = 0;
+    let openCurlyBraceCount = 0;
+    let closeCurlyBraceCount = 0;
+    let outerTerminatorSeen = false;
+    let prevToken = initialToken;
+    let token = input.shift()!;
+    let expressionBuffer = [];
+    let ifCount = 0;
+    if (token.value.value === '{') {
+        openCurlyBraceCount += 1;
+    }
+    while ((!outerTerminatorSeen || closeCurlyBraceCount !== openCurlyBraceCount) && input.length > 0) {
+        expressionBuffer.push(token);
+        prevToken = token;
+        token = input.shift()!;
+        if (token === undefined) {
+            return left({
+                line: prevToken.value.line,
+                column: prevToken.value.column,
+                reason: 'Unexpected EOF while parsing "else" branch of an if  expression',
+            });
+        }
+        if (token.value.value === '(') {
+            openParensCount += 1;
+        } else if (token.value.value === ')') {
+            closeParensCount += 1;
+        } else if (token.value.value === '{') {
+            openCurlyBraceCount += 1;
+        } else if (token.value.value === '}') {
+            closeCurlyBraceCount += 1;
+        } else if (token.tokenType === 'else') {
+            ifCount -= 1;
+        } else if (token.tokenType === 'if') {
+            ifCount += 1;
+        }
+        if (
+            [';'].includes(token.value.value) &&
+            closeParensCount === openParensCount &&
+            closeCurlyBraceCount === openCurlyBraceCount &&
+            ifCount <= 0
+        ) {
+            outerTerminatorSeen = true;
+        }
+
+        if (closeParensCount > openParensCount) {
+            return left({
+                line: token.value.line,
+                column: token.value.column,
+                reason: 'Unmatched closing parenthesis',
+            });
+        }
+        if (closeCurlyBraceCount > openCurlyBraceCount) {
+            return left({
+                line: token.value.line,
+                column: token.value.column,
+                reason: 'Unmatched closing brace',
+            });
+        }
+    }
+    return right({ input, tokens: expressionBuffer });
+}

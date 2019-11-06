@@ -3,7 +3,7 @@ import { Tokens, Token } from '../tokenizer';
 import { isLeft, Either, left, right } from 'fp-ts/lib/Either';
 import { VariableDeclaration } from '../variable-declaration';
 import { FunctionDeclaration } from '../function-declaration';
-import { consumeExpression, consumeIfUntilThen, consumeThenUntilElse } from './consumers';
+import { consumeExpression, consumeIfUntilThen, consumeThenUntilElse, consumeElseUntilEnd } from './consumers';
 import { isLiteral, precedence } from './utils';
 export type Expression = IfExp | VarExp | OpExp | Literal | FunctionApplication;
 
@@ -356,12 +356,43 @@ export function parseExpression(
             if (isLeft(thenBranchResult)) {
                 return thenBranchResult;
             }
+
             let thenBranch = thenBranchResult.right.expression;
 
             expressionContents = result.right.input;
+
+            result = consumeElseUntilEnd(expressionContents);
+            if (isLeft(result)) {
+                return result;
+            }
+            let elseBranch;
+            if (expressionContents.length > 0 && expressionContents[0].tokenType === 'else') {
+                let elseBranchResult = parseExpression(
+                    [
+                        ...result.right.tokens,
+                        {
+                            tokenType: 'statement-terminator' as const,
+                            value: {
+                                line: 0,
+                                column: 0,
+                                value: ';',
+                            },
+                        },
+                    ],
+                    functionNamespace,
+                    variableNamespace,
+                );
+                if (isLeft(elseBranchResult)) {
+                    return elseBranchResult;
+                }
+                elseBranch = elseBranchResult.right.expression;
+            } else {
+                elseBranch = undefined;
+            }
             expressionStack.push({
                 condition,
                 thenBranch,
+                elseBranch,
             });
         } else {
             return left({
