@@ -193,17 +193,6 @@ export function consumeThenUntilElse(input: Tokens): Either<ParseError, { input:
                 reason: 'Unexpected EOF while parsing "then" expression',
             });
         }
-        console.log(
-            'current token: ',
-            token,
-            'ifCount:',
-            ifCount,
-            'braces counts: ',
-            openParensCount,
-            closeParensCount,
-            openCurlyBraceCount,
-            closeCurlyBraceCount,
-        );
         if (token.value.value === '(') {
             openParensCount += 1;
         } else if (token.value.value === ')') {
