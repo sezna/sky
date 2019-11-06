@@ -32,6 +32,7 @@ type TokenType =
     | 'comma'
     | 'then'
     | 'else'
+    | 'boolean-literal'
     | 'name';
 
 export function tokenize(input: string): Tokens {
@@ -65,6 +66,8 @@ export function tokenize(input: string): Tokens {
             tokens.push({ tokenType: 'else', value: symbol });
         } else if ([','].includes(symbolValue)) {
             tokens.push({ tokenType: 'comma', value: symbol });
+        } else if (['true', 'false'].includes(symbolValue)) {
+            tokens.push({ tokenType: 'boolean-literal', value: symbol });
         } else if (
             [
                 'pitch',
