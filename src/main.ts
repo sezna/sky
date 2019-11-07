@@ -1,6 +1,8 @@
 import * as fs from 'fs';
 import { tokenize } from './lexer/tokenizer';
 import { makeSyntaxTree } from './lexer/parser';
+import { runtime } from './runtime';
+import { isLeft } from 'fp-ts/lib/Either';
 
 function main() {
     let args = process.argv;
@@ -12,8 +14,11 @@ function main() {
     let tokens = tokenize(input);
 
     let syntaxTree = makeSyntaxTree(tokens);
-
-    console.log(JSON.stringify(syntaxTree, null, 2));
+    if (isLeft(syntaxTree)) {
+        return;
+    }
+    let result = runtime(syntaxTree.right);
+    console.log(JSON.stringify(result, null, 2));
 }
 
 main();

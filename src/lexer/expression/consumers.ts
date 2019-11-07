@@ -295,6 +295,9 @@ export function consumeElseUntilEnd(input: Tokens): Either<ParseError, { input: 
             openParensCount += 1;
         } else if (token.value.value === ')') {
             closeParensCount += 1;
+            if (closeParensCount > openParensCount) {
+                break;
+            }
         } else if (token.value.value === '{') {
             openCurlyBraceCount += 1;
         } else if (token.value.value === '}') {

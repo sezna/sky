@@ -6,7 +6,7 @@ import { Expression } from './expression/expression';
 
 type Declaration = FunctionDeclaration | VariableDeclaration;
 type Step = Expression | Declaration;
-type Steps = Step[];
+export type Steps = Step[];
 
 export interface ParseError {
     line: number;
