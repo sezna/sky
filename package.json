@@ -10,7 +10,8 @@
     "start": "tsc; node ./dist/main.js",
     "format": "prettier --write \"**/*.ts\"",
     "commit": "npx git-cz",
-    "test": "yarn build; jest"
+    "test": "yarn build; jest",
+    "test-interactive": "yarn build; jest --watch"
   },
   "license": "GPL-3.0-only",
   "private": false,
