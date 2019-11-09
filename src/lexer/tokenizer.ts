@@ -152,6 +152,7 @@ function splitOnSpaceOrDelimiter(input: string): InputSymbol[] {
             case '/':
             case ',':
             case '%':
+            case '*':
                 if (!comment) {
                     if (currentSymbol !== '') {
                         symbolsThusFar.push({
