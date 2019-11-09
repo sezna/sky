@@ -4,6 +4,7 @@ import { ParseError } from './parser';
 import { Expression, parseExpression } from './expression/expression';
 import { FunctionDeclaration } from './function-declaration';
 export interface VariableDeclaration {
+    _type: 'VariableDeclaration';
     varName: Token;
     varBody: Expression;
     varType: Token; // type name TODO
@@ -71,6 +72,7 @@ export function variableDeclaration(
     return right({
         input: input,
         declaration: {
+            _type: 'VariableDeclaration',
             varName,
             varBody: parseResult.right.expression, // TODO
             varType: varType,

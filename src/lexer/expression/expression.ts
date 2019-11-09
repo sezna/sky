@@ -13,11 +13,13 @@ interface IfExp {
     elseBranch?: Expression;
 }
 
-interface VarExp {
+export interface VarExp {
+    _type: 'VarExp';
     varName: Token;
 }
 
-interface OpExp {
+export interface OpExp {
+    _type: 'OpExp';
     left: Expression;
     right: Expression;
     operator: Operator;
@@ -33,7 +35,8 @@ interface Operator {
     value: Token;
 }
 
-interface Literal {
+export interface Literal {
+    _type: 'Literal';
     literalType: Token['tokenType'];
     literalValue: Token;
 }
@@ -61,7 +64,7 @@ export function parseExpression(
     let operatorStack: Operator[] = [];
 
     // We continually take the first token in the expression and try to reduce it.
-    while (expressionContents.length > 0) {
+    while (expressionContents.length > 0 && expressionContents[0].tokenType !== 'statement-terminator') {
         if (expressionContents[0].tokenType === 'name') {
             // If the token is some sort of identifier, it should be in either the function of variable namespace.
             let matchingVariables = variableNamespace.filter(
@@ -95,7 +98,7 @@ export function parseExpression(
                 });
             }
             if (matchingVariables.length > 0) {
-                expressionStack.push({ varName: expressionContents[0] });
+                expressionStack.push({ _type: 'VarExp', varName: expressionContents[0] });
                 expressionContents.shift();
             } else if (matchingFunctions.length === 1) {
                 // get the args out of the following parenthesis
@@ -262,6 +265,7 @@ export function parseExpression(
                 const right = expressionStack.pop()!;
                 const left = expressionStack.pop()!;
                 let operation = {
+                    _type: 'OpExp' as const,
                     operator: newOp,
                     right,
                     left,
@@ -283,6 +287,7 @@ export function parseExpression(
             }
         } else if (isLiteral(expressionContents[0])) {
             expressionStack.push({
+                _type: 'Literal',
                 literalValue: expressionContents[0],
                 literalType: expressionContents[0].tokenType,
             });
@@ -299,6 +304,7 @@ export function parseExpression(
                     let right = expressionStack.pop()!;
                     let left = expressionStack.pop()!;
                     expressionStack.push({
+                        _type: 'OpExp' as const,
                         operator,
                         left,
                         right,
@@ -403,11 +409,12 @@ export function parseExpression(
         }
     }
 
-    while (operatorStack.length > 1) {
+    while (operatorStack.length > 0) {
         let operator = operatorStack.pop()!;
         let right = expressionStack.pop()!;
         let left = expressionStack.pop()!;
         let operation = {
+            _type: 'OpExp' as const,
             operator,
             right,
             left,
@@ -417,11 +424,15 @@ export function parseExpression(
     //    const expressionBuffer = result.right.expression;
     // Figure out what kind of expression this is and parse it accordingly
     // TODO
+    if (expressionStack.length > 1) {
+        console.warn(
+            'There is an overflowed expressionStack. Perhaps something is wrong?',
+            JSON.stringify(expressionStack, null, 2),
+        );
+    }
 
     return right({
         input: input,
-        expression: {
-            varName: {},
-        } as any,
+        expression: expressionStack[0],
     });
 }

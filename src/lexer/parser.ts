@@ -5,7 +5,7 @@ import { variableDeclaration, VariableDeclaration } from './variable-declaration
 import { Expression } from './expression/expression';
 
 type Declaration = FunctionDeclaration | VariableDeclaration;
-type Step = Expression | Declaration;
+export type Step = Expression | Declaration;
 export type Steps = Step[];
 
 export interface ParseError {
