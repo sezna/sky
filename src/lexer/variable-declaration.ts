@@ -69,6 +69,10 @@ export function variableDeclaration(
         return parseResult;
     }
 
+    if (varName.value.value === 'a') {
+        console.log('Variable declaration body: ', parseResult.right.expression);
+    }
+
     return right({
         input: input,
         declaration: {

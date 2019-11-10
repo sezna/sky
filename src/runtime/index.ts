@@ -2,6 +2,7 @@ import { Steps, Step } from '../lexer/parser';
 import { Either, right, left, isLeft } from 'fp-ts/lib/Either';
 import { VariableDeclaration } from '../lexer/variable-declaration';
 import { Literal, OpExp, VarExp } from '../lexer/expression/expression';
+import { addition, multiplication } from './operators';
 
 interface SkyOutput {
     midi: String; // TODO
@@ -23,7 +24,7 @@ interface Variable {
 }
 
 export type VariableEnvironment = { [varName: string]: Variable };
-interface RuntimeError {
+export interface RuntimeError {
     reason: string;
     line: number;
     column: number;
@@ -48,7 +49,7 @@ export function runtime(steps: Steps): Either<RuntimeError, SkyOutput> {
     });
 }
 
-interface EvalResult {
+export interface EvalResult {
     functionEnvironment: FunctionEnvironment;
     variableEnvironment: VariableEnvironment;
     returnValue?: any; // TODO
@@ -100,16 +101,27 @@ export function evaluate(
         let rhs = rightResult.right;
         switch ((step as OpExp).operator.value.value.value) {
             case '+':
-                let addResult = addition(lhs, rhs);
-                if (isLeft(addResult)) {
-                    return addResult;
+                {
+                    let opResult = addition(lhs, rhs);
+                    if (isLeft(opResult)) {
+                        return opResult;
+                    }
+
+                    // TODO different types and whatnot, now we just
+                    // assume they are numbers
+                    returnType = opResult.right.valueType;
+                    returnValue = opResult.right.value;
                 }
-
-                // TODO different types and whatnot, now we just
-                // assume they are numbers
-                returnType = addResult.right.addType;
-                returnValue = addResult.right.value; // lol TODO
-
+                break;
+            case '*':
+                {
+                    let opResult = multiplication(lhs, rhs);
+                    if (isLeft(opResult)) {
+                        return opResult;
+                    }
+                    returnType = opResult.right.valueType;
+                    returnValue = opResult.right.value;
+                }
                 break;
             default:
                 return left({
@@ -155,25 +167,4 @@ function makeInitialVariableEnvironment(): VariableEnvironment {
     return {
         x: { varType: 'number', value: 5 },
     };
-}
-
-function addition(lhs: EvalResult, rhs: EvalResult): Either<RuntimeError, { addType: any; value: any }> {
-    if (lhs.returnType !== rhs.returnType) {
-        return left({
-            line: 0, // TODO
-            column: 0, // TODO
-            reason: `Unable to add two different types: ${lhs.returnType} and ${rhs.returnType}`,
-        });
-    }
-
-    // Now we know they are the same so we can just check one side.
-    if (lhs.returnType === 'number') {
-        return right({ addType: 'number', value: lhs.returnValue + rhs.returnValue });
-    }
-
-    return left({
-        line: 0,
-        column: 0,
-        reason: 'Unable to add anything yet',
-    });
 }

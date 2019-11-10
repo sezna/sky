@@ -4,6 +4,7 @@ import { Either, left, right } from 'fp-ts/lib/Either';
 /// Consume input tokens that begin with an expression until the end of that expression.
 /// If successful, returns the remaining input with the expression removed.
 export function consumeExpression(input: Tokens): Either<ParseError, { input: Tokens; tokens: Tokens }> {
+    let originalInput = [...input.map(x => x.value.value)];
     // It is up to the compiler to only call `parseExpression` on valid expressions. If it is called on empty input, then something
     // has gone wrong elsewhere in the code.
     if (input.length === 0) {
@@ -20,28 +21,7 @@ export function consumeExpression(input: Tokens): Either<ParseError, { input: To
     let expressionBuffer: Tokens = [];
     let token = input.shift()!; // if `parseExpression` is called on an empty array of tokens,
     // we have other problems. See above for details.
-    if (token.value.value === '(') {
-        // If the expression is enclosed in parenthesis, consume until the end of the parenthesis.
-        const openParens = token; // Keep track of where the opening parenthesis was for error reporting
-        let openParensCount = 1;
-        let closeParensCount = 0;
-        while (openParensCount !== closeParensCount) {
-            expressionBuffer.push(token);
-            token = input.shift()!;
-            if (token === undefined) {
-                return left({
-                    line: openParens.value.line,
-                    column: openParens.value.column,
-                    reason: 'Opening parenthesis is never closed.',
-                });
-            } else if (token.value.value === ')') {
-                closeParensCount += 1;
-            } else if (token.value.value === '(') {
-                openParensCount += 1;
-            }
-        }
-        expressionBuffer.push(token);
-    } else if (token.value.value === '{') {
+    if (token.value.value === '{') {
         // same as above, but for curly brackets
         const openCurlyBracket = token;
         let openCurlyBracketCount = 1;
@@ -87,6 +67,7 @@ export function consumeExpression(input: Tokens): Either<ParseError, { input: To
             reason: `Attempted to parse an empty expression`,
         });
     }
+    console.log('Received ' + originalInput + '  and am returning ' + expressionBuffer.map(x => x.value.value));
     return right({
         input: input,
         tokens: expressionBuffer,

@@ -37,8 +37,8 @@ interface Operator {
 
 export interface Literal {
     _type: 'Literal';
-    literalType: Token['tokenType'];
-    literalValue: Token;
+    literalType: 'number' | 'unimplemented';
+    literalValue: string | number; // of course TODO
 }
 
 /// If input is a valid expression, determine what type of expression it is and parse
@@ -62,9 +62,9 @@ export function parseExpression(
 
     let expressionStack: Expression[] = [];
     let operatorStack: Operator[] = [];
-
     // We continually take the first token in the expression and try to reduce it.
     while (expressionContents.length > 0 && expressionContents[0].tokenType !== 'statement-terminator') {
+        console.log('expressionContents: ', expressionContents.map(x => x.value.value));
         if (expressionContents[0].tokenType === 'name') {
             // If the token is some sort of identifier, it should be in either the function of variable namespace.
             let matchingVariables = variableNamespace.filter(
@@ -286,10 +286,19 @@ export function parseExpression(
                 });
             }
         } else if (isLiteral(expressionContents[0])) {
+            let literalType = 'unimplemented';
+            let literalValue: any = expressionContents[0].value.value;
+
+            // This is where we lift literal tokens into values that the
+            // runtime can understand.
+            if (expressionContents[0].tokenType === 'numeric-literal') {
+                literalType = 'number';
+                literalValue = parseInt(literalValue);
+            }
             expressionStack.push({
                 _type: 'Literal',
-                literalValue: expressionContents[0],
-                literalType: expressionContents[0].tokenType,
+                literalValue,
+                literalType: literalType as any,
             });
             expressionContents.shift();
         } else if (expressionContents[0].tokenType === 'parens') {
@@ -310,8 +319,10 @@ export function parseExpression(
                         right,
                     });
                 }
-                // discard the left parens
+                // This discards the opening parenthesis in the op stack.
+                operatorStack.pop();
             }
+            // Now we have handled both parens cases and we can shift the input to the next token.
             expressionContents.shift();
         } else if (expressionContents[0].value.value === 'if') {
             // consume the stuff in between "if" and "then" and parse an expression out of it
