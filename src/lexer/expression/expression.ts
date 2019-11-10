@@ -64,7 +64,6 @@ export function parseExpression(
     let operatorStack: Operator[] = [];
     // We continually take the first token in the expression and try to reduce it.
     while (expressionContents.length > 0 && expressionContents[0].tokenType !== 'statement-terminator') {
-        console.log('expressionContents: ', expressionContents.map(x => x.value.value));
         if (expressionContents[0].tokenType === 'name') {
             // If the token is some sort of identifier, it should be in either the function of variable namespace.
             let matchingVariables = variableNamespace.filter(

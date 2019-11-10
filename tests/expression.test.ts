@@ -15,7 +15,7 @@ describe('Expression parsing tests', () => {
         expect(isRight(result)).toBe(true);
     });
     it('Should not throw an error when parsing a valid expression #2', () => {
-        let tokens: Tokens = tokenize('number z = (10 - (10 - (10 - (10))))');
+        let tokens: Tokens = tokenize('number z = (10 - (10 - (10 - (10))));');
         let result = variableDeclaration(tokens, [], []);
         if (isLeft(result)) {
             console.log(result.left);

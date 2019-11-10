@@ -70,7 +70,6 @@ export function variableDeclaration(
     }
 
     if (varName.value.value === 'a') {
-        console.log('Variable declaration body: ', parseResult.right.expression);
     }
 
     return right({

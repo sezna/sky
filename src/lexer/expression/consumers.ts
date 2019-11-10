@@ -4,7 +4,6 @@ import { Either, left, right } from 'fp-ts/lib/Either';
 /// Consume input tokens that begin with an expression until the end of that expression.
 /// If successful, returns the remaining input with the expression removed.
 export function consumeExpression(input: Tokens): Either<ParseError, { input: Tokens; tokens: Tokens }> {
-    let originalInput = [...input.map(x => x.value.value)];
     // It is up to the compiler to only call `parseExpression` on valid expressions. If it is called on empty input, then something
     // has gone wrong elsewhere in the code.
     if (input.length === 0) {
@@ -67,7 +66,6 @@ export function consumeExpression(input: Tokens): Either<ParseError, { input: To
             reason: `Attempted to parse an empty expression`,
         });
     }
-    console.log('Received ' + originalInput + '  and am returning ' + expressionBuffer.map(x => x.value.value));
     return right({
         input: input,
         tokens: expressionBuffer,

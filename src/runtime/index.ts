@@ -2,7 +2,7 @@ import { Steps, Step } from '../lexer/parser';
 import { Either, right, left, isLeft } from 'fp-ts/lib/Either';
 import { VariableDeclaration } from '../lexer/variable-declaration';
 import { Literal, OpExp, VarExp } from '../lexer/expression/expression';
-import { addition, multiplication } from './operators';
+import { addition, multiplication, division, subtraction } from './operators';
 
 interface SkyOutput {
     midi: String; // TODO
@@ -99,29 +99,19 @@ export function evaluate(
         // is annoying
         let lhs = leftResult.right;
         let rhs = rightResult.right;
+        let operatorFunc;
         switch ((step as OpExp).operator.value.value.value) {
             case '+':
-                {
-                    let opResult = addition(lhs, rhs);
-                    if (isLeft(opResult)) {
-                        return opResult;
-                    }
-
-                    // TODO different types and whatnot, now we just
-                    // assume they are numbers
-                    returnType = opResult.right.valueType;
-                    returnValue = opResult.right.value;
-                }
+                operatorFunc = addition;
                 break;
             case '*':
-                {
-                    let opResult = multiplication(lhs, rhs);
-                    if (isLeft(opResult)) {
-                        return opResult;
-                    }
-                    returnType = opResult.right.valueType;
-                    returnValue = opResult.right.value;
-                }
+                operatorFunc = multiplication;
+                break;
+            case '-':
+                operatorFunc = subtraction;
+                break;
+            case '/':
+                operatorFunc = division;
                 break;
             default:
                 return left({
@@ -130,6 +120,15 @@ export function evaluate(
                     reason: `Operator ${(step as OpExp).operator.value.value.value} is unimplemented`,
                 });
         }
+        let opResult = operatorFunc(lhs, rhs);
+        if (isLeft(opResult)) {
+            return opResult;
+        }
+
+        // TODO different types and whatnot, now we just
+        // assume they are numbers
+        returnType = opResult.right.valueType;
+        returnValue = opResult.right.value;
     } else if ((step as VarExp)._type === 'VarExp') {
         let varValue = variableEnvironment[(step as VarExp).varName.value.value];
         if (varValue === undefined) {

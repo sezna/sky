@@ -139,7 +139,7 @@ describe('runtime tests', () => {
             expect(true).toBe(false);
             return;
         }
-        let result = evaluate(steps.right[2], functionEnvironment, variableEnvironment);
+        let result = evaluate(steps.right[3], functionEnvironment, variableEnvironment);
         if (isLeft(result)) {
             console.log(JSON.stringify(result, null, 2));
             // for typescript's type inference
@@ -171,14 +171,14 @@ describe('runtime tests', () => {
             expect(true).toBe(false);
             return;
         }
-        let result = evaluate(steps.right[2], functionEnvironment, variableEnvironment);
+        let result = evaluate(steps.right[3], functionEnvironment, variableEnvironment);
         if (isLeft(result)) {
             console.log(JSON.stringify(result, null, 2));
             // for typescript's type inference
             expect(true).toBe(false);
             return;
         }
-        expect(result.right.variableEnvironment['a'].value).toEqual(22);
+        expect(result.right.variableEnvironment['a'].value).toEqual(30);
     });
     it('evaluate should be able to combine variables and literals', () => {
         let functionEnvironment = {};
