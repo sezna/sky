@@ -5,7 +5,7 @@ import { VariableDeclaration } from '../variable-declaration';
 import { FunctionDeclaration } from '../function-declaration';
 import { consumeExpression, consumeIfUntilThen, consumeThenUntilElse, consumeElseUntilEnd } from './consumers';
 import { isLiteral, precedence } from './utils';
-export type Expression = IfExp | VarExp | OpExp | Literal | FunctionApplication;
+export type Expression = IfExp | VarExp | OpExp | LiteralExp | FunctionApplication;
 
 interface IfExp {
     condition: Expression;
@@ -35,8 +35,8 @@ interface Operator {
     value: Token;
 }
 
-export interface Literal {
-    _type: 'Literal';
+export interface LiteralExp {
+    _type: 'LiteralExp';
     literalType: 'number' | 'unimplemented';
     literalValue: string | number; // of course TODO
 }
@@ -295,7 +295,7 @@ export function parseExpression(
                 literalValue = parseInt(literalValue);
             }
             expressionStack.push({
-                _type: 'Literal',
+                _type: 'LiteralExp',
                 literalValue,
                 literalType: literalType as any,
             });

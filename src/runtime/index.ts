@@ -1,7 +1,7 @@
 import { Steps, Step } from '../lexer/parser';
 import { Either, right, left, isLeft } from 'fp-ts/lib/Either';
 import { VariableDeclaration } from '../lexer/variable-declaration';
-import { Literal, OpExp, VarExp } from '../lexer/expression/expression';
+import { LiteralExp, OpExp, VarExp } from '../lexer/expression';
 import { addition, multiplication, division, subtraction } from './operators';
 
 interface SkyOutput {
@@ -81,9 +81,9 @@ export function evaluate(
             varType: (step as VariableDeclaration).varType.value.value,
         };
         // TODO validate that type matches return value
-    } else if ((step as Literal)._type === 'Literal') {
-        returnValue = (step as Literal).literalValue;
-        returnType = (step as Literal).literalType;
+    } else if ((step as LiteralExp)._type === 'LiteralExp') {
+        returnValue = (step as LiteralExp).literalValue;
+        returnType = (step as LiteralExp).literalType;
     } else if ((step as OpExp)._type === 'OpExp') {
         let leftResult = evaluate((step as OpExp).left, functionEnvironment, variableEnvironment);
         let rightResult = evaluate((step as OpExp).right, functionEnvironment, variableEnvironment);
