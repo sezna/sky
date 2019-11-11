@@ -1,7 +1,7 @@
 import { right, isLeft, left, Either } from 'fp-ts/lib/Either';
 import { Tokens, Token } from './tokenizer';
 import { ParseError } from './parser';
-import { Expression, parseExpression } from './expression/expression';
+import { Expression, parseExpression } from './expression';
 import { FunctionDeclaration } from './function-declaration';
 export interface VariableDeclaration {
     _type: 'VariableDeclaration';
