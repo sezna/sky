@@ -2,7 +2,7 @@ import { Either, right, left, isRight } from 'fp-ts/lib/Either';
 import { Tokens } from './tokenizer';
 import { FunctionDeclaration, functionDeclaration } from './function-declaration';
 import { variableDeclaration, VariableDeclaration } from './variable-declaration';
-import { Expression } from './expression';
+import { Expression } from './expression/expression';
 
 type Declaration = FunctionDeclaration | VariableDeclaration;
 export type Step = Expression | Declaration;

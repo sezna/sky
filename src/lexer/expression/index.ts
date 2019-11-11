@@ -1,2 +1,1 @@
-export { Expression, VarExp, OpExp, LiteralExp, IfExp, FuncAppExp } from './expression-types';
-export { parseExpression } from './parse-expression';
+export { Expression, VarExp, OpExp, LiteralExp, parseExpression } from './expression';
