@@ -15,6 +15,7 @@ function main() {
 
     let syntaxTree = makeSyntaxTree(tokens);
     if (isLeft(syntaxTree)) {
+        console.log(JSON.stringify(syntaxTree, null, 2));
         return;
     }
     let result = runtime(syntaxTree.right);

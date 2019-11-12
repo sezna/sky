@@ -30,4 +30,9 @@ describe('Tokenizer tests', () => {
         expect(tokens[7].value.value).toBe('/');
         expect(tokens[8].value.value).toBe('20');
     });
+    it('should tokenize a note literal with a rhythm as one token', () => {
+        let tokens: Tokens = tokenize('c#4 quarter');
+        expect(tokens).toHaveLength(1);
+        expect(tokens[0].value.value).toBe('c#4 quarter');
+    });
 });
