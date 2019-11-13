@@ -1,5 +1,3 @@
 export function isRhythmLiteral(input: string): boolean {
-    console.log('unimplemented util', input);
-    // TODO
-    return false;
+    return /^(dotted )?(whole|half|quarter|eighth|sixteenth|thirty-second|sixty-fourth)$/.test(input);
 }

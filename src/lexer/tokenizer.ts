@@ -103,6 +103,8 @@ export function tokenize(input: string): Tokens {
             tokens.push({ tokenType: 'pitch-literal', value: symbol });
         } else if (isRhythmLiteral(symbolValue)) {
             if (isPitchLiteral(prevSymbol.value)) {
+                // replace the last token with pitch and rhythm
+                tokens.pop();
                 tokens.push({
                     tokenType: 'pitch-rhythm-literal',
                     value: {

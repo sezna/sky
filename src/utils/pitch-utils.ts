@@ -11,10 +11,12 @@ const PITCH_NUMBER_MAPPING = new Map([
     [29, ['F1', 'E#1']],
 ]);
  */
+
+// The regex for this should probably be:
+// [a-gA-G][#|b]?[0-9]
+
 export function isPitchLiteral(input: string): boolean {
-    console.log('unimplemented check', input);
-    // TODO write a regex here
-    return false;
+    return /^[a-gA-G][#|b]?[0-9]$/.test(input);
 }
 
 // source: https://newt.phys.unsw.edu.au/jw/notes.html
