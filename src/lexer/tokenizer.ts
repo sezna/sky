@@ -26,6 +26,7 @@ type TokenType =
     | 'rhythm-literal'
     | 'pitch-rhythm-literal'
     | 'scale-degree-literal'
+    | 'scale-degree-rhythm-literal'
     | 'assignment-operator'
     | 'structural-keyword'
     | 'function-declaration'
@@ -42,7 +43,7 @@ type TokenType =
     | 'name';
 
 export function tokenize(input: string): Tokens {
-    let symbols = splitOnSpaceOrDelimiter(input);
+    let symbols = splitOnSymbol(input);
     let tokens: Tokens = [];
     // Lookback of one symbol is needed to parse two-word note literals
     let prevSymbol = symbols[0];
@@ -113,6 +114,17 @@ export function tokenize(input: string): Tokens {
                         value: `${prevSymbol.value} ${symbol.value}`,
                     },
                 });
+            } else if (isScaleDegree(prevSymbol.value)) {
+                // replace the last token with scale degree and rhythm
+                tokens.pop();
+                tokens.push({
+                    tokenType: 'scale-degree-rhythm-literal',
+                    value: {
+                        line: prevSymbol.line,
+                        column: prevSymbol.column,
+                        value: `${prevSymbol.value} ${symbol.value}`,
+                    },
+                });
             } else {
                 tokens.push({ tokenType: 'rhythm-literal', value: symbol });
             }
@@ -128,7 +140,7 @@ export function tokenize(input: string): Tokens {
 
 /// Splits on any delimiter or symbol in the language and also
 /// throws out any comments.
-function splitOnSpaceOrDelimiter(input: string): InputSymbol[] {
+function splitOnSymbol(input: string): InputSymbol[] {
     // editors tend to 1-index line and column numbers
     let line = 1;
     let column = 1;
@@ -197,13 +209,15 @@ function splitOnSpaceOrDelimiter(input: string): InputSymbol[] {
                 }
                 break;
             case ' ':
-                if (!comment && currentSymbol !== '') {
+                if (!comment && currentSymbol !== '' && currentSymbol !== 'dotted') {
                     symbolsThusFar.push({
                         line,
                         column: column - currentSymbol.length,
                         value: currentSymbol,
                     });
                     currentSymbol = '';
+                } else if (currentSymbol === 'dotted') {
+                    currentSymbol = currentSymbol + ' ';
                 }
                 break;
             case '\n':

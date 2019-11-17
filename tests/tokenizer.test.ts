@@ -34,5 +34,26 @@ describe('Tokenizer tests', () => {
         let tokens: Tokens = tokenize('c#4 quarter');
         expect(tokens).toHaveLength(1);
         expect(tokens[0].value.value).toBe('c#4 quarter');
+        expect(tokens[0].tokenType).toBe('pitch-rhythm-literal');
+    });
+    it('should tokenize a note literal with a rhythm as a pitch-rhythm-literal', () => {
+        let tokens: Tokens = tokenize('Db3 half');
+        expect(tokens).toHaveLength(1);
+        expect(tokens[0].tokenType).toBe('pitch-rhythm-literal');
+    });
+    it('should tokenize a scale degree literal correctly', () => {
+        let tokens: Tokens = tokenize('iii');
+        expect(tokens).toHaveLength(1);
+        expect(tokens[0].tokenType).toBe('scale-degree-literal');
+    });
+    it('should tokenize a scale degree and a rhythm', () => {
+        let tokens: Tokens = tokenize('iv whole');
+        expect(tokens).toHaveLength(1);
+        expect(tokens[0].tokenType).toBe('scale-degree-rhythm-literal');
+    });
+    it('should recognize the word "dotted" as part of a rhythm', () => {
+        let tokens: Tokens = tokenize('iv dotted whole');
+        expect(tokens).toHaveLength(1);
+        expect(tokens[0].tokenType).toBe('scale-degree-rhythm-literal');
     });
 });
