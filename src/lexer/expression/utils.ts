@@ -18,5 +18,5 @@ export const precedence = (input: string) => {
 
 /// A utility function to determine if a token is a literal.
 export function isLiteral(input: Token): boolean {
-    return ['boolean-literal', 'scale-degree-literal', 'numeric-literal'].includes(input.tokenType);
+				return ['boolean-literal', 'scale-degree-literal', 'numeric-literal', 'pitch-literal', 'pitch-rhythm-literal', 'scale-degree-rhythm-literal'].includes(input.tokenType);
 }
