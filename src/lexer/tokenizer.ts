@@ -209,6 +209,7 @@ function splitOnSymbol(input: string): InputSymbol[] {
                 }
                 break;
             case ' ':
+            case '\t':
                 if (!comment && currentSymbol !== '' && currentSymbol !== 'dotted') {
                     symbolsThusFar.push({
                         line,
