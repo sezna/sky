@@ -1,12 +1,13 @@
-import { Either, right, left } from 'fp-ts/lib/Either';
+import { Either, right, left, isLeft } from 'fp-ts/lib/Either';
 import { Tokens, Token } from './tokenizer';
-import { ParseError } from './parser';
+import { ParseError, Steps, makeFunctionBodySyntaxTree } from './parser';
 import { VariableDeclaration } from './variable-declaration';
 
 export interface FunctionDeclaration {
+    _type: 'FunctionDeclaration';
     functionName: Token;
     args: [Token, Token][];
-    body: Token[];
+    body: Steps;
     returnType: Token; // type-name
 }
 
@@ -157,9 +158,9 @@ export function functionDeclaration(
             reason: `Unexpected EOF in function declaration for function "${functionName}." Expected a body enclosed in curly brackets.`,
         });
     }
-    let body: Tokens = [];
+    let bodyTokens: Tokens = [];
     while (token!.value.value !== '}') {
-        body.push(token!);
+        bodyTokens.push(token!);
         prevToken = token;
         token = input.shift()!;
         if (token === undefined) {
@@ -170,9 +171,15 @@ export function functionDeclaration(
             });
         }
     }
+    let bodyResult = makeFunctionBodySyntaxTree(bodyTokens, functionNamespace, variableNamespace);
+    if (isLeft(bodyResult)) {
+        return bodyResult;
+    }
+    let body = bodyResult.right;
     return right({
         input,
         declaration: {
+            _type: 'FunctionDeclaration',
             functionName: functionNameToken,
             args,
             body,

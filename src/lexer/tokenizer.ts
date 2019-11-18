@@ -1,4 +1,7 @@
 import { isScaleDegree } from '../utils/scale-degree-utils';
+import { isPitchLiteral } from '../utils/pitch-utils';
+import { isRhythmLiteral } from '../utils/rhythm-utils';
+
 export type Tokens = Token[];
 export interface Token {
     tokenType: TokenType;
@@ -19,7 +22,11 @@ type TokenType =
     | 'parens'
     | 'operator'
     | 'numeric-literal'
+    | 'pitch-literal'
+    | 'rhythm-literal'
+    | 'pitch-rhythm-literal'
     | 'scale-degree-literal'
+    | 'scale-degree-rhythm-literal'
     | 'assignment-operator'
     | 'structural-keyword'
     | 'function-declaration'
@@ -36,9 +43,12 @@ type TokenType =
     | 'name';
 
 export function tokenize(input: string): Tokens {
-    let symbols = splitOnSpaceOrDelimiter(input);
+    let symbols = splitOnSymbol(input);
     let tokens: Tokens = [];
-    for (const symbol of symbols) {
+    // Lookback of one symbol is needed to parse two-word note literals
+    let prevSymbol = symbols[0];
+    for (let i = 0; i < symbols.length; i++) {
+        let symbol = symbols[i];
         const symbolValue = symbol.value;
         if (['(', ')'].includes(symbolValue)) {
             tokens.push({ tokenType: 'parens', value: symbol });
@@ -90,18 +100,47 @@ export function tokenize(input: string): Tokens {
             tokens.push({ tokenType: 'type-ascription', value: symbol });
         } else if (isScaleDegree(symbolValue)) {
             tokens.push({ tokenType: 'scale-degree-literal', value: symbol });
+        } else if (isPitchLiteral(symbolValue)) {
+            tokens.push({ tokenType: 'pitch-literal', value: symbol });
+        } else if (isRhythmLiteral(symbolValue)) {
+            if (isPitchLiteral(prevSymbol.value)) {
+                // replace the last token with pitch and rhythm
+                tokens.pop();
+                tokens.push({
+                    tokenType: 'pitch-rhythm-literal',
+                    value: {
+                        line: prevSymbol.line,
+                        column: prevSymbol.column,
+                        value: `${prevSymbol.value} ${symbol.value}`,
+                    },
+                });
+            } else if (isScaleDegree(prevSymbol.value)) {
+                // replace the last token with scale degree and rhythm
+                tokens.pop();
+                tokens.push({
+                    tokenType: 'scale-degree-rhythm-literal',
+                    value: {
+                        line: prevSymbol.line,
+                        column: prevSymbol.column,
+                        value: `${prevSymbol.value} ${symbol.value}`,
+                    },
+                });
+            } else {
+                tokens.push({ tokenType: 'rhythm-literal', value: symbol });
+            }
         } else {
             // `name` here denotes that it is the name of either a function or a variable in the
             // environment.
             tokens.push({ tokenType: 'name', value: symbol });
         }
+        prevSymbol = symbol;
     }
     return tokens;
 }
 
 /// Splits on any delimiter or symbol in the language and also
 /// throws out any comments.
-function splitOnSpaceOrDelimiter(input: string): InputSymbol[] {
+function splitOnSymbol(input: string): InputSymbol[] {
     // editors tend to 1-index line and column numbers
     let line = 1;
     let column = 1;
@@ -170,13 +209,16 @@ function splitOnSpaceOrDelimiter(input: string): InputSymbol[] {
                 }
                 break;
             case ' ':
-                if (!comment && currentSymbol !== '') {
+            case '\t':
+                if (!comment && currentSymbol !== '' && currentSymbol !== 'dotted') {
                     symbolsThusFar.push({
                         line,
                         column: column - currentSymbol.length,
                         value: currentSymbol,
                     });
                     currentSymbol = '';
+                } else if (currentSymbol === 'dotted') {
+                    currentSymbol = currentSymbol + ' ';
                 }
                 break;
             case '\n':
