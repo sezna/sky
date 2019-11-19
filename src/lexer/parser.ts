@@ -81,21 +81,23 @@ export function makeFunctionBodySyntaxTree(
     if (input.length === 0) {
         return right([]);
     }
-    if (input[0].tokenType === 'type-keyword') {
-        const parseResult = variableDeclaration(input, functionNamespace, variableNamespace);
-        if (isRight(parseResult)) {
-            input = parseResult.right.input;
-            steps.push(parseResult.right.declaration);
-            variableNamespace.push(parseResult.right.declaration);
+    while (input.length > 0) {
+        if (input[0].tokenType === 'type-keyword') {
+            const parseResult = variableDeclaration(input, functionNamespace, variableNamespace);
+            if (isRight(parseResult)) {
+                input = parseResult.right.input;
+                steps.push(parseResult.right.declaration);
+                variableNamespace.push(parseResult.right.declaration);
+            } else {
+                return left(parseResult.left);
+            }
         } else {
-            return left(parseResult.left);
+            return left({
+                line: input[0].value.line,
+                column: input[0].value.column,
+                reason: `Attempted to do something unimplemented inside of a function body. Token "${input[0].value.value}" is not allowed in this position.`,
+            });
         }
-    } else {
-        return left({
-            line: input[0].value.line,
-            column: input[0].value.column,
-            reason: `Attempted to do something unimplemented inside of a function body. Token "${input[0].value.value}" is not allowed in this position.`,
-        });
     }
 
     return right(steps);

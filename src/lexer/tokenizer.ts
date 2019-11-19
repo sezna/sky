@@ -28,6 +28,7 @@ type TokenType =
     | 'scale-degree-literal'
     | 'scale-degree-rhythm-literal'
     | 'assignment-operator'
+    | 'eq-operator'
     | 'structural-keyword'
     | 'function-declaration'
     | 'loop-keyword'
@@ -65,7 +66,15 @@ export function tokenize(input: string): Tokens {
         } else if (['for', 'while'].includes(symbolValue)) {
             tokens.push({ tokenType: 'loop-keyword', value: symbol });
         } else if (['='].includes(symbolValue)) {
-            tokens.push({ tokenType: 'assignment-operator', value: symbol });
+            if (prevSymbol.value === '=') {
+                // two equals in a row should be a boolean eq token
+                // so we first get rid of the previous =
+                tokens.pop();
+                tokens.push({ tokenType: 'eq-operator', value: symbol });
+            } else {
+                // otherwise, this is just an assigment operator.
+                tokens.push({ tokenType: 'assignment-operator', value: symbol });
+            }
         } else if ([';'].includes(symbolValue)) {
             tokens.push({ tokenType: 'statement-terminator', value: symbol });
         } else if (['if'].includes(symbolValue)) {

@@ -33,6 +33,7 @@ describe('Function Declaration tests', () => {
 					
 					number y = 10;
 					number z = y + x;
+					x = z;
 				}`;
         let tokens = tokenize(functionDecl);
         let result = makeSyntaxTree(tokens);
@@ -54,5 +55,21 @@ describe('Function Declaration tests', () => {
             return;
         }
         expect(isLeft(result)).toBe(true);
+    });
+    it('Should successfully parse if expressions in the function body', () => {
+        let functionDecl = `fn test_func(): song {
+					number x = 0;
+					if x == 2 then x = 1 else x = 3;
+					number y = 1;
+				}`;
+        let tokens = tokenize(functionDecl);
+        let result = makeSyntaxTree(tokens);
+        // If there was a parse error, print it out.
+        if (isLeft(result)) {
+            console.log(result.left);
+            expect(true).toBe(false);
+            return;
+        }
+        expect(isRight(result)).toBe(true);
     });
 });

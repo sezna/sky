@@ -56,4 +56,14 @@ describe('Tokenizer tests', () => {
         expect(tokens).toHaveLength(1);
         expect(tokens[0].tokenType).toBe('scale-degree-rhythm-literal');
     });
+    it('should tokenize two equals as one eq-operator', () => {
+        let tokens: Tokens = tokenize('==');
+        expect(tokens).toHaveLength(1);
+        expect(tokens[0].tokenType).toBe('eq-operator');
+    });
+    it('should tokenize two equals (even if there is a space) as one eq-operator', () => {
+        let tokens: Tokens = tokenize('= =');
+        expect(tokens).toHaveLength(1);
+        expect(tokens[0].tokenType).toBe('eq-operator');
+    });
 });
