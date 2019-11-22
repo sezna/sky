@@ -293,7 +293,7 @@ export function parseExpression(
             if (expressionContents[0].tokenType === 'numeric-literal') {
                 literalType = 'number';
                 literalValue = parseInt(literalValue);
-            }
+            } // TODO parse this stuff out for all literal types
             expressionStack.push({
                 _type: 'LiteralExp',
                 literalValue,

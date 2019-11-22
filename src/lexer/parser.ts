@@ -1,12 +1,19 @@
-import { Either, right, left, isRight } from 'fp-ts/lib/Either';
-import { Tokens } from './tokenizer';
+import { Either, right, left, isRight, isLeft } from 'fp-ts/lib/Either';
+import { Token, Tokens } from './tokenizer';
 import { FunctionDeclaration, functionDeclaration } from './function-declaration';
 import { variableDeclaration, VariableDeclaration } from './variable-declaration';
-import { Expression } from './expression/expression';
+import { Expression, parseExpression } from './expression/expression';
 
-type Declaration = FunctionDeclaration | VariableDeclaration;
+type Declaration = FunctionDeclaration | VariableDeclaration | Reassignment;
+
 export type Step = Expression | Declaration;
 export type Steps = Step[];
+
+export interface Reassignment {
+    _type: 'Reassignment';
+    name: Token;
+    newVarBody: Expression;
+}
 
 export interface ParseError {
     line: number;
@@ -52,6 +59,9 @@ export function makeSyntaxTree(input: Tokens): Either<ParseError, Steps> {
 
 /**
  * Given tokens from a function body and an initial (typically the global) function/variable namespace, create a syntax tree.
+ *
+ * Programatically, this identifies if each expression is a declaration or an expression, and then calls the appropriate
+ * declaration or expression parser. It assembles the results of all of these parsers into an array of steps.
  */
 export function makeFunctionBodySyntaxTree(
     input: Tokens,
@@ -77,7 +87,7 @@ export function makeFunctionBodySyntaxTree(
             reason: `Attempted to parse function body that didn't begin with a bracket ( "{" ). `,
         });
     }
-    // We don't disallow empty functions, so just return with no steps if this is empty.
+    // We allow empty functions, so just return with no steps if this is empty.
     if (input.length === 0) {
         return right([]);
     }
@@ -91,6 +101,43 @@ export function makeFunctionBodySyntaxTree(
             } else {
                 return left(parseResult.left);
             }
+        } else if (input[0].tokenType === 'name') {
+            // Determine if this is a variable name, function name, or undeclared name.
+            let matchingFunctions = functionNamespace.filter(x => x.functionName.value.value === input[0].value.value);
+            let matchingVariables = variableNamespace.filter(x => x.varName.value.value === input[0].value.value);
+            if (matchingFunctions.length > 0 && matchingVariables.length > 0) {
+                return left({
+                    line: input[0].value.line,
+                    column: input[0].value.column,
+                    reason: `Ambiguous reference to "${input[0].value.value}" which could be either a function or a variable.`,
+                });
+            }
+            if (matchingFunctions.length === 0 && matchingVariables.length === 0) {
+                return left({
+                    line: input[0].value.line,
+                    column: input[0].value.column,
+                    reason: `Name ${input[0].value.value} has not been defined.`,
+                });
+            }
+            let typeOfName = matchingFunctions.length === 1 ? 'function' : 'variable';
+            if (typeOfName === 'function') {
+                let functionApplicationResult = parseExpression(input, functionNamespace, variableNamespace);
+                if (isLeft(functionApplicationResult)) {
+                    return functionApplicationResult;
+                }
+                let functionApplication = functionApplicationResult.right;
+                input = functionApplication.input;
+                steps.push(functionApplication.expression);
+            } else {
+                let varName = input.shift()!;
+                let reassignResult = reassignVariable(varName, input, functionNamespace, variableNamespace);
+                if (isLeft(reassignResult)) {
+                    return reassignResult;
+                }
+                let reassignment = reassignResult.right;
+                input = reassignment.input;
+                steps.push(reassignment.reassignment);
+            }
         } else {
             return left({
                 line: input[0].value.line,
@@ -101,4 +148,66 @@ export function makeFunctionBodySyntaxTree(
     }
 
     return right(steps);
+}
+
+/**
+ * Given a name and a new value, reassigns a variable within a namespace. (TODO should ensure the variable is of the same type as before.)
+ */
+function reassignVariable(
+    name: Token,
+    input: Tokens,
+    functionNamespace: FunctionDeclaration[],
+    variableNamespace: VariableDeclaration[],
+): Either<ParseError, { input: Tokens; reassignment: Reassignment }> {
+    let matches = variableNamespace.filter(x => x.varName.value.value === name.value.value);
+    if (matches.length > 1) {
+        return left({
+            line: name.value.line,
+            column: name.value.column,
+            reason: `Multiple matching variable names in namespace for name ${name.value.value}. This should never happen and is an error in the compiler. Please file an issue at https://github.com/sezna/sky and include the code that triggered this error.`,
+        });
+    }
+    if (matches.length == 0) {
+        return left({
+            line: name.value.line,
+            column: name.value.column,
+            reason: `No matching variable names in namespace for ${name.value.value}. This should never happen and is an error in the compiler. Please file an issue at https://github.com/sezna/sky and include the code that triggered this error.`,
+        });
+    }
+
+    let equalsToken = input.shift()!;
+    if (equalsToken === undefined) {
+        return left({
+            line: name.value.line,
+            column: name.value.column,
+            reason: `Expected equals sign in reassignment but instead found the end of a token stream.`,
+        });
+    }
+    if (equalsToken.tokenType !== 'assignment-operator') {
+        return left({
+            line: equalsToken.value.line,
+            column: equalsToken.value.column,
+            reason: `Expected equals sign in reassignment but instead found "${equalsToken.value.value}" (${equalsToken.tokenType}).`,
+        });
+    }
+
+    let newVarBodyResult = parseExpression(input, functionNamespace, variableNamespace);
+
+    if (isLeft(newVarBodyResult)) {
+        return newVarBodyResult;
+    }
+
+    let newVarBody = newVarBodyResult.right;
+
+    // TODO typecheck here
+    matches[0].varBody = newVarBody.expression;
+
+    return right({
+        input: newVarBody.input,
+        reassignment: {
+            _type: 'Reassignment' as const,
+            name,
+            newVarBody: newVarBody.expression,
+        },
+    });
 }

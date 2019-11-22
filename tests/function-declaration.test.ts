@@ -31,7 +31,7 @@ describe('Function Declaration tests', () => {
 					number x = 2;
 					degree y = iii half;
 					
-					number y = 10;
+					y = 10;
 					number z = y + x;
 					x = z;
 				}`;
