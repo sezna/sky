@@ -13,13 +13,19 @@ function main() {
 
     let tokens = tokenize(input);
 
-    let syntaxTree = makeSyntaxTree(tokens);
-    if (isLeft(syntaxTree)) {
-        console.log(JSON.stringify(syntaxTree, null, 2));
+    let syntaxTreeResult = makeSyntaxTree(tokens);
+    if (isLeft(syntaxTreeResult)) {
+        console.log(`Parse error at line ${syntaxTreeResult.left.line}, column ${syntaxTreeResult.left.column}:
+${syntaxTreeResult.left.reason}`);
         return;
     }
-    let result = runtime(syntaxTree.right);
-    console.log(JSON.stringify(result, null, 2));
+    let result = runtime(syntaxTreeResult.right);
+    if (isLeft(result)) {
+        console.log(`Compilation error at line ${result.left.line}, column ${result.left.column}:
+${result.left.reason}`);
+        return;
+    }
+    console.log(result.right);
 }
 
 main();

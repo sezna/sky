@@ -139,11 +139,13 @@ export function makeFunctionBodySyntaxTree(
                 steps.push(reassignment.reassignment);
             }
         } else {
-            return left({
-                line: input[0].value.line,
-                column: input[0].value.column,
-                reason: `Attempted to do something unimplemented inside of a function body. Token "${input[0].value.value}" is not allowed in this position.`,
-            });
+            let expressionResult = parseExpression(input, functionNamespace, variableNamespace);
+            if (isLeft(expressionResult)) {
+                return expressionResult;
+            }
+            let expression = expressionResult.right;
+            input = expression.input;
+            steps.push(expression.expression);
         }
     }
 

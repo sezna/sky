@@ -56,10 +56,24 @@ describe('Function Declaration tests', () => {
         }
         expect(isLeft(result)).toBe(true);
     });
-    it('Should successfully parse if expressions in the function body', () => {
+    it('Should fail to parse an assignment inside of an if', () => {
         let functionDecl = `fn test_func(): song {
 					number x = 0;
 					if x == 2 then x = 1 else x = 3;
+					number y = 1;
+				}`;
+        let tokens = tokenize(functionDecl);
+        let result = makeSyntaxTree(tokens);
+        if (isRight(result)) {
+            expect(true).toBe(false);
+            return;
+        }
+        expect(isLeft(result)).toBe(true);
+    });
+    it('Should successfully parse if expressions in the function body', () => {
+        let functionDecl = `fn test_func(): song {
+					number x = 0;
+					x = if x == 2 then 1 else 3;
 					number y = 1;
 				}`;
         let tokens = tokenize(functionDecl);

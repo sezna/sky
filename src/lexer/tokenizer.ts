@@ -70,7 +70,7 @@ export function tokenize(input: string): Tokens {
                 // two equals in a row should be a boolean eq token
                 // so we first get rid of the previous =
                 tokens.pop();
-                tokens.push({ tokenType: 'eq-operator', value: symbol });
+                tokens.push({ tokenType: 'operator', value: { ...symbol, value: '==' } });
             } else {
                 // otherwise, this is just an assigment operator.
                 tokens.push({ tokenType: 'assignment-operator', value: symbol });
