@@ -1,4 +1,6 @@
 import { Steps, Step } from '../lexer/parser';
+import { Token } from '../lexer/tokenizer';
+import * as LiteralTypes from '../lexer/expression/literal';
 import { Either, right, left, isLeft } from 'fp-ts/lib/Either';
 import { VariableDeclaration } from '../lexer/variable-declaration';
 import { LiteralExp, OpExp, VarExp } from '../lexer/expression';
@@ -82,8 +84,13 @@ export function evaluate(
         };
         // TODO validate that type matches return value
     } else if ((step as LiteralExp)._type === 'LiteralExp') {
-        returnValue = (step as LiteralExp).literalValue;
-        returnType = (step as LiteralExp).literalType;
+        let result = evalLiteral(step as LiteralExp);
+        if (isLeft(result)) {
+            return result;
+        }
+        let lit = result.right;
+        returnValue = lit.returnValue;
+        returnType = lit.returnType;
     } else if ((step as OpExp)._type === 'OpExp') {
         let leftResult = evaluate((step as OpExp).left, functionEnvironment, variableEnvironment);
         let rightResult = evaluate((step as OpExp).right, functionEnvironment, variableEnvironment);
@@ -166,4 +173,30 @@ function makeInitialVariableEnvironment(): VariableEnvironment {
     return {
         x: { varType: 'number', value: 5 },
     };
+}
+
+function evalLiteral(
+    literalExp: LiteralTypes.LiteralExp,
+): Either<RuntimeError, { returnValue: any; returnType: any; token: Token }> {
+    let returnValue: any = 'unimplemented';
+    let returnType: any = 'unimplemented';
+    let literal = literalExp.literalValue;
+    let token = literal.token!;
+    switch (literal._type) {
+        case 'LiteralNumber':
+            returnValue = (literal as LiteralTypes.LiteralNumber).numericValue;
+            returnType = 'number';
+            break;
+        case 'LiteralScaleDegree':
+            returnValue = (literal as LiteralTypes.LiteralScaleDegree).scaleDegreeNumber;
+            returnType = 'scale-degree';
+            break;
+        default:
+            return left({
+                line: token.value.line,
+                column: token.value.column,
+                reason: `Unimplemented literal evaluation "${token.value.value}" (${literal._type}.`,
+            });
+    }
+    return right({ returnValue, returnType, token });
 }

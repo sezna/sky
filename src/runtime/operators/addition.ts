@@ -3,6 +3,7 @@ import { Either, right, left } from 'fp-ts/lib/Either';
 import { OperationSuccess } from './operation-success';
 // Handle the + operator
 export function addition(lhs: EvalResult, rhs: EvalResult): Either<RuntimeError, OperationSuccess> {
+    console.log('adding ' + JSON.stringify(lhs, null, 2), JSON.stringify(rhs, null, 2));
     if (lhs.returnType !== rhs.returnType) {
         return left({
             line: 0, // TODO

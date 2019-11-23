@@ -4,7 +4,8 @@ import { isLeft, Either, left, right } from 'fp-ts/lib/Either';
 import { VariableDeclaration } from '../variable-declaration';
 import { FunctionDeclaration } from '../function-declaration';
 import { consumeExpression, consumeIfUntilThen, consumeThenUntilElse, consumeElseUntilEnd } from './consumers';
-import { isLiteral, precedence } from './utils';
+import { precedence } from './utils';
+import { LiteralExp, isLiteral, liftTokenIntoLiteral } from './literal';
 export type Expression = IfExp | VarExp | OpExp | LiteralExp | FunctionApplication;
 
 interface IfExp {
@@ -33,12 +34,6 @@ interface FunctionApplication {
 interface Operator {
     operatorType: '+' | '-' | '/' | '%' | '(';
     value: Token;
-}
-
-export interface LiteralExp {
-    _type: 'LiteralExp';
-    literalType: 'number' | 'unimplemented';
-    literalValue: string | number; // of course TODO
 }
 
 /// If input is a valid expression, determine what type of expression it is and parse
@@ -285,20 +280,13 @@ export function parseExpression(
                 });
             }
         } else if (isLiteral(expressionContents[0])) {
-            let literalType = 'unimplemented';
-            let literalValue: any = expressionContents[0].value.value;
-
-            // This is where we lift literal tokens into values that the
-            // runtime can understand.
-            if (expressionContents[0].tokenType === 'numeric-literal') {
-                literalType = 'number';
-                literalValue = parseInt(literalValue);
-            } // TODO parse this stuff out for all literal types
-            expressionStack.push({
-                _type: 'LiteralExp',
-                literalValue,
-                literalType: literalType as any,
-            });
+            let literalParseResult = liftTokenIntoLiteral(expressionContents[0]);
+            if (isLeft(literalParseResult)) {
+                return literalParseResult;
+            }
+            let { literalValue } = literalParseResult.right;
+            let literalExp = { _type: 'LiteralExp' as const, literalValue };
+            expressionStack.push(literalExp);
             expressionContents.shift();
         } else if (expressionContents[0].tokenType === 'parens') {
             if (expressionContents[0].value.value === '(') {
