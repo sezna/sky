@@ -36,7 +36,7 @@ export interface LiteralRhythm {
     _type: 'LiteralRhythm';
     rhythmName: RhythmName;
     isDotted: boolean;
-    token?: Token; // there is no token here in the case it is nested in a pitchRhythm
+    token: Token; // there is no token here in the case it is nested in a pitchRhythm
 }
 
 export interface LiteralPitch {
@@ -54,7 +54,7 @@ export interface LiteralPitchRhythm {
     // TODO midiValue: number;
 }
 
-type RhythmName = 'whole' | 'half' | 'quarter' | 'eighth' | 'sixteenth' | 'thirty-second' | 'sixty-fourth';
+export type RhythmName = 'whole' | 'half' | 'quarter' | 'eighth' | 'sixteenth' | 'thirty-second' | 'sixty-fourth';
 
 /// A utility function to determine if a token is a literal.
 export function isLiteral(input: Token): boolean {
