@@ -42,6 +42,7 @@ export interface LiteralRhythm {
 export interface LiteralPitch {
     _type: 'LiteralPitch';
     noteName: string;
+    octave: number;
     token: Token;
     // TODO midiValue: number;
 }
@@ -49,6 +50,7 @@ export interface LiteralPitch {
 export interface LiteralPitchRhythm {
     _type: 'LiteralPitchRhythm';
     rhythm: LiteralRhythm;
+    octave: number;
     noteName: string;
     token: Token;
     // TODO midiValue: number;

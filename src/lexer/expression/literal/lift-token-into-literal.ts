@@ -34,7 +34,9 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
         case 'scale-degree-rhythm-literal':
             {
                 // This could be better.
-                let parseResult = scaleDegreeToInt(input);
+                let scaleDegree = { ...input };
+                scaleDegree.value.value = scaleDegree.value.value.split(' ')[0];
+                let parseResult = scaleDegreeToInt(scaleDegree);
                 if (isLeft(parseResult)) {
                     return parseResult;
                 }
@@ -49,7 +51,46 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
                 };
             }
             break;
+        case 'rhythm-literal':
+            {
+                let isDotted = token.value.value.indexOf('dotted') > 0;
+                literalValue = {
+                    _type: 'LiteralRhythm',
+                    rhythmName: token.value.value.split(' ')[token.value.value.split(' ').length - 1] as RhythmName,
+                    isDotted,
+                    token,
+                };
+            }
+            break;
+        case 'pitch-literal':
+            {
+                let octave = parseInt(token.value.value.split('').filter(x => parseInt(x))[0]);
 
+                // eventually I will need to know the most useful way of representing a note here
+                literalValue = {
+                    _type: 'LiteralPitch',
+                    noteName: token.value.value,
+                    octave,
+                    token,
+                };
+            }
+            break;
+        case 'pitch-rhythm-literal':
+            {
+                let octave = parseInt(token.value.value.split('').filter(x => parseInt(x))[0]);
+                let isDotted = token.value.value.indexOf('dotted') > 0;
+
+                // eventually I will need to know the most useful way of representing a note here
+                let rhythmName = token.value.value.split(' ')[token.value.value.split(' ').length - 1] as RhythmName;
+                literalValue = {
+                    _type: 'LiteralPitchRhythm',
+                    noteName: token.value.value,
+                    rhythm: { _type: 'LiteralRhythm', rhythmName, isDotted, token },
+                    octave,
+                    token,
+                };
+            }
+            break;
         default:
             return left({
                 line: 0,
