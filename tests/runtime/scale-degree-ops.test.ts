@@ -1,0 +1,129 @@
+import { evaluate } from '../../src/runtime';
+import { makeSyntaxTree } from '../../src/lexer/parser';
+import { tokenize } from '../../src/lexer/tokenizer';
+import { isLeft } from 'fp-ts/lib/Either';
+
+describe('scale degree operator tests', () => {
+    it('Adding two scale degrees should work', () => {
+        let functionEnvironment = {};
+        let variableEnvironment = {
+            x: {
+                varType: 'scale-degree',
+                value: 'iii',
+            },
+            y: {
+                varType: 'scale-degree',
+                value: 'I',
+            },
+        };
+        let tokens = tokenize('degree x = iii; degree y = ii; degree z = x + y;');
+        let steps = makeSyntaxTree(tokens);
+        if (isLeft(steps)) {
+            console.log('Steps are', JSON.stringify(steps, null, 2));
+            expect(true).toBe(false);
+            return;
+        }
+        let result = evaluate(steps.right[2], functionEnvironment, variableEnvironment);
+        if (isLeft(result)) {
+            console.log(JSON.stringify(result, null, 2));
+            // for typescript's type inference
+            expect(true).toBe(false);
+            return;
+        }
+        expect(result.right.variableEnvironment['z'].value.degree).toEqual('v');
+    });
+    it('Subtracting two scale degrees should work', () => {
+        let functionEnvironment = {};
+        let variableEnvironment = {
+            x: {
+                varType: 'scale-degree',
+                value: 'iii',
+            },
+            y: {
+                varType: 'scale-degree',
+                value: 'I',
+            },
+        };
+        let tokens = tokenize('degree x = iv; degree y = i; degree z = x - y;');
+        let steps = makeSyntaxTree(tokens);
+        if (isLeft(steps)) {
+            console.log('Steps are', JSON.stringify(steps, null, 2));
+            expect(true).toBe(false);
+            return;
+        }
+        let result = evaluate(steps.right[2], functionEnvironment, variableEnvironment);
+        if (isLeft(result)) {
+            console.log(JSON.stringify(result, null, 2));
+            // for typescript's type inference
+            expect(true).toBe(false);
+            return;
+        }
+        expect(result.right.variableEnvironment['z'].value.degree).toEqual('v');
+    });
+    it('Multiplying two scale degrees should fail', () => {
+        let functionEnvironment = {};
+        let variableEnvironment = {
+            x: {
+                varType: 'scale-degree',
+                value: 'iii',
+            },
+            y: {
+                varType: 'scale-degree',
+                value: 'I',
+            },
+        };
+        let tokens = tokenize('degree x = iv; degree y = i; degree z = x * y;');
+        let steps = makeSyntaxTree(tokens);
+        if (isLeft(steps)) {
+            console.log('Steps are', JSON.stringify(steps, null, 2));
+            expect(true).toBe(false);
+            return;
+        }
+        let result = evaluate(steps.right[2], functionEnvironment, variableEnvironment);
+        expect(isLeft(result)).toBe(true);
+    });
+    it('Dividing two scale degrees should fail', () => {
+        let functionEnvironment = {};
+        let variableEnvironment = {
+            x: {
+                varType: 'scale-degree',
+                value: 'iii',
+            },
+            y: {
+                varType: 'scale-degree',
+                value: 'I',
+            },
+        };
+        let tokens = tokenize('degree x = iv; degree y = i; degree z = x / y;');
+        let steps = makeSyntaxTree(tokens);
+        if (isLeft(steps)) {
+            console.log('Steps are', JSON.stringify(steps, null, 2));
+            expect(true).toBe(false);
+            return;
+        }
+        let result = evaluate(steps.right[2], functionEnvironment, variableEnvironment);
+        expect(isLeft(result)).toBe(true);
+    });
+    it('an incorrect typename should fail', () => {
+        let functionEnvironment = {};
+        let variableEnvironment = {
+            x: {
+                varType: 'scale-degree',
+                value: 'iii',
+            },
+            y: {
+                varType: 'scale-degree',
+                value: 'I',
+            },
+        };
+        let tokens = tokenize('degree x = iii; degree y = ii; number z = x + y;');
+        let steps = makeSyntaxTree(tokens);
+        if (isLeft(steps)) {
+            console.log('Steps are', JSON.stringify(steps, null, 2));
+            expect(true).toBe(false);
+            return;
+        }
+        let result = evaluate(steps.right[2], functionEnvironment, variableEnvironment);
+        expect(isLeft(result)).toBe(true);
+    });
+});

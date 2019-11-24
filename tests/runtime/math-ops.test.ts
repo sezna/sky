@@ -1,9 +1,9 @@
-import { evaluate } from '../src/runtime';
-import { makeSyntaxTree } from '../src/lexer/parser';
-import { tokenize } from '../src/lexer/tokenizer';
+import { evaluate } from '../../src/runtime';
+import { makeSyntaxTree } from '../../src/lexer/parser';
+import { tokenize } from '../../src/lexer/tokenizer';
 import { isLeft } from 'fp-ts/lib/Either';
 
-describe('runtime tests', () => {
+describe('math operator tests', () => {
     it('evaluate should be able to add two numbers and declare variables', () => {
         let functionEnvironment = {};
         let variableEnvironment = {
