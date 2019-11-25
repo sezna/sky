@@ -15,6 +15,9 @@ export function addition(lhs: EvalResult, rhs: EvalResult): Either<RuntimeError,
     if (lhs.returnType === 'number') {
         return right({ valueType: 'number', value: lhs.returnValue + rhs.returnValue });
     }
+    if (lhs.returnType === 'scale-degree') {
+        return right({ valueType: 'scale-degree', value: lhs.returnValue + rhs.returnValue });
+    }
 
     return left({
         line: 0,

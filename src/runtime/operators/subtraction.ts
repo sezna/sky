@@ -11,9 +11,11 @@ export function subtraction(lhs: EvalResult, rhs: EvalResult): Either<RuntimeErr
         });
     }
 
-    // Now we know they are the same so we can just check one side.
-    if (lhs.returnType === 'number') {
+    if (lhs.returnType === 'number' && rhs.returnType === 'number') {
         return right({ valueType: 'number', value: lhs.returnValue - rhs.returnValue });
+    }
+    if (lhs.returnType === 'scale-degree' && rhs.returnType === 'scale-degree') {
+        return right({ valueType: 'scale-degree', value: lhs.returnValue - rhs.returnValue });
     }
 
     return left({

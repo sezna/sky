@@ -78,6 +78,13 @@ export function evaluate(
                 reason: 'Unable to assign null value to variable',
             });
         }
+        if (step.varType.value.value !== value.right.returnType) {
+            return left({
+                line: step.varType.value.line,
+                column: step.varType.value.column,
+                reason: `Mismatched type: variable "${step.varName.value.value}} is declared with type ${step.varType.value.value} but the right hand side returns type ${value.right.returnType}`,
+            });
+        }
         variableEnvironment[step.varName.value.value] = {
             value: value.right.returnValue,
             varType: (step as VariableDeclaration).varType.value.value,

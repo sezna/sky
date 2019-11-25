@@ -9,11 +9,11 @@ describe('scale degree operator tests', () => {
         let variableEnvironment = {
             x: {
                 varType: 'scale-degree',
-                value: 'iii',
+                value: 3,
             },
             y: {
                 varType: 'scale-degree',
-                value: 'I',
+                value: 1,
             },
         };
         let tokens = tokenize('degree x = iii; degree y = ii; degree z = x + y;');
@@ -30,18 +30,18 @@ describe('scale degree operator tests', () => {
             expect(true).toBe(false);
             return;
         }
-        expect(result.right.variableEnvironment['z'].value.degree).toEqual('v');
+        expect(result.right.variableEnvironment['z'].value).toEqual(4);
     });
     it('Subtracting two scale degrees should work', () => {
         let functionEnvironment = {};
         let variableEnvironment = {
             x: {
                 varType: 'scale-degree',
-                value: 'iii',
+                value: '3',
             },
             y: {
                 varType: 'scale-degree',
-                value: 'I',
+                value: '1',
             },
         };
         let tokens = tokenize('degree x = iv; degree y = i; degree z = x - y;');
@@ -58,7 +58,7 @@ describe('scale degree operator tests', () => {
             expect(true).toBe(false);
             return;
         }
-        expect(result.right.variableEnvironment['z'].value.degree).toEqual('v');
+        expect(result.right.variableEnvironment['z'].value).toEqual(2);
     });
     it('Multiplying two scale degrees should fail', () => {
         let functionEnvironment = {};
