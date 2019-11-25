@@ -8,11 +8,11 @@ describe('scale degree operator tests', () => {
         let functionEnvironment = {};
         let variableEnvironment = {
             x: {
-                varType: 'scale-degree',
+                varType: 'degree',
                 value: 3,
             },
             y: {
-                varType: 'scale-degree',
+                varType: 'degree',
                 value: 1,
             },
         };
@@ -36,11 +36,11 @@ describe('scale degree operator tests', () => {
         let functionEnvironment = {};
         let variableEnvironment = {
             x: {
-                varType: 'scale-degree',
+                varType: 'degree',
                 value: '3',
             },
             y: {
-                varType: 'scale-degree',
+                varType: 'degree',
                 value: '1',
             },
         };
@@ -64,11 +64,11 @@ describe('scale degree operator tests', () => {
         let functionEnvironment = {};
         let variableEnvironment = {
             x: {
-                varType: 'scale-degree',
+                varType: 'degree',
                 value: 'iii',
             },
             y: {
-                varType: 'scale-degree',
+                varType: 'degree',
                 value: 'I',
             },
         };
@@ -86,11 +86,11 @@ describe('scale degree operator tests', () => {
         let functionEnvironment = {};
         let variableEnvironment = {
             x: {
-                varType: 'scale-degree',
+                varType: 'degree',
                 value: 'iii',
             },
             y: {
-                varType: 'scale-degree',
+                varType: 'degree',
                 value: 'I',
             },
         };
@@ -108,11 +108,11 @@ describe('scale degree operator tests', () => {
         let functionEnvironment = {};
         let variableEnvironment = {
             x: {
-                varType: 'scale-degree',
+                varType: 'degree',
                 value: 'iii',
             },
             y: {
-                varType: 'scale-degree',
+                varType: 'degree',
                 value: 'I',
             },
         };

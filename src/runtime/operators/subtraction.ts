@@ -14,8 +14,8 @@ export function subtraction(lhs: EvalResult, rhs: EvalResult): Either<RuntimeErr
     if (lhs.returnType === 'number' && rhs.returnType === 'number') {
         return right({ valueType: 'number', value: lhs.returnValue - rhs.returnValue });
     }
-    if (lhs.returnType === 'scale-degree' && rhs.returnType === 'scale-degree') {
-        return right({ valueType: 'scale-degree', value: lhs.returnValue - rhs.returnValue });
+    if (lhs.returnType === 'degree' && rhs.returnType === 'degree') {
+        return right({ valueType: 'degree', value: lhs.returnValue - rhs.returnValue });
     }
 
     return left({

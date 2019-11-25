@@ -196,7 +196,7 @@ function evalLiteral(
             break;
         case 'LiteralScaleDegree':
             returnValue = (literal as LiteralTypes.LiteralScaleDegree).scaleDegreeNumber;
-            returnType = 'scale-degree';
+            returnType = 'degree';
             break;
         default:
             return left({

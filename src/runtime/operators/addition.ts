@@ -11,12 +11,11 @@ export function addition(lhs: EvalResult, rhs: EvalResult): Either<RuntimeError,
         });
     }
 
-    // Now we know they are the same so we can just check one side.
-    if (lhs.returnType === 'number') {
+    if (lhs.returnType === 'number' && rhs.returnType === 'number') {
         return right({ valueType: 'number', value: lhs.returnValue + rhs.returnValue });
     }
-    if (lhs.returnType === 'scale-degree') {
-        return right({ valueType: 'scale-degree', value: lhs.returnValue + rhs.returnValue });
+    if (lhs.returnType === 'degree' && rhs.returnType === 'degree') {
+        return right({ valueType: 'degree', value: lhs.returnValue + rhs.returnValue });
     }
 
     return left({
