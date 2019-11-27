@@ -9,7 +9,6 @@
     "build": "tsc",
     "start": "tsc; node ./dist/main.js",
     "format": "prettier --write \"**/*.ts\"",
-    "commit": "npx git-cz",
     "test": "yarn build; jest",
     "test-interactive": "yarn build; jest --watch"
   },
@@ -24,12 +23,6 @@
     "typescript": "^3.6.4"
   },
   "dependencies": {
-    "cz-conventional-changelog": "^3.0.2",
     "fp-ts": "^2.1.1"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
   }
 }
