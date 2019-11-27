@@ -3,17 +3,20 @@ import { Token } from '../lexer/tokenizer';
 import * as LiteralTypes from '../lexer/expression/literal';
 import { Either, right, left, isLeft } from 'fp-ts/lib/Either';
 import { VariableDeclaration } from '../lexer/variable-declaration';
+import { FunctionDeclaration } from '../lexer/function-declaration';
 import { LiteralExp, OpExp, VarExp } from '../lexer/expression';
 import { addition, multiplication, division, subtraction } from './operators';
 
 interface SkyOutput {
     midi: String; // TODO
     sheetMusic: String; // TODO
+    variableEnvironment: VariableEnvironment;
 }
 
 // can't use the word 'Function' because JS
 interface Func {
-    parameters: { name: String; varType: String }[];
+    _type: 'Func';
+    parameters: { name: Token; varType: Token }[];
     body: Steps;
     returnType: String;
 }
@@ -28,8 +31,8 @@ interface Variable {
 export type VariableEnvironment = { [varName: string]: Variable };
 export interface RuntimeError {
     reason: string;
-    line: number;
-    column: number;
+    line?: number;
+    column?: number;
 }
 
 export function runtime(steps: Steps): Either<RuntimeError, SkyOutput> {
@@ -45,9 +48,26 @@ export function runtime(steps: Steps): Either<RuntimeError, SkyOutput> {
         variableEnvironment = result.right.variableEnvironment;
     }
 
+    // Now, find the main function and run it.
+    if (functionEnvironment['main'] === undefined) {
+        return left({
+            reason: 'No main function found',
+        });
+    }
+
+    for (const step of functionEnvironment['main'].body) {
+        let result = evaluate(step, functionEnvironment, variableEnvironment);
+        if (isLeft(result)) {
+            return result;
+        }
+        functionEnvironment = result.right.functionEnvironment;
+        variableEnvironment = result.right.variableEnvironment;
+    }
+
     return right({
         midi: '',
         sheetMusic: '',
+        variableEnvironment,
     });
 }
 
@@ -154,6 +174,14 @@ export function evaluate(
         }
         returnType = varValue.varType;
         returnValue = varValue.value;
+    } else if ((step as FunctionDeclaration)._type === 'FunctionDeclaration') {
+        let funcDeclStep = step as FunctionDeclaration;
+        functionEnvironment[funcDeclStep.functionName.value.value] = {
+            _type: 'Func',
+            parameters: funcDeclStep.parameters,
+            body: funcDeclStep.body,
+            returnType: funcDeclStep.returnType.value.value,
+        };
     } else {
         return left({
             line: 0,
@@ -172,7 +200,7 @@ export function evaluate(
 
 function makeInitialFunctionEnvironment(): FunctionEnvironment {
     return {
-        rand: { parameters: [], body: [], returnType: 'number' },
+        rand: { _type: 'Func' as const, parameters: [], body: [], returnType: 'number' },
     };
 }
 
@@ -197,6 +225,10 @@ function evalLiteral(
         case 'LiteralScaleDegree':
             returnValue = (literal as LiteralTypes.LiteralScaleDegree).scaleDegreeNumber;
             returnType = 'degree';
+            break;
+        case 'LiteralPitch':
+            returnValue = literal as LiteralTypes.LiteralPitch;
+            returnType = 'pitch';
             break;
         default:
             return left({

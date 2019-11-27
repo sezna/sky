@@ -6,7 +6,7 @@ import { VariableDeclaration } from './variable-declaration';
 export interface FunctionDeclaration {
     _type: 'FunctionDeclaration';
     functionName: Token;
-    args: [Token, Token][];
+    parameters: { name: Token; varType: Token }[];
     body: Steps;
     returnType: Token; // type-name
 }
@@ -57,7 +57,7 @@ export function functionDeclaration(
     // Get the argument list out of the function signature
     prevToken = token;
     token = input.shift()!;
-    let args: [Token, Token][] = [];
+    let parameters: { name: Token; varType: Token }[] = [];
     while (token.value.value !== ')') {
         if (token === undefined) {
             return left({
@@ -101,7 +101,7 @@ export function functionDeclaration(
             });
         }
         const typeName = token!;
-        args.push([argName, typeName]);
+        parameters.push({ name: argName, varType: typeName });
 
         // If this is not the last argument, then there should be a comma here.
         // since we don't know if this is the last one, we will instead just make
@@ -181,7 +181,7 @@ export function functionDeclaration(
         declaration: {
             _type: 'FunctionDeclaration',
             functionName: functionNameToken,
-            args,
+            parameters,
             body,
             returnType,
         },

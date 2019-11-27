@@ -42,6 +42,7 @@ export interface LiteralRhythm {
 export interface LiteralPitch {
     _type: 'LiteralPitch';
     noteName: string;
+    accidental: Accidental;
     octave: number;
     token: Token;
     // TODO midiValue: number;
@@ -50,6 +51,7 @@ export interface LiteralPitch {
 export interface LiteralPitchRhythm {
     _type: 'LiteralPitchRhythm';
     rhythm: LiteralRhythm;
+    accidental: Accidental;
     octave: number;
     noteName: string;
     token: Token;
@@ -69,3 +71,5 @@ export function isLiteral(input: Token): boolean {
         'scale-degree-rhythm-literal',
     ].includes(input.tokenType);
 }
+
+export type Accidental = 'sharp' | 'flat' | 'natural';

@@ -2,7 +2,7 @@ import { scaleDegreeToInt } from '../../../utils/scale-degree-utils';
 import { ParseError } from '../../parser';
 import { Token } from '../../tokenizer';
 import { Either, right, left, isLeft } from 'fp-ts/lib/Either';
-import { LiteralExp, RhythmName, LiteralValue } from './types';
+import { Accidental, LiteralExp, RhythmName, LiteralValue } from './types';
 
 export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralExp> {
     let literalValue: LiteralValue;
@@ -66,10 +66,22 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
             {
                 let octave = parseInt(token.value.value.split('').filter(x => parseInt(x))[0]);
 
+                // the first letter is the note name, always
+                let noteName = token.value.value[0];
+
+                let accidentalChar = token.value.value.slice(1, 2);
+                let accidental = 'natural' as Accidental;
+                if (accidentalChar === 'b') {
+                    accidental = 'flat' as const;
+                } else if (accidentalChar === '#') {
+                    accidental = 'sharp' as const;
+                }
+
                 // eventually I will need to know the most useful way of representing a note here
                 literalValue = {
                     _type: 'LiteralPitch',
-                    noteName: token.value.value,
+                    noteName,
+                    accidental,
                     octave,
                     token,
                 };
@@ -77,14 +89,23 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
             break;
         case 'pitch-rhythm-literal':
             {
+                let noteName = token.value.value[0];
                 let octave = parseInt(token.value.value.split('').filter(x => parseInt(x))[0]);
                 let isDotted = token.value.value.indexOf('dotted') > 0;
+                let accidentalChar = token.value.value.slice(1, 2);
+                let accidental = 'natural' as Accidental;
+                if (accidentalChar === 'b') {
+                    accidental = 'flat' as const;
+                } else if (accidentalChar === '#') {
+                    accidental = 'sharp' as const;
+                }
 
                 // eventually I will need to know the most useful way of representing a note here
                 let rhythmName = token.value.value.split(' ')[token.value.value.split(' ').length - 1] as RhythmName;
                 literalValue = {
                     _type: 'LiteralPitchRhythm',
-                    noteName: token.value.value,
+                    noteName,
+                    accidental,
                     rhythm: { _type: 'LiteralRhythm', rhythmName, isDotted, token },
                     octave,
                     token,

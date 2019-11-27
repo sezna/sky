@@ -96,7 +96,7 @@ export function parseExpression(
                 expressionContents.shift();
             } else if (matchingFunctions.length === 1) {
                 // get the args out of the following parenthesis
-                const numberOfArgs = matchingFunctions[0].args.length;
+                const numberOfArgs = matchingFunctions[0].parameters.length;
                 const functionName = matchingFunctions[0].functionName;
                 let rover = expressionContents[0];
                 let args: Expression[] = [];
