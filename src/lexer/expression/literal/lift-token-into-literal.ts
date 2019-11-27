@@ -1,4 +1,5 @@
 import { scaleDegreeToInt } from '../../../utils/scale-degree-utils';
+import { pitchNumbers } from '../../../utils/pitch-utils';
 import { ParseError } from '../../parser';
 import { Token } from '../../tokenizer';
 import { Either, right, left, isLeft } from 'fp-ts/lib/Either';
@@ -64,10 +65,10 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
             break;
         case 'pitch-literal':
             {
-                let octave = parseInt(token.value.value.split('').filter(x => parseInt(x))[0]);
+                let octave = parseInt(token.value.value.replace(/[^0-9]/g, ''));
 
                 // the first letter is the note name, always
-                let noteName = token.value.value[0];
+                let noteName = token.value.value[0].toLowerCase();
 
                 let accidentalChar = token.value.value.slice(1, 2);
                 let accidental = 'natural' as Accidental;
@@ -77,10 +78,22 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
                     accidental = 'sharp' as const;
                 }
 
-                // eventually I will need to know the most useful way of representing a note here
+                let result = pitchNumbers(noteName, accidental, octave);
+                if (isLeft(result)) {
+                    return left({
+                        line: token.value.line,
+                        column: token.value.column,
+                        reason: `Invalid pitch literal: ${token.value.value} is not a valid pitch`,
+                    });
+                }
+
+                let { midiNumber, pitchNumber } = result.right;
+
                 literalValue = {
                     _type: 'LiteralPitch',
                     noteName,
+                    midiNumber,
+                    pitchNumber,
                     accidental,
                     octave,
                     token,

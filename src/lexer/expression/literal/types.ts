@@ -45,7 +45,8 @@ export interface LiteralPitch {
     accidental: Accidental;
     octave: number;
     token: Token;
-    // TODO midiValue: number;
+    midiNumber: number;
+    pitchNumber: number;
 }
 
 export interface LiteralPitchRhythm {
