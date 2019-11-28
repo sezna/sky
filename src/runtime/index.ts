@@ -102,7 +102,7 @@ export function evaluate(
             return left({
                 line: step.varType.value.line,
                 column: step.varType.value.column,
-                reason: `Mismatched type: variable "${step.varName.value.value}} is declared with type ${step.varType.value.value} but the right hand side returns type ${value.right.returnType}`,
+                reason: `Mismatched type: variable "${step.varName.value.value} is declared with type ${step.varType.value.value} but the right hand side returns type ${value.right.returnType}`,
             });
         }
         variableEnvironment[step.varName.value.value] = {
