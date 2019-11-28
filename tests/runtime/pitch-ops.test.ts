@@ -59,11 +59,11 @@ describe('pitch operator tests', () => {
         expect((variableEnvironment['fourth'] as any).value[2].accidental).toBe('sharp');
         expect((variableEnvironment['fourth'] as any).value[2].octave).toBe(2);
     });
-    it('should be able to subtract two pitches', () => {
+    it('should not be able to subtract two pitches', () => {
         let tokens = tokenize(`fn main():song {
-				pitch first = F6; -- midi note 89 (logical note 89 - 21 = 68)
-				pitch second = b0; -- midi note 23 (logical note 23 - 21 = 2)
-				notes third = first - second; -- should be midi note 66 + 21 = 87 = D#6
+				pitch first = F6; 
+				pitch second = b0;
+				notes third = first - second;
 
 			 }`);
         let steps = makeSyntaxTree(tokens);
@@ -72,14 +72,7 @@ describe('pitch operator tests', () => {
             expect(true).toBe(false);
             return;
         }
-
         let result = runtime(steps.right);
-        if (isLeft(result)) {
-            console.log('Result is', result.left.reason);
-            expect(true).toBe(false);
-            return;
-        }
-        let variableEnvironment = result.right.variableEnvironment;
-        expect(variableEnvironment['third']).toBe('c2');
+				expect(isLeft(result)).toBe(true);
     });
 });
