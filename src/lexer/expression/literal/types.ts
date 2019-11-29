@@ -1,4 +1,5 @@
 import { Token } from '../../tokenizer';
+import { Expression } from '../expression';
 
 export interface LiteralExp {
     _type: 'LiteralExp';
@@ -11,7 +12,8 @@ export type LiteralValue =
     | LiteralScaleDegreeRhythm
     | LiteralRhythm
     | LiteralPitch
-    | LiteralPitchRhythm;
+    | LiteralPitchRhythm
+    | LiteralList;
 
 export interface LiteralNumber {
     _type: 'LiteralNumber';
@@ -57,6 +59,12 @@ export interface LiteralPitchRhythm {
     noteName: string;
     token: Token;
     // TODO midiValue: number;
+}
+
+export interface LiteralList {
+    _type: 'LiteralList';
+    listContents: Expression[];
+    token: Token;
 }
 
 export type RhythmName = 'whole' | 'half' | 'quarter' | 'eighth' | 'sixteenth' | 'thirty-second' | 'sixty-fourth';

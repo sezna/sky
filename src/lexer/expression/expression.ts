@@ -3,7 +3,13 @@ import { Tokens, Token } from '../tokenizer';
 import { isLeft, Either, left, right } from 'fp-ts/lib/Either';
 import { VariableDeclaration } from '../variable-declaration';
 import { FunctionDeclaration } from '../function-declaration';
-import { consumeExpression, consumeIfUntilThen, consumeThenUntilElse, consumeElseUntilEnd } from './consumers';
+import {
+    consumeAndLiftListContents,
+    consumeExpression,
+    consumeIfUntilThen,
+    consumeThenUntilElse,
+    consumeElseUntilEnd,
+} from './consumers';
 import { precedence } from './utils';
 import { LiteralExp, isLiteral, liftTokenIntoLiteral } from './literal';
 export type Expression = IfExp | VarExp | OpExp | LiteralExp | FunctionApplication;
@@ -311,6 +317,26 @@ export function parseExpression(
             }
             // Now we have handled both parens cases and we can shift the input to the next token.
             expressionContents.shift();
+        } else if (expressionContents[0].value.value === '[') {
+            let openBracketToken = expressionContents[0];
+            let listContentsResult = consumeAndLiftListContents(
+                expressionContents,
+                functionNamespace,
+                variableNamespace,
+            );
+            if (isLeft(listContentsResult)) {
+                return listContentsResult;
+            }
+            let literalValue = {
+                _type: 'LiteralList' as const,
+                //												listType: TODO?
+                listContents: listContentsResult.right.listContents,
+                token: openBracketToken,
+            };
+            expressionStack.push({
+                _type: 'LiteralExp' as const,
+                literalValue,
+            });
         } else if (expressionContents[0].value.value === 'if') {
             // consume the stuff in between "if" and "then" and parse an expression out of it
             let result = consumeIfUntilThen(expressionContents);

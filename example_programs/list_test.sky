@@ -1,0 +1,5 @@
+
+fn main(): song {
+	notes x = [c5, d4, a1];
+	notes z = x + c#1;
+}

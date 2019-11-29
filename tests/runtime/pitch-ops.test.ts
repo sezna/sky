@@ -73,6 +73,6 @@ describe('pitch operator tests', () => {
             return;
         }
         let result = runtime(steps.right);
-				expect(isLeft(result)).toBe(true);
+        expect(isLeft(result)).toBe(true);
     });
 });

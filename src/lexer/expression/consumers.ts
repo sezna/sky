@@ -1,6 +1,10 @@
 import { ParseError } from '../parser';
 import { Tokens } from '../tokenizer';
-import { Either, left, right } from 'fp-ts/lib/Either';
+import { Either, isLeft, left, right } from 'fp-ts/lib/Either';
+import { Expression } from '../expression';
+import { parseExpression } from './expression';
+import { FunctionDeclaration } from '../function-declaration';
+import { VariableDeclaration } from '../variable-declaration';
 /// Consume input tokens that begin with an expression until the end of that expression.
 /// If successful, returns the remaining input with the expression removed.
 export function consumeExpression(input: Tokens): Either<ParseError, { input: Tokens; tokens: Tokens }> {
@@ -311,4 +315,58 @@ export function consumeElseUntilEnd(input: Tokens): Either<ParseError, { input: 
         }
     }
     return right({ input, tokens: expressionBuffer });
+}
+
+export function consumeAndLiftListContents(
+    input: Tokens,
+    functionNamespace: FunctionDeclaration[],
+    variableNamespace: VariableDeclaration[],
+): Either<ParseError, { input: Tokens; listContents: Expression[] }> {
+    let listBuffer = [];
+    let elemBuffer = [];
+    let bracketCounter = 0;
+    let line = input[0].value.line;
+    let column = input[0].value.column;
+    while (input.length > 0) {
+        let token = input.shift()!;
+        if (token === undefined) {
+            return left({ line, column, reason: 'Unexpected EOF in list declaration.' });
+        }
+        line = token.value.line;
+        column = token.value.column;
+
+        if (token.value.value === '[') {
+            bracketCounter = bracketCounter + 1;
+        } else if (token.value.value === ']') {
+            bracketCounter = bracketCounter - 1;
+            if (bracketCounter === 0) {
+                elemBuffer.push({
+                    tokenType: 'statement-terminator' as const,
+                    value: { line: token.value.line, column: token.value.column, value: ';' },
+                });
+                let exprResult = parseExpression(elemBuffer, functionNamespace, variableNamespace);
+                if (isLeft(exprResult)) {
+                    return exprResult;
+                }
+                let expr = exprResult.right;
+                listBuffer.push(expr.expression);
+                return right({ input, listContents: listBuffer });
+            }
+        } else if (token.tokenType === 'comma') {
+            elemBuffer.push({
+                tokenType: 'statement-terminator' as const,
+                value: { line: token.value.line, column: token.value.column, value: ';' },
+            });
+            let exprResult = parseExpression(elemBuffer, functionNamespace, variableNamespace);
+            if (isLeft(exprResult)) {
+                return exprResult;
+            }
+            let expr = exprResult.right;
+            listBuffer.push(expr.expression);
+            elemBuffer = [];
+        } else {
+            elemBuffer.push(token);
+        }
+    }
+    return left({ line: 0, column: 0, reason: 'consumeListContents is unimplemented' });
 }
