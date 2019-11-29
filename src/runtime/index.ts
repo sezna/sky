@@ -230,6 +230,10 @@ function evalLiteral(
             returnValue = literal as LiteralTypes.LiteralPitch;
             returnType = 'pitch';
             break;
+        case 'LiteralList':
+            returnValue = (literal as LiteralTypes.LiteralList).listContents;
+            returnType = 'notes'; // TODO this in the future could be a list of rhythms or soething
+            break;
         default:
             return left({
                 line: token.value.line,

@@ -15,6 +15,9 @@ export function addition(lhs: EvalResult, rhs: EvalResult): Either<RuntimeError,
     if (lhs.returnType === 'notes' && rhs.returnType === 'pitch') {
         return right({ valueType: 'notes', value: lhs.returnValue.concat(rhs.returnValue) });
     }
+    if (lhs.returnType === 'pitch' && rhs.returnType === 'notes') {
+        return right({ valueType: 'notes', value: [lhs.returnValue, ...rhs.returnValue] });
+    }
     return left({
         line: 0,
         column: 0,
