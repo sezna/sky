@@ -274,12 +274,16 @@ export function parseExpression(
                 const newOp = operatorStack.pop()!;
                 const rhs = expressionStack.pop()!;
                 const lhs = expressionStack.pop()!;
-										let returnTypeResult = opReturnTypeMap(rhs.returnType, lhs.returnType, newOp.value.value.value as Operator['operatorType']); // is this a valid cast?
-										if (isLeft(returnTypeResult)) { return left({
-														line: newOp.value.value.line,
-														column: newOp.value.value.column,
-														reason: returnTypeResult.left});}
-										let returnType = returnTypeResult.right;
+                let returnTypeResult = opReturnTypeMap(rhs.returnType, lhs.returnType, newOp.value.value
+                    .value as Operator['operatorType']); // is this a valid cast?
+                if (isLeft(returnTypeResult)) {
+                    return left({
+                        line: newOp.value.value.line,
+                        column: newOp.value.value.column,
+                        reason: returnTypeResult.left,
+                    });
+                }
+                let returnType = returnTypeResult.right;
                 let operation = {
                     _type: 'OpExp' as const,
                     operator: newOp,
@@ -308,7 +312,7 @@ export function parseExpression(
                 return literalParseResult;
             }
             let { literalValue } = literalParseResult.right;
-            let literalExp = { _type: 'LiteralExp' as const, literalValue };
+            let literalExp = { _type: 'LiteralExp' as const, literalValue, returnType: literalValue._type }; // these will mismatch for now, but the LiteralNumber-esque types will get changed to actual enum'd types soon. There should be a returnType on LiteralExp
             expressionStack.push(literalExp);
             expressionContents.shift();
         } else if (expressionContents[0].tokenType === 'parens') {
@@ -327,6 +331,7 @@ export function parseExpression(
                         operator,
                         left,
                         right,
+                        returnType: 'none',
                     });
                 }
                 // This discards the opening parenthesis in the op stack.
@@ -353,6 +358,7 @@ export function parseExpression(
             expressionStack.push({
                 _type: 'LiteralExp' as const,
                 literalValue,
+                returnType: literalValue._type, // again, this will be literalValue.returnType once that gets added
             });
         } else if (expressionContents[0].value.value === 'if') {
             // consume the stuff in between "if" and "then" and parse an expression out of it
@@ -440,6 +446,7 @@ export function parseExpression(
                 condition,
                 thenBranch,
                 elseBranch,
+                returnType: 'none', // TODO how to figure out the return types of branches in if expressions?
             });
         } else {
             return left({
@@ -452,13 +459,24 @@ export function parseExpression(
 
     while (operatorStack.length > 0) {
         let operator = operatorStack.pop()!;
-        let right = expressionStack.pop()!;
-        let left = expressionStack.pop()!;
+        let rhs = expressionStack.pop()!;
+        let lhs = expressionStack.pop()!;
+        let returnTypeResult = opReturnTypeMap(rhs.returnType, lhs.returnType, operator.value.value
+            .value as Operator['operatorType']); // is this a valid cast?
+        if (isLeft(returnTypeResult)) {
+            return left({
+                line: operator.value.value.line,
+                column: operator.value.value.column,
+                reason: returnTypeResult.left,
+            });
+        }
+        let returnType = returnTypeResult.right;
         let operation = {
             _type: 'OpExp' as const,
             operator,
-            right,
-            left,
+            right: rhs,
+            left: lhs,
+            returnType,
         };
         expressionStack.push(operation);
     }

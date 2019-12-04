@@ -1,5 +1,5 @@
 import { Either, left, right } from 'fp-ts/lib/Either';
-import { Operator, Expression } from './expression';
+import { Operator } from './expression';
 /// This file contains utils used by the expression parser.
 /// The definition of the order of operations.
 /// The higher the number, the higher the precedence of the operation.

@@ -171,7 +171,13 @@ export function functionDeclaration(
             });
         }
     }
-    let bodyResult = makeFunctionBodySyntaxTree(bodyTokens, functionNamespace, variableNamespace);
+    let bodyResult = makeFunctionBodySyntaxTree(
+        bodyTokens,
+        functionNamespace,
+        variableNamespace,
+        functionNameToken,
+        returnType,
+    );
     if (isLeft(bodyResult)) {
         return bodyResult;
     }

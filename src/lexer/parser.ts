@@ -69,7 +69,7 @@ export function makeFunctionBodySyntaxTree(
     input: Tokens,
     initialFunctionNamespace: FunctionDeclaration[],
     initialVariableNamespace: VariableDeclaration[],
-    functionName: string,
+    functionNameToken: Token,
     returnType: Token,
 ): Either<ParseError, Steps> {
     let functionNamespace = [...initialFunctionNamespace];
@@ -106,7 +106,7 @@ export function makeFunctionBodySyntaxTree(
                 return left(parseResult.left);
             }
         } else if (input[0].tokenType === 'return-keyword') {
-            let returnExprResult = parseExpression(input[0]);
+            let returnExprResult = parseExpression(input, functionNamespace, variableNamespace);
             if (isLeft(returnExprResult)) {
                 return returnExprResult;
             }
@@ -115,7 +115,7 @@ export function makeFunctionBodySyntaxTree(
                 return left({
                     line: input[0].value.line,
                     column: input[0].value.column,
-                    reason: `Type mismatch. Function "${functionName}" is declared to have return type "${returnType.value.value}" but returns a value of type "${returnExpr.expression.returnType}".`,
+                    reason: `Type mismatch. Function "${functionNameToken.value.value}" (declared at line ${functionNameToken.value.line}, column ${functionNameToken.value.column})  is declared to have return type "${returnType.value.value}" but returns a value of type "${returnExpr.expression.returnType}".`,
                 });
             }
         } else if (input[0].tokenType === 'name') {

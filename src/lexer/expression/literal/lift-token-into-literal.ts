@@ -133,5 +133,5 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
             });
     }
 
-    return right({ _type: 'LiteralExp' as const, literalValue });
+    return right({ _type: 'LiteralExp' as const, literalValue, returnType: literalValue._type });
 }
