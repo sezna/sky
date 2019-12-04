@@ -15,6 +15,7 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
                     _type: 'LiteralNumber' as const,
                     numericValue: parseInt(input.value.value),
                     token,
+                    returnType: 'number',
                 };
             }
             break;
@@ -29,6 +30,7 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
                     _type: 'LiteralScaleDegree',
                     scaleDegreeNumber,
                     token,
+                    returnType: 'degree',
                 };
             }
             break;
@@ -47,8 +49,9 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
                 literalValue = {
                     _type: 'LiteralScaleDegreeRhythm',
                     scaleDegreeNumber,
-                    rhythm: { _type: 'LiteralRhythm', rhythmName, isDotted, token },
+                    rhythm: { _type: 'LiteralRhythm', rhythmName, isDotted, token, returnType: 'rhythm' },
                     token,
+                    returnType: 'degree-rhythm',
                 };
             }
             break;
@@ -60,6 +63,7 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
                     rhythmName: token.value.value.split(' ')[token.value.value.split(' ').length - 1] as RhythmName,
                     isDotted,
                     token,
+                    returnType: 'rhythm',
                 };
             }
             break;
@@ -97,6 +101,7 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
                     accidental,
                     octave,
                     token,
+                    returnType: 'pitch',
                 };
             }
             break;
@@ -119,9 +124,10 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
                     _type: 'LiteralPitchRhythm',
                     noteName,
                     accidental,
-                    rhythm: { _type: 'LiteralRhythm', rhythmName, isDotted, token },
+                    rhythm: { _type: 'LiteralRhythm', rhythmName, isDotted, token, returnType: 'rhythm' },
                     octave,
                     token,
+                    returnType: 'pitch-rhythm',
                 };
             }
             break;

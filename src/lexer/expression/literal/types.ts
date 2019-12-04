@@ -20,12 +20,14 @@ export interface LiteralNumber {
     _type: 'LiteralNumber';
     numericValue: number;
     token: Token;
+    returnType: 'number';
 }
 
 export interface LiteralScaleDegree {
     _type: 'LiteralScaleDegree';
     scaleDegreeNumber: number;
     token: Token;
+    returnType: 'degree';
 }
 
 export interface LiteralScaleDegreeRhythm {
@@ -33,6 +35,7 @@ export interface LiteralScaleDegreeRhythm {
     scaleDegreeNumber: number;
     rhythm: LiteralRhythm;
     token: Token;
+    returnType: 'degree-rhythm';
 }
 
 export interface LiteralRhythm {
@@ -40,6 +43,7 @@ export interface LiteralRhythm {
     rhythmName: RhythmName;
     isDotted: boolean;
     token: Token; // there is no token here in the case it is nested in a pitchRhythm
+    returnType: 'rhythm';
 }
 
 export interface LiteralPitch {
@@ -50,6 +54,7 @@ export interface LiteralPitch {
     token: Token;
     midiNumber: number;
     pitchNumber: number;
+    returnType: 'pitch';
 }
 
 export interface LiteralPitchRhythm {
@@ -59,6 +64,7 @@ export interface LiteralPitchRhythm {
     octave: number;
     noteName: string;
     token: Token;
+    returnType: 'pitch-rhythm';
     // TODO midiValue: number;
 }
 
@@ -66,6 +72,7 @@ export interface LiteralList {
     _type: 'LiteralList';
     listContents: Expression[];
     token: Token;
+    returnType: string; // of form 'list <type of contents>'
 }
 
 export type RhythmName = 'whole' | 'half' | 'quarter' | 'eighth' | 'sixteenth' | 'thirty-second' | 'sixty-fourth';

@@ -349,16 +349,18 @@ export function parseExpression(
             if (isLeft(listContentsResult)) {
                 return listContentsResult;
             }
+            let returnType = 'list ' + listContentsResult.right.listContents[0].returnType;
             let literalValue = {
                 _type: 'LiteralList' as const,
                 //												listType: TODO?
                 listContents: listContentsResult.right.listContents,
                 token: openBracketToken,
+                returnType,
             };
             expressionStack.push({
                 _type: 'LiteralExp' as const,
                 literalValue,
-                returnType: literalValue._type, // again, this will be literalValue.returnType once that gets added
+                returnType, // again, this will be literalValue.returnType once that gets added
             });
         } else if (expressionContents[0].value.value === 'if') {
             // consume the stuff in between "if" and "then" and parse an expression out of it
