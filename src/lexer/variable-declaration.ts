@@ -68,6 +68,14 @@ export function variableDeclaration(
         return parseResult;
     }
 
+    // If this is a list, type inference for the inner type is supported.
+    // If auto type inferencing for vars was ever to be supported, this line
+    // is what performs the inference based off of the RHS.
+    if (varType.value.value === 'list') {
+        let exprVarType = parseResult.right.expression.returnType;
+        varType.value.value = exprVarType;
+    }
+
     return right({
         input: input,
         declaration: {

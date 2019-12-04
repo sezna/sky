@@ -10,13 +10,13 @@ export function addition(lhs: EvalResult, rhs: EvalResult): Either<RuntimeError,
         return right({ valueType: 'degree', value: lhs.returnValue + rhs.returnValue });
     }
     if (lhs.returnType === 'pitch' && rhs.returnType === 'pitch') {
-        return right({ valueType: 'notes', value: [lhs.returnValue, rhs.returnValue] });
+        return right({ valueType: 'list pitch', value: [lhs.returnValue, rhs.returnValue] });
     }
     if (lhs.returnType === 'notes' && rhs.returnType === 'pitch') {
-        return right({ valueType: 'notes', value: lhs.returnValue.concat(rhs.returnValue) });
+        return right({ valueType: 'list pitch', value: lhs.returnValue.concat(rhs.returnValue) });
     }
     if (lhs.returnType === 'pitch' && rhs.returnType === 'notes') {
-        return right({ valueType: 'notes', value: [lhs.returnValue, ...rhs.returnValue] });
+        return right({ valueType: 'list pitch', value: [lhs.returnValue, ...rhs.returnValue] });
     }
     return left({
         line: 0,

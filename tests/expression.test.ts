@@ -90,7 +90,7 @@ describe('Expression parsing tests', () => {
         expect(isLeft(result)).toBe(true);
     });
     it('Should be able to parse lists', () => {
-        let tokens = tokenize(`notes x = [c4, a4, d4, c#4];`);
+        let tokens = tokenize(`list x = [c4, a4, d4, c#4];`);
         let result = makeSyntaxTree(tokens); //(tokens, [], []);
         if (isLeft(result)) {
             console.log('Error: ', result.left.reason);

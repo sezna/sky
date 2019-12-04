@@ -22,16 +22,17 @@ const OpMapping: { [key in Operator['operatorType']]: { [key: string]: { [key: s
     '+': {
         number: {
             number: 'number',
+            degree: 'number',
         },
-        note: {
-            note: 'notes',
-            notes: 'notes',
-        },
+        degree: { degree: 'degree' },
+        pitch: { 'list pitch': 'list pitch', pitch: 'list pitch' },
     },
     '-': {
         number: {
             number: 'number',
         },
+        degree: { degree: 'degree' },
+        pitch: { pitch: 'pitch' }, // TODO idk about this op...
     },
     '*': {
         number: {
@@ -48,6 +49,31 @@ const OpMapping: { [key in Operator['operatorType']]: { [key: string]: { [key: s
             number: 'number',
         },
     },
+    '==': {
+        number: {
+            number: 'boolean',
+        },
+    },
+    '>=': {
+        number: {
+            number: 'boolean',
+        },
+    },
+    '<=': {
+        number: {
+            number: 'boolean',
+        },
+    },
+    '<': {
+        number: {
+            number: 'boolean',
+        },
+    },
+    '>': {
+        number: {
+            number: 'boolean',
+        },
+    },
     // This isn't a 'true' operator so we shouldn't have anything in here.
     '(': {
         number: {},
@@ -58,7 +84,8 @@ const OpMapping: { [key in Operator['operatorType']]: { [key: string]: { [key: s
  * what is in the runtime, or else this compile-time type check won't match the actual runtime.
  */
 export function opReturnTypeMap(lhs: string, rhs: string, op: Operator['operatorType']): Either<string, string> {
-    let returnType = OpMapping[op][lhs][rhs];
+    console.log('evaluating:', op, lhs, rhs);
+    let returnType = OpMapping[op][lhs] && OpMapping[op][lhs][rhs];
     if (returnType === undefined) {
         return left(`Operator ${op} is not implemented for type "${lhs}" and "${rhs}"`);
     }

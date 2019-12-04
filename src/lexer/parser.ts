@@ -133,7 +133,7 @@ export function makeFunctionBodySyntaxTree(
                 return left({
                     line: input[0].value.line,
                     column: input[0].value.column,
-                    reason: `Name ${input[0].value.value} has not been defined.`,
+                    reason: `Name "${input[0].value.value}" has not been defined.`,
                 });
             }
             let typeOfName = matchingFunctions.length === 1 ? 'function' : 'variable';

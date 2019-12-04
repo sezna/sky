@@ -95,7 +95,7 @@ export function tokenize(input: string): Tokens {
                 'boolean',
                 'chord',
                 'duration',
-                'notes',
+                'list',
                 'polyphony',
                 'rhythm',
                 'note',

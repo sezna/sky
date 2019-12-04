@@ -42,7 +42,7 @@ interface FunctionApplication {
 }
 
 export interface Operator {
-    operatorType: '+' | '-' | '/' | '%' | '(' | '*';
+    operatorType: '+' | '-' | '/' | '%' | '(' | '*' | '==' | '>=' | '<=' | '>' | '<';
     value: Token;
 }
 
@@ -312,7 +312,7 @@ export function parseExpression(
                 return literalParseResult;
             }
             let { literalValue } = literalParseResult.right;
-            let literalExp = { _type: 'LiteralExp' as const, literalValue, returnType: literalValue._type }; // these will mismatch for now, but the LiteralNumber-esque types will get changed to actual enum'd types soon. There should be a returnType on LiteralExp
+            let literalExp = { _type: 'LiteralExp' as const, literalValue, returnType: literalValue.returnType };
             expressionStack.push(literalExp);
             expressionContents.shift();
         } else if (expressionContents[0].tokenType === 'parens') {
@@ -352,7 +352,6 @@ export function parseExpression(
             let returnType = 'list ' + listContentsResult.right.listContents[0].returnType;
             let literalValue = {
                 _type: 'LiteralList' as const,
-                //												listType: TODO?
                 listContents: listContentsResult.right.listContents,
                 token: openBracketToken,
                 returnType,
@@ -463,16 +462,22 @@ export function parseExpression(
         let operator = operatorStack.pop()!;
         let rhs = expressionStack.pop()!;
         let lhs = expressionStack.pop()!;
+        let returnType;
         let returnTypeResult = opReturnTypeMap(rhs.returnType, lhs.returnType, operator.value.value
             .value as Operator['operatorType']); // is this a valid cast?
-        if (isLeft(returnTypeResult)) {
-            return left({
-                line: operator.value.value.line,
-                column: operator.value.value.column,
-                reason: returnTypeResult.left,
-            });
+        if (operator.value.value.value !== '(') {
+            if (isLeft(returnTypeResult)) {
+                return left({
+                    line: operator.value.value.line,
+                    column: operator.value.value.column,
+                    reason: returnTypeResult.left,
+                });
+            }
+            returnType = returnTypeResult.right;
+        } else {
+            returnType = lhs.returnType;
         }
-        let returnType = returnTypeResult.right;
+
         let operation = {
             _type: 'OpExp' as const,
             operator,

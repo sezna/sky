@@ -118,7 +118,6 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
                     accidental = 'sharp' as const;
                 }
 
-                // eventually I will need to know the most useful way of representing a note here
                 let rhythmName = token.value.value.split(' ')[token.value.value.split(' ').length - 1] as RhythmName;
                 literalValue = {
                     _type: 'LiteralPitchRhythm',
@@ -139,5 +138,5 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
             });
     }
 
-    return right({ _type: 'LiteralExp' as const, literalValue, returnType: literalValue._type });
+    return right({ _type: 'LiteralExp' as const, literalValue, returnType: literalValue.returnType });
 }
