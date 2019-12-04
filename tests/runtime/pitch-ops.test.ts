@@ -54,7 +54,7 @@ describe('pitch operator tests', () => {
             return;
         }
         let variableEnvironment = result.right.variableEnvironment;
-        expect((variableEnvironment['fourth'] as any).varType).toBe('list');
+        expect((variableEnvironment['fourth'] as any).varType).toBe('list pitch');
         expect((variableEnvironment['fourth'] as any).value[2].noteName).toBe('c');
         expect((variableEnvironment['fourth'] as any).value[2].accidental).toBe('sharp');
         expect((variableEnvironment['fourth'] as any).value[2].octave).toBe(2);

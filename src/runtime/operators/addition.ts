@@ -12,10 +12,11 @@ export function addition(lhs: EvalResult, rhs: EvalResult): Either<RuntimeError,
     if (lhs.returnType === 'pitch' && rhs.returnType === 'pitch') {
         return right({ valueType: 'list pitch', value: [lhs.returnValue, rhs.returnValue] });
     }
-    if (lhs.returnType === 'notes' && rhs.returnType === 'pitch') {
+    // TODO make this generic, if it contains a list
+    if (lhs.returnType === 'list pitch' && rhs.returnType === 'pitch') {
         return right({ valueType: 'list pitch', value: lhs.returnValue.concat(rhs.returnValue) });
     }
-    if (lhs.returnType === 'pitch' && rhs.returnType === 'notes') {
+    if (lhs.returnType === 'pitch' && rhs.returnType === 'list pitch') {
         return right({ valueType: 'list pitch', value: [lhs.returnValue, ...rhs.returnValue] });
     }
     return left({

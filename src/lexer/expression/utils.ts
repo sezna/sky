@@ -84,7 +84,6 @@ const OpMapping: { [key in Operator['operatorType']]: { [key: string]: { [key: s
  * what is in the runtime, or else this compile-time type check won't match the actual runtime.
  */
 export function opReturnTypeMap(lhs: string, rhs: string, op: Operator['operatorType']): Either<string, string> {
-    console.log('evaluating:', op, lhs, rhs);
     let returnType = OpMapping[op][lhs] && OpMapping[op][lhs][rhs];
     if (returnType === undefined) {
         return left(`Operator ${op} is not implemented for type "${lhs}" and "${rhs}"`);

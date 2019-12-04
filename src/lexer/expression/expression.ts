@@ -331,7 +331,7 @@ export function parseExpression(
                         operator,
                         left,
                         right,
-                        returnType: 'none',
+                        returnType: left.returnType, // TODO what is the return type?
                     });
                 }
                 // This discards the opening parenthesis in the op stack.
