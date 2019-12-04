@@ -10,7 +10,7 @@ import {
     consumeThenUntilElse,
     consumeElseUntilEnd,
 } from './consumers';
-import { precedence } from './utils';
+import { precedence, opReturnTypeMap } from './utils';
 import { LiteralExp, isLiteral, liftTokenIntoLiteral } from './literal';
 export type Expression = IfExp | VarExp | OpExp | LiteralExp | FunctionApplication;
 
@@ -18,11 +18,13 @@ interface IfExp {
     condition: Expression;
     thenBranch: Expression;
     elseBranch?: Expression;
+    returnType: string;
 }
 
 export interface VarExp {
     _type: 'VarExp';
     varName: Token;
+    returnType: string;
 }
 
 export interface OpExp {
@@ -30,15 +32,17 @@ export interface OpExp {
     left: Expression;
     right: Expression;
     operator: Operator;
+    returnType: string;
 }
 
 interface FunctionApplication {
     functionName: Token;
     args: Expression[];
+    returnType: string;
 }
 
-interface Operator {
-    operatorType: '+' | '-' | '/' | '%' | '(';
+export interface Operator {
+    operatorType: '+' | '-' | '/' | '%' | '(' | '*';
     value: Token;
 }
 
@@ -98,7 +102,11 @@ export function parseExpression(
                 });
             }
             if (matchingVariables.length > 0) {
-                expressionStack.push({ _type: 'VarExp', varName: expressionContents[0] });
+                expressionStack.push({
+                    _type: 'VarExp',
+                    varName: expressionContents[0],
+                    returnType: matchingVariables[0].varType.value.value,
+                });
                 expressionContents.shift();
             } else if (matchingFunctions.length === 1) {
                 // get the args out of the following parenthesis
@@ -248,10 +256,12 @@ export function parseExpression(
                         args.push(result.right.expression);
                     }
                 }
+                let returnType = matchingFunctions[0].returnType.value.value;
                 // Now we have the arguments and the function name, so we can add it to the expression stack.
                 expressionStack.push({
                     functionName,
                     args,
+                    returnType,
                 });
             }
         } else if (expressionContents[0].tokenType === 'operator') {
@@ -262,13 +272,20 @@ export function parseExpression(
                     precedence(thisOperator.value.value)
             ) {
                 const newOp = operatorStack.pop()!;
-                const right = expressionStack.pop()!;
-                const left = expressionStack.pop()!;
+                const rhs = expressionStack.pop()!;
+                const lhs = expressionStack.pop()!;
+										let returnTypeResult = opReturnTypeMap(rhs.returnType, lhs.returnType, newOp.value.value.value as Operator['operatorType']); // is this a valid cast?
+										if (isLeft(returnTypeResult)) { return left({
+														line: newOp.value.value.line,
+														column: newOp.value.value.column,
+														reason: returnTypeResult.left});}
+										let returnType = returnTypeResult.right;
                 let operation = {
                     _type: 'OpExp' as const,
                     operator: newOp,
-                    right,
-                    left,
+                    right: rhs,
+                    left: lhs,
+                    returnType,
                 };
                 expressionStack.push(operation);
             }

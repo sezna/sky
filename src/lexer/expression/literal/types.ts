@@ -4,6 +4,7 @@ import { Expression } from '../expression';
 export interface LiteralExp {
     _type: 'LiteralExp';
     literalValue: LiteralValue; // of course TODO
+    returnType: string;
 }
 
 export type LiteralValue =

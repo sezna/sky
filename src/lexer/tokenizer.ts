@@ -103,7 +103,7 @@ export function tokenize(input: string): Tokens {
             ].includes(symbolValue)
         ) {
             tokens.push({ tokenType: 'type-keyword', value: symbol });
-        } else if (['compose'].includes(symbolValue)) {
+        } else if (['compose', 'return'].includes(symbolValue)) {
             tokens.push({ tokenType: 'return-keyword', value: symbol });
         } else if ([':'].includes(symbolValue)) {
             tokens.push({ tokenType: 'type-ascription', value: symbol });

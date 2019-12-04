@@ -62,11 +62,15 @@ export function makeSyntaxTree(input: Tokens): Either<ParseError, Steps> {
  *
  * Programatically, this identifies if each expression is a declaration or an expression, and then calls the appropriate
  * declaration or expression parser. It assembles the results of all of these parsers into an array of steps.
+ * The return type is used to validate the type correctness of any return statements.
+ * `functionName` is just used for error messages
  */
 export function makeFunctionBodySyntaxTree(
     input: Tokens,
     initialFunctionNamespace: FunctionDeclaration[],
     initialVariableNamespace: VariableDeclaration[],
+    functionName: string,
+    returnType: Token,
 ): Either<ParseError, Steps> {
     let functionNamespace = [...initialFunctionNamespace];
     let variableNamespace = [...initialVariableNamespace];
@@ -100,6 +104,19 @@ export function makeFunctionBodySyntaxTree(
                 variableNamespace.push(parseResult.right.declaration);
             } else {
                 return left(parseResult.left);
+            }
+        } else if (input[0].tokenType === 'return-keyword') {
+            let returnExprResult = parseExpression(input[0]);
+            if (isLeft(returnExprResult)) {
+                return returnExprResult;
+            }
+            let returnExpr = returnExprResult.right;
+            if (input[0].value.value !== returnType.value.value) {
+                return left({
+                    line: input[0].value.line,
+                    column: input[0].value.column,
+                    reason: `Type mismatch. Function "${functionName}" is declared to have return type "${returnType.value.value}" but returns a value of type "${returnExpr.expression.returnType}".`,
+                });
             }
         } else if (input[0].tokenType === 'name') {
             // Determine if this is a variable name, function name, or undeclared name.
