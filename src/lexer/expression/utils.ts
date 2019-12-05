@@ -74,6 +74,16 @@ const OpMapping: { [key in Operator['operatorType']]: { [key: string]: { [key: s
             number: 'boolean',
         },
     },
+    '||': {
+        boolean: {
+            boolean: 'boolean',
+        },
+    },
+    '&&': {
+        boolean: {
+            boolean: 'boolean',
+        },
+    },
     // This isn't a 'true' operator so we shouldn't have anything in here.
     '(': {
         number: {},

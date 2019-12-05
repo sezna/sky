@@ -14,6 +14,7 @@ export type LiteralValue =
     | LiteralRhythm
     | LiteralPitch
     | LiteralPitchRhythm
+    | LiteralBoolean
     | LiteralList;
 
 export interface LiteralNumber {
@@ -55,6 +56,13 @@ export interface LiteralPitch {
     midiNumber: number;
     pitchNumber: number;
     returnType: 'pitch';
+}
+
+export interface LiteralBoolean {
+    _type: 'LiteralBoolean';
+    value: boolean;
+    token: Token;
+    returnType: 'boolean';
 }
 
 export interface LiteralPitchRhythm {

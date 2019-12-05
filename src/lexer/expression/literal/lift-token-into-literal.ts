@@ -130,6 +130,16 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
                 };
             }
             break;
+        case 'boolean-literal':
+            {
+                literalValue = {
+                    _type: 'LiteralBoolean',
+                    value: token.value.value === 'true' ? true : false,
+                    token,
+                    returnType: 'boolean',
+                };
+            }
+            break;
         default:
             return left({
                 line: 0,

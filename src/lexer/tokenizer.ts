@@ -57,7 +57,7 @@ export function tokenize(input: string): Tokens {
             tokens.push({ tokenType: 'bracket', value: symbol });
         } else if (['{', '}'].includes(symbolValue)) {
             tokens.push({ tokenType: 'curly-bracket', value: symbol });
-        } else if (['+', '-', '/', '%', '*', '>', '<'].includes(symbolValue)) {
+        } else if (['+', '-', '/', '%', '*', '>', '<', '||', '&&'].includes(symbolValue)) {
             tokens.push({ tokenType: 'operator', value: symbol });
         } else if (symbolValue.match(new RegExp('^[0-9]+$'))) {
             tokens.push({ tokenType: 'numeric-literal', value: symbol });

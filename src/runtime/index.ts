@@ -5,7 +5,7 @@ import { Either, right, left, isLeft } from 'fp-ts/lib/Either';
 import { VariableDeclaration } from '../lexer/variable-declaration';
 import { FunctionDeclaration } from '../lexer/function-declaration';
 import { LiteralExp, OpExp, VarExp } from '../lexer/expression';
-import { addition, multiplication, division, subtraction } from './operators';
+import { addition, multiplication, division, subtraction, and, or } from './operators';
 
 interface SkyOutput {
     midi: String; // TODO
@@ -147,6 +147,12 @@ export function evaluate(
             case '/':
                 operatorFunc = division;
                 break;
+            case '||':
+                operatorFunc = or;
+                break;
+            case '&&':
+                operatorFunc = and;
+                break;
             default:
                 return left({
                     line: (step as OpExp).operator.value.value.line,
@@ -231,18 +237,22 @@ function evalLiteral(
             returnType = 'pitch';
             break;
         case 'LiteralList':
-        // TODO validate all the list contents are the same type, set the type here. !!!!!!!
-        let returnTypes = (literal as LiteralTypes.LiteralList).listContents.map(x => x.returnType);
-        let typesMatch = returnTypes.filter(x => x === returnTypes[0]).length === returnTypes.length;
-        if (!typesMatch) {
-          return left({
-            line: token.value.line,
-            column: token.value.column,
-            reason: `List inferred to have type of "list ${returnTypes[0]}" due to the first element, but contains items of a different type.`
-          })
-        }
+            // TODO validate all the list contents are the same type, set the type here. !!!!!!!
+            let returnTypes = (literal as LiteralTypes.LiteralList).listContents.map(x => x.returnType);
+            let typesMatch = returnTypes.filter(x => x === returnTypes[0]).length === returnTypes.length;
+            if (!typesMatch) {
+                return left({
+                    line: token.value.line,
+                    column: token.value.column,
+                    reason: `List inferred to have type of "list ${returnTypes[0]}" due to the first element, but contains items of a different type.`,
+                });
+            }
             returnValue = (literal as LiteralTypes.LiteralList).listContents;
-        returnType = `list ${returnTypes[0]}`;
+            returnType = `list ${returnTypes[0]}`;
+            break;
+        case 'LiteralBoolean':
+            returnValue = (literal as LiteralTypes.LiteralBoolean).value;
+            returnType = 'boolean';
             break;
         default:
             return left({
