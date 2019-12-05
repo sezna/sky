@@ -26,4 +26,44 @@ describe('Invalid ops tests', () => {
         }
         expect(isLeft(steps)).toBe(true);
     });
+    it('Operating numbers with booleans should fail #1', () => {
+        let tokens = tokenize('number x = 10; number y = 2; boolean z = false; number a = (x + y) - z');
+        let steps = makeSyntaxTree(tokens);
+        if (isRight(steps)) {
+            console.log('Steps are', JSON.stringify(steps, null, 2));
+            expect(true).toBe(false);
+            return;
+        }
+        expect(isLeft(steps)).toBe(true);
+    });
+    it('Operating numbers with booleans should fail #2', () => {
+        let tokens = tokenize('number x = 10; number y = 2; boolean z = false; number a = (x + y - z)');
+        let steps = makeSyntaxTree(tokens);
+        if (isRight(steps)) {
+            console.log('Steps are', JSON.stringify(steps, null, 2));
+            expect(true).toBe(false);
+            return;
+        }
+        expect(isLeft(steps)).toBe(true);
+    });
+    it('Operating numbers with booleans should fail #3', () => {
+        let tokens = tokenize('number x = 10; number y = 2; boolean z = false; number a = y - z');
+        let steps = makeSyntaxTree(tokens);
+        if (isRight(steps)) {
+            console.log('Steps are', JSON.stringify(steps, null, 2));
+            expect(true).toBe(false);
+            return;
+        }
+        expect(isLeft(steps)).toBe(true);
+    });
+    it('Operating numbers with booleans should fail with literals', () => {
+        let tokens = tokenize('number z = false + 3;');
+        let steps = makeSyntaxTree(tokens);
+        if (isRight(steps)) {
+            console.log('Steps are', JSON.stringify(steps, null, 2));
+            expect(true).toBe(false);
+            return;
+        }
+        expect(isLeft(steps)).toBe(true);
+    });
 });

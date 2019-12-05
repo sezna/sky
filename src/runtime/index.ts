@@ -231,8 +231,18 @@ function evalLiteral(
             returnType = 'pitch';
             break;
         case 'LiteralList':
+        // TODO validate all the list contents are the same type, set the type here. !!!!!!!
+        let returnTypes = (literal as LiteralTypes.LiteralList).listContents.map(x => x.returnType);
+        let typesMatch = returnTypes.filter(x => x === returnTypes[0]).length === returnTypes.length;
+        if (!typesMatch) {
+          return left({
+            line: token.value.line,
+            column: token.value.column,
+            reason: `List inferred to have type of "list ${returnTypes[0]}" due to the first element, but contains items of a different type.`
+          })
+        }
             returnValue = (literal as LiteralTypes.LiteralList).listContents;
-            returnType = 'notes'; // TODO this in the future could be a list of rhythms or soething
+        returnType = `list ${returnTypes[0]}`;
             break;
         default:
             return left({
