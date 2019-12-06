@@ -327,14 +327,24 @@ export function parseExpression(
             } else {
                 while (operatorStack.length > 0 && operatorStack[operatorStack.length - 1].value.value.value !== '(') {
                     let operator = operatorStack.pop()!;
-                    let right = expressionStack.pop()!;
-                    let left = expressionStack.pop()!;
+                    let rhs = expressionStack.pop()!;
+                    let lhs = expressionStack.pop()!;
+                    let returnTypeResult = opReturnTypeMap(lhs.returnType, rhs.returnType, operator.value.value
+                        .value as Operator['operatorType']);
+                    if (isLeft(returnTypeResult)) {
+                        return left({
+                            line: operator.value.value.line,
+                            column: operator.value.value.column,
+                            reason: returnTypeResult.left,
+                        });
+                    }
+                    let returnType = returnTypeResult.right;
                     expressionStack.push({
                         _type: 'OpExp' as const,
                         operator,
-                        left,
-                        right,
-                        returnType: left.returnType, // TODO what is the return type?
+                        left: lhs,
+                        right: rhs,
+                        returnType,
                     });
                 }
                 // This discards the opening parenthesis in the op stack.

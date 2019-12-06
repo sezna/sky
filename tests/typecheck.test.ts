@@ -37,6 +37,7 @@ describe('Invalid ops tests', () => {
         let tokens = tokenize('number x = 10; number y = 2; boolean z = false; number a = (x + y - z);');
         let steps = makeSyntaxTree(tokens);
         if (isRight(steps)) {
+            console.log(JSON.stringify(steps.right, null, 2));
             expect(true).toBe(false);
             return;
         }
@@ -74,6 +75,11 @@ describe('Invalid ops tests', () => {
         expect(steps.left.reason).toBe(
             'Attempted to assign value of type "pitch" to variable "x", which has type "number".',
         );
+    });
+    it('an incorrect typename should fail', () => {
+        let program = `fn main(): song { degree x = iii; degree y = ii; number z = x + y; }`;
+        let steps = makeSyntaxTree(tokenize(program));
+        expect(isLeft(steps)).toBe(true);
     });
 });
 

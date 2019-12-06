@@ -60,26 +60,4 @@ describe('scale degree operator tests', () => {
         }
         expect(result.right.variableEnvironment['z'].value).toEqual(2);
     });
-    it('an incorrect typename should fail', () => {
-        let functionEnvironment = {};
-        let variableEnvironment = {
-            x: {
-                varType: 'degree',
-                value: 'iii',
-            },
-            y: {
-                varType: 'degree',
-                value: 'I',
-            },
-        };
-        let tokens = tokenize('degree x = iii; degree y = ii; degree z = x + y;');
-        let steps = makeSyntaxTree(tokens);
-        if (isLeft(steps)) {
-            console.log('Steps are', JSON.stringify(steps, null, 2));
-            expect(true).toBe(false);
-            return;
-        }
-        let result = evaluate(steps.right[2], functionEnvironment, variableEnvironment);
-        expect(isLeft(result)).toBe(true);
-    });
 });
