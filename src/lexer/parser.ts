@@ -218,7 +218,14 @@ function reassignVariable(
 
     let newVarBody = newVarBodyResult.right;
 
-    // TODO typecheck here
+    if (matches[0].varType.value.value !== newVarBody.expression.returnType) {
+        return left({
+            line: name.value.line,
+            column: name.value.column,
+            reason: `Attempted to assign value of type "${newVarBody.expression.returnType}" to variable "${matches[0].varName.value.value}", which has type "${matches[0].varType.value.value}".`,
+        });
+    }
+
     matches[0].varBody = newVarBody.expression;
 
     return right({

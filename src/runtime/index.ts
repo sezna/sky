@@ -5,7 +5,7 @@ import { Either, right, left, isLeft } from 'fp-ts/lib/Either';
 import { VariableDeclaration } from '../lexer/variable-declaration';
 import { FunctionDeclaration } from '../lexer/function-declaration';
 import { IfExp, LiteralExp, OpExp, VarExp } from '../lexer/expression';
-import { addition, multiplication, division, subtraction, and, or } from './operators';
+import { addition, multiplication, division, subtraction, and, or, greaterThan, lessThan } from './operators';
 
 interface SkyOutput {
     midi: String; // TODO
@@ -153,6 +153,12 @@ export function evaluate(
             case '&&':
                 operatorFunc = and;
                 break;
+            case '>':
+                operatorFunc = greaterThan;
+                break;
+            case '<':
+                operatorFunc = lessThan;
+                break;
             default:
                 return left({
                     line: (step as OpExp).operator.value.value.line,
@@ -203,8 +209,11 @@ export function evaluate(
                 branchResult = evaluate((step as IfExp).elseBranch!, functionEnvironment, variableEnvironment);
             }
         }
+        if (branchResult && isLeft(branchResult)) {
+            return branchResult;
+        }
         returnType = step.returnType;
-        returnValue = branchResult;
+        returnValue = branchResult && branchResult.right.returnValue;
     } else {
         return left({
             line: 0,

@@ -100,6 +100,8 @@ export function tokenize(input: string): Tokens {
                 'rhythm',
                 'note',
                 'song',
+                'pitch_rhythm',
+                'degree_rhythm',
             ].includes(symbolValue)
         ) {
             tokens.push({ tokenType: 'type-keyword', value: symbol });

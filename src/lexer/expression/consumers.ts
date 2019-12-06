@@ -257,12 +257,9 @@ export function consumeElseUntilEnd(input: Tokens): Either<ParseError, { input: 
     let closeCurlyBraceCount = 0;
     let outerTerminatorSeen = false;
     let prevToken = initialToken;
-    let token = input.shift()!;
+    let token = input[0];
     let expressionBuffer = [];
     let ifCount = 0;
-    if (token.value.value === '{') {
-        openCurlyBraceCount += 1;
-    }
     while ((!outerTerminatorSeen || closeCurlyBraceCount !== openCurlyBraceCount) && input.length > 0) {
         expressionBuffer.push(token);
         prevToken = token;
@@ -274,7 +271,9 @@ export function consumeElseUntilEnd(input: Tokens): Either<ParseError, { input: 
                 reason: 'Unexpected EOF while parsing "else" branch of an if  expression',
             });
         }
-        if (token.value.value === '(') {
+        if (token.value.value === '{') {
+            openCurlyBraceCount += 1;
+        } else if (token.value.value === '(') {
             openParensCount += 1;
         } else if (token.value.value === ')') {
             closeParensCount += 1;

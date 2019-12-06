@@ -36,7 +36,7 @@ export interface LiteralScaleDegreeRhythm {
     scaleDegreeNumber: number;
     rhythm: LiteralRhythm;
     token: Token;
-    returnType: 'degree-rhythm';
+    returnType: 'degree_rhythm';
 }
 
 export interface LiteralRhythm {
@@ -72,7 +72,7 @@ export interface LiteralPitchRhythm {
     octave: number;
     noteName: string;
     token: Token;
-    returnType: 'pitch-rhythm';
+    returnType: 'pitch_rhythm';
     // TODO midiValue: number;
 }
 

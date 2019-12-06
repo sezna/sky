@@ -60,6 +60,21 @@ describe('Invalid ops tests', () => {
         }
         expect(isLeft(steps)).toBe(true);
     });
+    it('Should not allow values of the wrong type to be assigned to a variable', () => {
+        let program = `fn main():song { 
+          number x = 3;
+          x = c#4;
+        }`;
+        let steps = makeSyntaxTree(tokenize(program));
+        if (isRight(steps)) {
+            expect(true).toBe(false);
+            return;
+        }
+        expect(isLeft(steps)).toBe(true);
+        expect(steps.left.reason).toBe(
+            'Attempted to assign value of type "pitch" to variable "x", which has type "number".',
+        );
+    });
 });
 
 describe('If expression typechecking', () => {
@@ -73,7 +88,7 @@ describe('If expression typechecking', () => {
         }
         expect(isLeft(steps)).toBe(true);
         expect(steps.left.reason).toBe(
-            'Mismatched if expression: one branch returns type "number" while the other branch returns type "boolean"',
+            'Branches of if expression do not return the same type. The "then" branch returns type number but the "else" branch returns type boolean',
         );
     });
     it('Should not allow an if expression which returns a different type than the declaration of the variable', () => {

@@ -72,7 +72,7 @@ describe('scale degree operator tests', () => {
                 value: 'I',
             },
         };
-        let tokens = tokenize('degree x = iii; degree y = ii; number z = x + y;');
+        let tokens = tokenize('degree x = iii; degree y = ii; degree z = x + y;');
         let steps = makeSyntaxTree(tokens);
         if (isLeft(steps)) {
             console.log('Steps are', JSON.stringify(steps, null, 2));

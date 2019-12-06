@@ -25,14 +25,14 @@ describe('Function Declaration tests', () => {
         // the new rhythm+pitch literals in variable declarations
         // and sort out the errors afterwards
         let functionDecl = `fn test_func(): song {
-					note first_note = c#2 quarter;
-					note second_note = Db1 dotted half;
-					note third_note = ab1;
+					pitch_rhythm first_note = c#2 quarter;
+					pitch_rhythm second_note = Db1 dotted half;
+					pitch third_note = ab1;
 					number x = 2;
-					degree y = iii half;
+					degree_rhythm y = iii half;
 					
-					y = 10;
-					number z = y + x;
+					y = ii quarter;
+					number z = x + 3;
 					x = z;
 				}`;
         let tokens = tokenize(functionDecl);

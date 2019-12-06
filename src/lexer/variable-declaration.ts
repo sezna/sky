@@ -76,6 +76,14 @@ export function variableDeclaration(
         varType.value.value = exprVarType;
     }
 
+    if (varType.value.value !== parseResult.right.expression.returnType) {
+        return left({
+            line: varType.value.line,
+            column: varType.value.column,
+            reason: `Variable "${varName.value.value}" is declared with type "${varType.value.value}" but the expression assigned to it returns type "${parseResult.right.expression.returnType}"`,
+        });
+    }
+
     return right({
         input: input,
         declaration: {

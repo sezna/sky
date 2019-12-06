@@ -416,15 +416,12 @@ export function parseExpression(
             }
 
             let thenBranch = thenBranchResult.right.expression;
-
-            expressionContents = result.right.input;
-
-            result = consumeElseUntilEnd(expressionContents);
-            if (isLeft(result)) {
-                return result;
-            }
             let elseBranch;
             if (expressionContents.length > 0 && expressionContents[0].tokenType === 'else') {
+                result = consumeElseUntilEnd(expressionContents);
+                if (isLeft(result)) {
+                    return result;
+                }
                 let elseBranchResult = parseExpression(
                     [
                         ...result.right.tokens,

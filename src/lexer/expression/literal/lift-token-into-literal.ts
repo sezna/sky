@@ -51,7 +51,7 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
                     scaleDegreeNumber,
                     rhythm: { _type: 'LiteralRhythm', rhythmName, isDotted, token, returnType: 'rhythm' },
                     token,
-                    returnType: 'degree-rhythm',
+                    returnType: 'degree_rhythm',
                 };
             }
             break;
@@ -126,7 +126,7 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
                     rhythm: { _type: 'LiteralRhythm', rhythmName, isDotted, token, returnType: 'rhythm' },
                     octave,
                     token,
-                    returnType: 'pitch-rhythm',
+                    returnType: 'pitch_rhythm',
                 };
             }
             break;
