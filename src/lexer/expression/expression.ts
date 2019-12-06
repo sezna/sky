@@ -15,6 +15,7 @@ import { LiteralExp, isLiteral, liftTokenIntoLiteral } from './literal';
 export type Expression = IfExp | VarExp | OpExp | LiteralExp | FunctionApplication;
 
 interface IfExp {
+    _type: 'IfExp';
     condition: Expression;
     thenBranch: Expression;
     elseBranch?: Expression;
@@ -36,6 +37,7 @@ export interface OpExp {
 }
 
 interface FunctionApplication {
+    _type: 'FunctionApplication';
     functionName: Token;
     args: Expression[];
     returnType: string;
@@ -259,6 +261,7 @@ export function parseExpression(
                 let returnType = matchingFunctions[0].returnType.value.value;
                 // Now we have the arguments and the function name, so we can add it to the expression stack.
                 expressionStack.push({
+                    _type: 'FunctionApplication',
                     functionName,
                     args,
                     returnType,
@@ -363,6 +366,7 @@ export function parseExpression(
             });
         } else if (expressionContents[0].value.value === 'if') {
             // consume the stuff in between "if" and "then" and parse an expression out of it
+            let token = expressionContents[0]; // for error messages, keep track of the token
             let result = consumeIfUntilThen(expressionContents);
             if (isLeft(result)) {
                 return result;
@@ -443,11 +447,28 @@ export function parseExpression(
             } else {
                 elseBranch = undefined;
             }
+            // Typecheck the condition to be boolean and that the two branches return the same type.
+            if (condition.returnType !== 'boolean') {
+                return left({
+                    line: token.value.line,
+                    column: token.value.column,
+                    reason: `Condition of if expression does not return a boolean`,
+                });
+            }
+            if (elseBranch && elseBranch.returnType !== thenBranch.returnType) {
+                return left({
+                    line: token.value.line,
+                    column: token.value.column,
+                    reason: `Branches of if expression do not return the same type. The "then" branch returns type ${thenBranch.returnType} but the "else" branch returns type ${elseBranch.returnType}`,
+                });
+            }
+
             expressionStack.push({
+                _type: 'IfExp',
                 condition,
                 thenBranch,
                 elseBranch,
-                returnType: 'none', // TODO how to figure out the return types of branches in if expressions?
+                returnType: thenBranch.returnType, // TODO how to figure out the return types of branches in if expressions?
             });
         } else {
             return left({

@@ -10,7 +10,6 @@ describe('Invalid ops tests', () => {
         let tokens = tokenize('degree x = iv; degree y = i; degree z = x * y;');
         let steps = makeSyntaxTree(tokens);
         if (isRight(steps)) {
-            console.log('Steps are', JSON.stringify(steps, null, 2));
             expect(true).toBe(false);
             return;
         }
@@ -20,7 +19,6 @@ describe('Invalid ops tests', () => {
         let tokens = tokenize('degree x = iv; degree y = i; degree z = x / y;');
         let steps = makeSyntaxTree(tokens);
         if (isRight(steps)) {
-            console.log('Steps are', JSON.stringify(steps, null, 2));
             expect(true).toBe(false);
             return;
         }
@@ -30,7 +28,6 @@ describe('Invalid ops tests', () => {
         let tokens = tokenize('number x = 10; number y = 2; boolean z = false; number a = (x + y) - z;');
         let steps = makeSyntaxTree(tokens);
         if (isRight(steps)) {
-            console.log('Steps are', JSON.stringify(steps, null, 2));
             expect(true).toBe(false);
             return;
         }
@@ -40,7 +37,6 @@ describe('Invalid ops tests', () => {
         let tokens = tokenize('number x = 10; number y = 2; boolean z = false; number a = (x + y - z);');
         let steps = makeSyntaxTree(tokens);
         if (isRight(steps)) {
-            console.log('Steps are', JSON.stringify(steps, null, 2));
             expect(true).toBe(false);
             return;
         }
@@ -50,7 +46,6 @@ describe('Invalid ops tests', () => {
         let tokens = tokenize('number x = 10; number y = 2; boolean z = false; number a = y - z;');
         let steps = makeSyntaxTree(tokens);
         if (isRight(steps)) {
-            console.log('Steps are', JSON.stringify(steps, null, 2));
             expect(true).toBe(false);
             return;
         }
@@ -60,7 +55,6 @@ describe('Invalid ops tests', () => {
         let tokens = tokenize('number z = false + 3;');
         let steps = makeSyntaxTree(tokens);
         if (isRight(steps)) {
-            console.log('Steps are', JSON.stringify(steps, null, 2));
             expect(true).toBe(false);
             return;
         }
@@ -74,7 +68,6 @@ describe('If expression typechecking', () => {
 
         let steps = makeSyntaxTree(tokenize(program));
         if (isRight(steps)) {
-            console.log('Steps are', JSON.stringify(steps, null, 2));
             expect(true).toBe(false);
             return;
         }
@@ -88,7 +81,6 @@ describe('If expression typechecking', () => {
 
         let steps = makeSyntaxTree(tokenize(program));
         if (isRight(steps)) {
-            console.log('Steps are', JSON.stringify(steps, null, 2));
             expect(true).toBe(false);
             return;
         }
@@ -99,7 +91,7 @@ describe('If expression typechecking', () => {
 
         let steps = makeSyntaxTree(tokenize(program));
         if (isLeft(steps)) {
-            console.log('Steps are', JSON.stringify(steps, null, 2));
+            console.log('Error: ', steps.left.reason);
             expect(true).toBe(false);
             return;
         }
@@ -110,7 +102,7 @@ describe('If expression typechecking', () => {
 
         let steps = makeSyntaxTree(tokenize(program));
         if (isLeft(steps)) {
-            console.log('Steps are', JSON.stringify(steps, null, 2));
+            console.log('Error: ', steps.left.reason);
             expect(true).toBe(false);
             return;
         }
@@ -121,7 +113,6 @@ describe('If expression typechecking', () => {
 
         let steps = makeSyntaxTree(tokenize(program));
         if (isRight(steps)) {
-            console.log('Steps are', JSON.stringify(steps, null, 2));
             expect(true).toBe(false);
             return;
         }

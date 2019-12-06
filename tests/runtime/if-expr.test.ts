@@ -11,7 +11,7 @@ describe('if expr tests', () => {
         let steps = makeSyntaxTree(tokenize(program));
 
         if (isLeft(steps)) {
-            console.log("Error: ", steps.left.reason);
+            console.log('Error: ', steps.left.reason);
             // for typescript's type inference
             expect(true).toBe(false);
             return;
@@ -19,7 +19,7 @@ describe('if expr tests', () => {
         let result = runtime(steps.right);
 
         if (isLeft(result)) {
-            console.log("Error: ", result.left.reason);
+            console.log('Error: ', result.left.reason);
             // for typescript's type inference
             expect(true).toBe(false);
             return;
@@ -32,7 +32,7 @@ describe('if expr tests', () => {
                    }`;
         let steps = makeSyntaxTree(tokenize(program));
         if (isLeft(steps)) {
-            console.log("Error: ", steps.left.reason);
+            console.log('Error: ', steps.left.reason);
             // for typescript's type inference
             expect(true).toBe(false);
             return;
@@ -40,7 +40,7 @@ describe('if expr tests', () => {
         let result = runtime(steps.right);
 
         if (isLeft(result)) {
-            console.log("Error: ", result.left.reason);
+            console.log('Error: ', result.left.reason);
             // for typescript's type inference
             expect(true).toBe(false);
             return;

@@ -192,7 +192,7 @@ export function evaluate(
         return left({
             line: 0,
             column: 0,
-            reason: `Unimplemented step: ${JSON.stringify(step, null, 2)}`,
+            reason: `Unimplemented step: ${step._type}`,
         });
     }
 
