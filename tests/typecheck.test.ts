@@ -140,3 +140,122 @@ describe('If expression typechecking', () => {
         expect(isLeft(steps)).toBe(true);
     });
 });
+
+describe('function application typechecking', () => {
+    it('should reject a function that returns the wrong type', () => {
+        let program = `fn main():song {
+      pitch x = other_func();
+    }
+    
+    fn other_func(): number {
+       return c#3; -- this mismatch should get caught
+    }`;
+        let steps = makeSyntaxTree(tokenize(program));
+        if (isRight(steps)) {
+            expect(true).toBe(false);
+            return;
+        }
+        expect(isLeft(steps)).toBe(true);
+        expect(steps.left.reason).toBe(
+            'Expected function "other_func" to return type "song" but received type "pitch" instead.',
+        );
+    });
+    it('should reject a function in an assignment that returns the wrong type', () => {
+        let program = `fn main():song {
+      pitch x = other_func(); --this mismatch should get caught
+    }
+    
+    fn other_func(): number {
+       return 10;
+    }`;
+        let steps = makeSyntaxTree(tokenize(program));
+        if (isRight(steps)) {
+            expect(true).toBe(false);
+            return;
+        }
+        expect(isLeft(steps)).toBe(true);
+        expect(steps.left.reason).toBe('Mismatched type: ');
+    });
+    it('should reject a function in an operation that returns the wrong type #1', () => {
+        let program = `fn main():song {
+      number result = C#1 + other_func();
+    }
+    
+    fn other_func(): number {
+       return 10;
+    }`;
+        let steps = makeSyntaxTree(tokenize(program));
+        if (isRight(steps)) {
+            expect(true).toBe(false);
+            return;
+        }
+        expect(isLeft(steps)).toBe(true);
+        expect(steps.left.reason).toBe('Mismatched type: ');
+    });
+    it('should reject a function in an operation that returns the wrong type #2', () => {
+        let program = `fn main():song {
+      pitch result = C#1 + other_func();
+    }
+    
+    fn other_func(): number {
+       return 10;
+    }`;
+        let steps = makeSyntaxTree(tokenize(program));
+        if (isRight(steps)) {
+            expect(true).toBe(false);
+            return;
+        }
+        expect(isLeft(steps)).toBe(true);
+        expect(steps.left.reason).toBe('Mismatched type: ');
+    });
+    it("Should reject a function which doesn't return anything", () => {
+        let program = `fn main():song { --the lack of "song" return should get caught
+      pitch result = C#1;
+    }
+    `;
+        let steps = makeSyntaxTree(tokenize(program));
+        if (isRight(steps)) {
+            expect(true).toBe(false);
+            return;
+        }
+        expect(isLeft(steps)).toBe(true);
+        expect(steps.left.reason).toBe('Mismatched type: ');
+    });
+    it('Should identify in a complicated expression an invalid function application type', () => {
+        let program = `fn main():song { --the lack of "song" return should get caught
+      number x = 10;
+      number y = 20;
+      number z = (1 + x) - (3 * y * x) + (x - other_func());
+    }
+    fn other_func(): boolean {
+       return false;
+    }
+    `;
+        let steps = makeSyntaxTree(tokenize(program));
+        if (isRight(steps)) {
+            expect(true).toBe(false);
+            return;
+        }
+        expect(isLeft(steps)).toBe(true);
+        expect(steps.left.reason).toBe('Mismatched type: ');
+    });
+    it('Should allow a valid function call in a complicated operation', () => {
+        let program = `fn main():song { --the lack of "song" return should get caught
+      number x = 10;
+      number y = 20;
+      number z = (1 + x) - (3 * y * x) + (x - other_func());
+    }
+    fn other_func(): number {
+       return 10;
+    }
+    `;
+        let steps = makeSyntaxTree(tokenize(program));
+        if (isLeft(steps)) {
+            console.log('Error: ', steps.left.reason);
+            expect(true).toBe(false);
+            return;
+        }
+        expect(isRight(steps)).toBe(true);
+        ``;
+    });
+});
