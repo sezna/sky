@@ -14,7 +14,7 @@ import { precedence, opReturnTypeMap } from './utils';
 import { LiteralExp, isLiteral, liftTokenIntoLiteral } from './literal';
 export type Expression = IfExp | VarExp | OpExp | LiteralExp | FunctionApplication;
 
-interface IfExp {
+export interface IfExp {
     _type: 'IfExp';
     condition: Expression;
     thenBranch: Expression;
@@ -462,13 +462,20 @@ export function parseExpression(
                     reason: `Branches of if expression do not return the same type. The "then" branch returns type ${thenBranch.returnType} but the "else" branch returns type ${elseBranch.returnType}`,
                 });
             }
+            // If there is no else branch, then this must return 'none'/
+            let returnType;
+            if (!elseBranch) {
+                returnType = 'none';
+            } else {
+                returnType = thenBranch.returnType;
+            }
 
             expressionStack.push({
                 _type: 'IfExp',
                 condition,
                 thenBranch,
                 elseBranch,
-                returnType: thenBranch.returnType, // TODO how to figure out the return types of branches in if expressions?
+                returnType,
             });
         } else {
             return left({

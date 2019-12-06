@@ -1,2 +1,2 @@
-export { Expression, VarExp, OpExp, parseExpression } from './expression';
+export * from './expression';
 export { LiteralExp } from './literal';

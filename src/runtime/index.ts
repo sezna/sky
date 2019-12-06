@@ -4,7 +4,7 @@ import * as LiteralTypes from '../lexer/expression/literal';
 import { Either, right, left, isLeft } from 'fp-ts/lib/Either';
 import { VariableDeclaration } from '../lexer/variable-declaration';
 import { FunctionDeclaration } from '../lexer/function-declaration';
-import { LiteralExp, OpExp, VarExp } from '../lexer/expression';
+import { IfExp, LiteralExp, OpExp, VarExp } from '../lexer/expression';
 import { addition, multiplication, division, subtraction, and, or } from './operators';
 
 interface SkyOutput {
@@ -85,7 +85,7 @@ export function evaluate(
 ): Either<RuntimeError, EvalResult> {
     let returnValue;
     let returnType;
-    if ((step as VariableDeclaration)._type === 'VariableDeclaration') {
+    if (step._type === 'VariableDeclaration') {
         step = step as VariableDeclaration;
         let value = evaluate((step as VariableDeclaration).varBody, functionEnvironment, variableEnvironment);
         if (isLeft(value)) {
@@ -110,7 +110,7 @@ export function evaluate(
             varType: (step as VariableDeclaration).varType.value.value,
         };
         // TODO validate that type matches return value
-    } else if ((step as LiteralExp)._type === 'LiteralExp') {
+    } else if (step._type === 'LiteralExp') {
         let result = evalLiteral(step as LiteralExp);
         if (isLeft(result)) {
             return result;
@@ -118,7 +118,7 @@ export function evaluate(
         let lit = result.right;
         returnValue = lit.returnValue;
         returnType = lit.returnType;
-    } else if ((step as OpExp)._type === 'OpExp') {
+    } else if (step._type === 'OpExp') {
         let leftResult = evaluate((step as OpExp).left, functionEnvironment, variableEnvironment);
         let rightResult = evaluate((step as OpExp).right, functionEnvironment, variableEnvironment);
         if (isLeft(leftResult)) {
@@ -169,7 +169,7 @@ export function evaluate(
         // assume they are numbers
         returnType = opResult.right.valueType;
         returnValue = opResult.right.value;
-    } else if ((step as VarExp)._type === 'VarExp') {
+    } else if (step._type === 'VarExp') {
         let varValue = variableEnvironment[(step as VarExp).varName.value.value];
         if (varValue === undefined) {
             return left({
@@ -180,7 +180,7 @@ export function evaluate(
         }
         returnType = varValue.varType;
         returnValue = varValue.value;
-    } else if ((step as FunctionDeclaration)._type === 'FunctionDeclaration') {
+    } else if (step._type === 'FunctionDeclaration') {
         let funcDeclStep = step as FunctionDeclaration;
         functionEnvironment[funcDeclStep.functionName.value.value] = {
             _type: 'Func',
@@ -188,6 +188,23 @@ export function evaluate(
             body: funcDeclStep.body,
             returnType: funcDeclStep.returnType.value.value,
         };
+    } else if (step._type === 'IfExp') {
+        let conditionResult = evaluate((step as IfExp).condition, functionEnvironment, variableEnvironment);
+        if (isLeft(conditionResult)) {
+            return conditionResult;
+        }
+        let condition = conditionResult.right;
+        let branchResult;
+        // If there is a 'then' and an 'else', then this is an evaluatable expression. If there is only a 'then', then this returns type 'none'.
+        if (condition.returnValue === true) {
+            branchResult = evaluate((step as IfExp).thenBranch, functionEnvironment, variableEnvironment);
+        } else {
+            if ((step as IfExp).elseBranch !== undefined) {
+                branchResult = evaluate((step as IfExp).elseBranch!, functionEnvironment, variableEnvironment);
+            }
+        }
+        returnType = step.returnType;
+        returnValue = branchResult;
     } else {
         return left({
             line: 0,
@@ -237,7 +254,6 @@ function evalLiteral(
             returnType = 'pitch';
             break;
         case 'LiteralList':
-            // TODO validate all the list contents are the same type, set the type here. !!!!!!!
             let returnTypes = (literal as LiteralTypes.LiteralList).listContents.map(x => x.returnType);
             let typesMatch = returnTypes.filter(x => x === returnTypes[0]).length === returnTypes.length;
             if (!typesMatch) {
