@@ -143,13 +143,15 @@ describe('If expression typechecking', () => {
 
 describe('function application typechecking', () => {
     it('should reject a function that returns the wrong type', () => {
-        let program = `fn main():song {
-      pitch x = other_func();
-    }
-    
+        let program = `
     fn other_func(): number {
        return c#3; -- this mismatch should get caught
-    }`;
+    }
+
+    fn main():song {
+      pitch x = other_func();
+    }
+    `;
         let steps = makeSyntaxTree(tokenize(program));
         if (isRight(steps)) {
             expect(true).toBe(false);
@@ -161,13 +163,15 @@ describe('function application typechecking', () => {
         );
     });
     it('should reject a function in an assignment that returns the wrong type', () => {
-        let program = `fn main():song {
-      pitch x = other_func(); --this mismatch should get caught
-    }
-    
+        let program = `
     fn other_func(): number {
        return 10;
-    }`;
+    }
+
+    fn main():song {
+      pitch x = other_func(); --this mismatch should get caught
+    }
+    `;
         let steps = makeSyntaxTree(tokenize(program));
         if (isRight(steps)) {
             expect(true).toBe(false);
@@ -177,13 +181,15 @@ describe('function application typechecking', () => {
         expect(steps.left.reason).toBe('Mismatched type: ');
     });
     it('should reject a function in an operation that returns the wrong type #1', () => {
-        let program = `fn main():song {
-      number result = C#1 + other_func();
-    }
-    
+        let program = `
     fn other_func(): number {
        return 10;
-    }`;
+    }
+    
+    fn main():song {
+      number result = C#1 + other_func();
+    }
+    `;
         let steps = makeSyntaxTree(tokenize(program));
         if (isRight(steps)) {
             expect(true).toBe(false);
@@ -193,13 +199,15 @@ describe('function application typechecking', () => {
         expect(steps.left.reason).toBe('Mismatched type: ');
     });
     it('should reject a function in an operation that returns the wrong type #2', () => {
-        let program = `fn main():song {
-      pitch result = C#1 + other_func();
-    }
-    
+        let program = `
     fn other_func(): number {
        return 10;
-    }`;
+    }
+
+    fn main():song {
+      pitch result = C#1 + other_func();
+    }
+    `;
         let steps = makeSyntaxTree(tokenize(program));
         if (isRight(steps)) {
             expect(true).toBe(false);
@@ -222,13 +230,15 @@ describe('function application typechecking', () => {
         expect(steps.left.reason).toBe('Mismatched type: ');
     });
     it('Should identify in a complicated expression an invalid function application type', () => {
-        let program = `fn main():song { --the lack of "song" return should get caught
+        let program = `
+    fn other_func(): boolean {
+       return false;
+    }
+
+    fn main():song { --the lack of "song" return should get caught
       number x = 10;
       number y = 20;
       number z = (1 + x) - (3 * y * x) + (x - other_func());
-    }
-    fn other_func(): boolean {
-       return false;
     }
     `;
         let steps = makeSyntaxTree(tokenize(program));
@@ -240,13 +250,15 @@ describe('function application typechecking', () => {
         expect(steps.left.reason).toBe('Mismatched type: ');
     });
     it('Should allow a valid function call in a complicated operation', () => {
-        let program = `fn main():song { --the lack of "song" return should get caught
+        let program = `
+    fn other_func(): number {
+       return 10;
+    }
+
+    fn main():song { --the lack of "song" return should get caught
       number x = 10;
       number y = 20;
       number z = (1 + x) - (3 * y * x) + (x - other_func());
-    }
-    fn other_func(): number {
-       return 10;
     }
     `;
         let steps = makeSyntaxTree(tokenize(program));
@@ -256,6 +268,5 @@ describe('function application typechecking', () => {
             return;
         }
         expect(isRight(steps)).toBe(true);
-        ``;
     });
 });
