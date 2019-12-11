@@ -159,7 +159,7 @@ describe('function application typechecking', () => {
         }
         expect(isLeft(steps)).toBe(true);
         expect(steps.left.reason).toBe(
-            'Expected function "other_func" to return type "song" but received type "pitch" instead.',
+            `Function "other_func" is declared to return type "number" but actually returns type "pitch"`,
         );
     });
     it('should reject a function in an assignment that returns the wrong type', () => {
@@ -178,7 +178,9 @@ describe('function application typechecking', () => {
             return;
         }
         expect(isLeft(steps)).toBe(true);
-        expect(steps.left.reason).toBe('Mismatched type: ');
+        expect(steps.left.reason).toBe(
+            `Variable "x" is declared with type "pitch" but the expression assigned to it returns type "number"`,
+        );
     });
     it('should reject a function in an operation that returns the wrong type #1', () => {
         let program = `
@@ -196,7 +198,7 @@ describe('function application typechecking', () => {
             return;
         }
         expect(isLeft(steps)).toBe(true);
-        expect(steps.left.reason).toBe('Mismatched type: ');
+        expect(steps.left.reason).toBe('Operator + is not implemented for type "number" and "pitch"');
     });
     it('should reject a function in an operation that returns the wrong type #2', () => {
         let program = `
@@ -214,7 +216,7 @@ describe('function application typechecking', () => {
             return;
         }
         expect(isLeft(steps)).toBe(true);
-        expect(steps.left.reason).toBe('Mismatched type: ');
+        expect(steps.left.reason).toBe('Operator + is not implemented for type "number" and "pitch"');
     });
     it("Should reject a function which doesn't return anything", () => {
         let program = `fn main():song { --the lack of "song" return should get caught
@@ -247,7 +249,7 @@ describe('function application typechecking', () => {
             return;
         }
         expect(isLeft(steps)).toBe(true);
-        expect(steps.left.reason).toBe('Mismatched type: ');
+        expect(steps.left.reason).toBe('Operator - is not implemented for type "number" and "boolean"');
     });
     it('Should allow a valid function call in a complicated operation', () => {
         let program = `

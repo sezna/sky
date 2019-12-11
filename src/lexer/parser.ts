@@ -5,9 +5,13 @@ import { variableDeclaration, VariableDeclaration } from './variable-declaration
 import { Expression, parseExpression } from './expression/expression';
 
 type Declaration = FunctionDeclaration | VariableDeclaration | Reassignment;
-
-export type Step = Expression | Declaration;
+export type Step = Expression | Declaration | Return;
 export type Steps = Step[];
+
+export interface Return {
+    _type: 'Return';
+    returnExpr: Expression;
+}
 
 export interface Reassignment {
     _type: 'Reassignment';
@@ -106,18 +110,31 @@ export function makeFunctionBodySyntaxTree(
                 return left(parseResult.left);
             }
         } else if (input[0].tokenType === 'return-keyword') {
+            let returnKeyword = input.shift()!; // remove te word "return" itself
+            if (input.length === 0) {
+                return left({
+                    line: returnKeyword.value.line,
+                    column: returnKeyword.value.column,
+                    reason: `Expected expression after "return" keyword but received end of input`,
+                });
+            }
             let returnExprResult = parseExpression(input, functionNamespace, variableNamespace);
             if (isLeft(returnExprResult)) {
                 return returnExprResult;
             }
-            let returnExpr = returnExprResult.right;
-            if (input[0].value.value !== returnType.value.value) {
+            let returnExpr = returnExprResult.right.expression;
+
+            if (returnExpr.returnType !== returnType.value.value) {
                 return left({
-                    line: input[0].value.line,
-                    column: input[0].value.column,
-                    reason: `Type mismatch. Function "${functionNameToken.value.value}" (declared at line ${functionNameToken.value.line}, column ${functionNameToken.value.column})  is declared to have return type "${returnType.value.value}" but returns a value of type "${returnExpr.expression.returnType}".`,
+                    line: returnKeyword.value.line,
+                    column: returnKeyword.value.column,
+                    reason: `Function "${functionNameToken.value.value}" is declared to return type "${returnType.value.value}" but actually returns type "${returnExpr.returnType}"`,
                 });
             }
+            steps.push({
+                _type: 'Return',
+                returnExpr,
+            });
         } else if (input[0].tokenType === 'name') {
             // Determine if this is a variable name, function name, or undeclared name.
             let matchingFunctions = functionNamespace.filter(x => x.functionName.value.value === input[0].value.value);
