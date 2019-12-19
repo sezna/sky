@@ -379,11 +379,13 @@ export function parseExpression(
         } else if (expressionContents[0].value.value === 'if') {
             // consume the stuff in between "if" and "then" and parse an expression out of it
             let token = expressionContents[0]; // for error messages, keep track of the token
+            console.log('input before consuming if:', expressionContents.map(x => x.value.value));
             let result = consumeIfUntilThen(expressionContents);
             if (isLeft(result)) {
                 return result;
             }
             expressionContents = result.right.input;
+            console.log('input after consuming if:', expressionContents.map(x => x.value.value));
             let conditionResult = parseExpression(
                 [
                     ...result.right.tokens,

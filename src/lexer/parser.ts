@@ -101,6 +101,7 @@ export function makeFunctionBodySyntaxTree(
     }
     while (input.length > 0) {
         if (input[0].tokenType === 'type-keyword') {
+            console.log('giving to variableDeclaration: ', input.map(x => x.value.value));
             const parseResult = variableDeclaration(input, functionNamespace, variableNamespace);
             if (isRight(parseResult)) {
                 input = parseResult.right.input;

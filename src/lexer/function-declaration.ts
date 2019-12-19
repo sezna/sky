@@ -51,7 +51,7 @@ export function functionDeclaration(
         return left({
             line: prevToken.value.line,
             column: prevToken.value.column,
-            reason: `Unexpected EOF after function keyword ('fn')`,
+            reason: `Unexpected end of input after function keyword ('fn')`,
         });
     }
     // Get the argument list out of the function signature
@@ -63,7 +63,7 @@ export function functionDeclaration(
             return left({
                 line: prevToken.value.line,
                 column: prevToken.value.column,
-                reason: `Unexpected EOF in function "${functionName}" declaration after open parenthesis `,
+                reason: `Unexpected end of input in function "${functionName}" declaration after open parenthesis `,
             });
         }
         const argName = token;
@@ -81,7 +81,7 @@ export function functionDeclaration(
             return left({
                 line: prevToken.value.line,
                 column: prevToken.value.column,
-                reason: `Unexpected EOF in function parameters declaration for function "${functionName}". Expected a colon (':') and type name after parameter "${argName.value.value}".`,
+                reason: `Unexpected end of input in function parameters declaration for function "${functionName}". Expected a colon (':') and type name after parameter "${argName.value.value}".`,
             });
         }
         prevToken = token;
@@ -97,7 +97,7 @@ export function functionDeclaration(
             return left({
                 line: prevToken.value.line,
                 column: prevToken.value.column,
-                reason: `Unexpected EOF in function declaration for function "${functionName}" after colon (':'). Expected a type name for parameter "${argName.value.value}".`,
+                reason: `Unexpected end of input in function declaration for function "${functionName}" after colon (':'). Expected a type name for parameter "${argName.value.value}".`,
             });
         }
         const typeName = token!;
@@ -126,7 +126,7 @@ export function functionDeclaration(
         return left({
             line: prevToken.value.line,
             column: prevToken.value.column,
-            reason: `Unexpected EOF in function declaration for function "${functionName}" after colon (':'). Expected a type name.`,
+            reason: `Unexpected end of input in function declaration for function "${functionName}" after colon (':'). Expected a type name.`,
         });
     }
 
@@ -155,7 +155,7 @@ export function functionDeclaration(
         return left({
             line: prevToken.value.line,
             column: prevToken.value.column,
-            reason: `Unexpected EOF in function declaration for function "${functionName}." Expected a body enclosed in curly brackets.`,
+            reason: `Unexpected end of input in function declaration for function "${functionName}." Expected a body enclosed in curly brackets.`,
         });
     }
     let bodyTokens: Tokens = [];
@@ -171,6 +171,9 @@ export function functionDeclaration(
             });
         }
     }
+    // Now, add the final closing brace. We know this next token is a closing brace due to the while loop condition.
+    bodyTokens.push(input.shift()!);
+
     let bodyResult = makeFunctionBodySyntaxTree(
         bodyTokens,
         functionNamespace,

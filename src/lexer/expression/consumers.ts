@@ -107,7 +107,7 @@ export function consumeIfUntilThen(input: Tokens): Either<ParseError, { input: T
             return left({
                 line: prevToken.value.line,
                 column: prevToken.value.column,
-                reason: 'Unexpected EOF while parsing if expression',
+                reason: 'Unexpected end of input while parsing if expression',
             });
         }
         if (token.tokenType === 'if') {
@@ -173,7 +173,7 @@ export function consumeThenUntilElse(input: Tokens): Either<ParseError, { input:
             return left({
                 line: prevToken.value.line,
                 column: prevToken.value.column,
-                reason: 'Unexpected EOF while parsing "then" expression',
+                reason: 'Unexpected end of input while parsing "then" expression',
             });
         }
         if (token.value.value === '(') {
