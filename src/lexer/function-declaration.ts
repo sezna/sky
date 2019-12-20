@@ -23,6 +23,7 @@ export function functionDeclaration(
     const functionNameToken = input.shift()!;
     const functionName = functionNameToken.value.value;
     const conflictingFunctionNames = functionNamespace.filter(x => x.functionName.value.value === functionName);
+    // getting the function name
     if (conflictingFunctionNames.length > 0) {
         return left({
             line: token.value.line,
@@ -38,6 +39,7 @@ export function functionDeclaration(
             reason: `Function "${functionName}"'s name conflicts with variable of the same name declared at line ${conflictingVariableNames[0].varName.value.line}, column ${conflictingVariableNames[0].varName.value.column}`,
         });
     }
+    // matching the args
     let prevToken = token;
     token = input.shift()!;
     if (token && token!.value.value !== '(') {
@@ -66,9 +68,11 @@ export function functionDeclaration(
                 reason: `Unexpected end of input in function "${functionName}" declaration after open parenthesis `,
             });
         }
+        // name for first arg
         const argName = token;
         prevToken = token;
         token = input.shift()!;
+        // colon for first var
         if (token && token.tokenType !== 'type-ascription') {
             return left({
                 line: token.value.line,
@@ -113,6 +117,7 @@ export function functionDeclaration(
         prevToken = token;
         token = input.shift()!;
     }
+    // get the return type of the function
     prevToken = token;
     token = input.shift()!;
     if (token && token.tokenType !== 'type-ascription') {
@@ -130,6 +135,7 @@ export function functionDeclaration(
         });
     }
 
+    // return type itself
     prevToken = token;
     token = input.shift()!;
     if (token && token.tokenType !== 'type-keyword') {
@@ -158,12 +164,21 @@ export function functionDeclaration(
             reason: `Unexpected end of input in function declaration for function "${functionName}." Expected a body enclosed in curly brackets.`,
         });
     }
+
+    // opening the function body
     let bodyTokens: Tokens = [];
-    while (token!.value.value !== '}') {
+    let openingBraceCount = 1;
+    let closingBraceCount = 0;
+    while (closingBraceCount < openingBraceCount) {
+        console.log('looping', token.value.value);
         bodyTokens.push(token!);
         prevToken = token;
         token = input.shift()!;
-        if (token === undefined) {
+        if (token.value.value === '}') {
+            closingBraceCount += 1;
+        } else if (token.value.value === '{') {
+            openingBraceCount += 1;
+        } else if (token === undefined) {
             return left({
                 line: prevToken.value.line,
                 column: prevToken.value.column,
@@ -171,6 +186,7 @@ export function functionDeclaration(
             });
         }
     }
+    console.log('body tokens length is:', bodyTokens.length);
     // Now, add the final closing brace. We know this next token is a closing brace due to the while loop condition.
     bodyTokens.push(input.shift()!);
 

@@ -76,6 +76,7 @@ export function makeFunctionBodySyntaxTree(
     functionNameToken: Token,
     returnType: Token,
 ): Either<ParseError, Steps> {
+    console.log('makeFunctionBodySyntaxTree received', input.length);
     let functionNamespace = [...initialFunctionNamespace];
     let variableNamespace = [...initialVariableNamespace];
     let steps: Steps = [];
@@ -101,7 +102,7 @@ export function makeFunctionBodySyntaxTree(
     }
     while (input.length > 0) {
         if (input[0].tokenType === 'type-keyword') {
-            console.log('giving to variableDeclaration: ', input.map(x => x.value.value));
+            //console.log('giving to variableDeclaration: ', input.map(x => x.value.value));
             const parseResult = variableDeclaration(input, functionNamespace, variableNamespace);
             if (isRight(parseResult)) {
                 input = parseResult.right.input;

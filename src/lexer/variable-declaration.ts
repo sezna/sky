@@ -65,7 +65,7 @@ export function variableDeclaration(
 
     console.log('giving to parseExpression: ', input.map(x => x.value.value));
     let parseResult = parseExpression(input, functionNamespace, variableNamespace);
-    console.log('parseExpression returned', JSON.stringify(parseResult, null, 2));
+    //  console.log('parseExpression returned', (parseResult as any).right.map((x: Token) => x.value.value));
     if (isLeft(parseResult)) {
         return parseResult;
     }
