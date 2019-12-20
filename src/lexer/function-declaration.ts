@@ -187,8 +187,6 @@ export function functionDeclaration(
         }
     }
     console.log('body tokens length is:', bodyTokens.length);
-    // Now, add the final closing brace. We know this next token is a closing brace due to the while loop condition.
-    bodyTokens.push(input.shift()!);
 
     let bodyResult = makeFunctionBodySyntaxTree(
         bodyTokens,
