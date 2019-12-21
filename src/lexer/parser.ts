@@ -120,6 +120,7 @@ export function makeFunctionBodySyntaxTree(
                     reason: `Expected expression after "return" keyword but received end of input`,
                 });
             }
+            console.log('input 1:', input[0].value.value);
             let returnExprResult = parseExpression(input, functionNamespace, variableNamespace);
             if (isLeft(returnExprResult)) {
                 return returnExprResult;
@@ -157,6 +158,7 @@ export function makeFunctionBodySyntaxTree(
             }
             let typeOfName = matchingFunctions.length === 1 ? 'function' : 'variable';
             if (typeOfName === 'function') {
+                console.log('input 2:', input[0].value.value);
                 let functionApplicationResult = parseExpression(input, functionNamespace, variableNamespace);
                 if (isLeft(functionApplicationResult)) {
                     return functionApplicationResult;
@@ -175,6 +177,7 @@ export function makeFunctionBodySyntaxTree(
                 steps.push(reassignment.reassignment);
             }
         } else {
+            console.log('input 3:', input[0].value.value);
             let expressionResult = parseExpression(input, functionNamespace, variableNamespace);
             if (isLeft(expressionResult)) {
                 return expressionResult;
@@ -229,6 +232,7 @@ function reassignVariable(
         });
     }
 
+    console.log('input 4:', input[0].value.value);
     let newVarBodyResult = parseExpression(input, functionNamespace, variableNamespace);
 
     if (isLeft(newVarBodyResult)) {

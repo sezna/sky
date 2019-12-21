@@ -58,10 +58,12 @@ export function parseExpression(
     variableNamespace: VariableDeclaration[],
 ): Either<ParseError, { input: Tokens; expression: Expression }> {
     // Extract the expression out of the beginning of the input.
+    console.log('parse expression got', input.map(x => x.value.value));
     const result = consumeExpression(input);
     if (isLeft(result)) {
         return result;
     }
+    console.log('extracted', result.right.tokens.map(x => x.value.value));
 
     input = result.right.input;
 

@@ -59,11 +59,11 @@ export function variableDeclaration(
         return left({
             line: equals.value.line,
             column: equals.value.column,
-            reason: `Expected an equals sign ("=") after variable name "${varName.value.value}", but instead received "${equals.value.value}."`,
+            reason: `Expected an equals sign ("=") after variable name "${varName.value.value}", but instead received "${equals.value.value}".`,
         });
     }
 
-    console.log('giving to parseExpression: ', input.map(x => x.value.value));
+    console.log('input 7: ', input[0].value.value);
     let parseResult = parseExpression(input, functionNamespace, variableNamespace);
     //  console.log('parseExpression returned', (parseResult as any).right.map((x: Token) => x.value.value));
     if (isLeft(parseResult)) {

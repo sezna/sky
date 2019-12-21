@@ -48,9 +48,12 @@ export function consumeExpression(input: Tokens): Either<ParseError, { input: To
     }
     // If there is nothing enclosing the current expression, then we consume until a semicolon or a "then" indicating that this is within an if expression
     else {
+        let openCurlyBracketCount = 0;
+        let closeCurlyBracketCount = 0;
+        console.log('non bracket consuming');
         // keep track of this for a good error message
         let prevToken = token;
-        while (token.tokenType !== 'statement-terminator') {
+        while (closeCurlyBracketCount < openCurlyBracketCount || token.tokenType !== 'statement-terminator') {
             expressionBuffer.push(token);
             token = input.shift()!;
             if (token === undefined) {
@@ -59,6 +62,10 @@ export function consumeExpression(input: Tokens): Either<ParseError, { input: To
                     column: prevToken.value.column,
                     reason: "Expression never terminated. Perhaps there's a missing semicolon here?",
                 });
+            } else if (token.value.value === '{') {
+                openCurlyBracketCount += 1;
+            } else if (token.value.value === '}') {
+                closeCurlyBracketCount += 1;
             }
         }
     }
@@ -166,9 +173,6 @@ export function consumeThenUntilElse(input: Tokens): Either<ParseError, { input:
     let expressionBuffer = [];
     let ifCount = 0;
     while (!outerTerminatorSeen) {
-        expressionBuffer.push(token);
-        prevToken = token;
-        token = input.shift()!;
         if (token === undefined) {
             return left({
                 line: prevToken.value.line,
@@ -176,26 +180,32 @@ export function consumeThenUntilElse(input: Tokens): Either<ParseError, { input:
                 reason: 'Unexpected end of input while parsing "then" expression',
             });
         }
+        console.log('token:', token.value);
         if (token.value.value === '(') {
             openParensCount += 1;
         } else if (token.value.value === ')') {
             closeParensCount += 1;
         } else if (token.value.value === '{') {
             openCurlyBraceCount += 1;
+            console.log('open!', openCurlyBraceCount, closeCurlyBraceCount);
         } else if (token.value.value === '}') {
             closeCurlyBraceCount += 1;
+            console.log('close!', openCurlyBraceCount, closeCurlyBraceCount);
         } else if (token.tokenType === 'else') {
             ifCount -= 1;
         } else if (token.tokenType === 'if') {
             ifCount += 1;
         }
+        console.log(closeCurlyBraceCount, openCurlyBraceCount);
         if (
             ['else', ';'].includes(token.value.value) &&
             closeParensCount === openParensCount &&
             closeCurlyBraceCount === openCurlyBraceCount &&
             ifCount <= 0
         ) {
+            console.log('yep');
             outerTerminatorSeen = true;
+            break;
         }
 
         if (closeParensCount > openParensCount) {
@@ -206,13 +216,18 @@ export function consumeThenUntilElse(input: Tokens): Either<ParseError, { input:
             });
         }
         if (closeCurlyBraceCount > openCurlyBraceCount) {
+            console.log('hm');
             return left({
                 line: token.value.line,
                 column: token.value.column,
                 reason: 'Unmatched closing brace',
             });
         }
+        expressionBuffer.push(token);
+        prevToken = token;
+        token = input.shift()!;
     }
+    console.log(token.value);
 
     if (!['else', 'statement-terminator'].includes(token.tokenType)) {
         return left({
