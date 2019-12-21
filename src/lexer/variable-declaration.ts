@@ -63,9 +63,7 @@ export function variableDeclaration(
         });
     }
 
-    console.log('input 7: ', input[0].value.value);
     let parseResult = parseExpression(input, functionNamespace, variableNamespace);
-    //  console.log('parseExpression returned', (parseResult as any).right.map((x: Token) => x.value.value));
     if (isLeft(parseResult)) {
         return parseResult;
     }

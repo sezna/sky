@@ -76,7 +76,6 @@ export function makeFunctionBodySyntaxTree(
     functionNameToken: Token,
     returnType: Token,
 ): Either<ParseError, Steps> {
-    console.log('makeFunctionBodySyntaxTree received', input.length);
     let functionNamespace = [...initialFunctionNamespace];
     let variableNamespace = [...initialVariableNamespace];
     let steps: Steps = [];
@@ -102,7 +101,6 @@ export function makeFunctionBodySyntaxTree(
     }
     while (input.length > 0) {
         if (input[0].tokenType === 'type-keyword') {
-            console.log('giving to variableDeclaration: ', input.map(x => x.value.value));
             const parseResult = variableDeclaration(input, functionNamespace, variableNamespace);
             if (isRight(parseResult)) {
                 input = parseResult.right.input;
@@ -120,7 +118,6 @@ export function makeFunctionBodySyntaxTree(
                     reason: `Expected expression after "return" keyword but received end of input`,
                 });
             }
-            console.log('input 1:', input[0].value.value);
             let returnExprResult = parseExpression(input, functionNamespace, variableNamespace);
             if (isLeft(returnExprResult)) {
                 return returnExprResult;
@@ -158,7 +155,6 @@ export function makeFunctionBodySyntaxTree(
             }
             let typeOfName = matchingFunctions.length === 1 ? 'function' : 'variable';
             if (typeOfName === 'function') {
-                console.log('input 2:', input[0].value.value);
                 let functionApplicationResult = parseExpression(input, functionNamespace, variableNamespace);
                 if (isLeft(functionApplicationResult)) {
                     return functionApplicationResult;
@@ -177,7 +173,6 @@ export function makeFunctionBodySyntaxTree(
                 steps.push(reassignment.reassignment);
             }
         } else {
-            console.log('input 3:', input[0].value.value);
             let expressionResult = parseExpression(input, functionNamespace, variableNamespace);
             if (isLeft(expressionResult)) {
                 return expressionResult;
@@ -232,7 +227,6 @@ function reassignVariable(
         });
     }
 
-    console.log('input 4:', input[0].value.value);
     let newVarBodyResult = parseExpression(input, functionNamespace, variableNamespace);
 
     if (isLeft(newVarBodyResult)) {

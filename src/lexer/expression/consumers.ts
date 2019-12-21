@@ -50,7 +50,6 @@ export function consumeExpression(input: Tokens): Either<ParseError, { input: To
     else {
         let openCurlyBracketCount = 0;
         let closeCurlyBracketCount = 0;
-        console.log('non bracket consuming');
         // keep track of this for a good error message
         let prevToken = token;
         while (closeCurlyBracketCount < openCurlyBracketCount || token.tokenType !== 'statement-terminator') {
@@ -180,30 +179,25 @@ export function consumeThenUntilElse(input: Tokens): Either<ParseError, { input:
                 reason: 'Unexpected end of input while parsing "then" expression',
             });
         }
-        console.log('token:', token.value);
         if (token.value.value === '(') {
             openParensCount += 1;
         } else if (token.value.value === ')') {
             closeParensCount += 1;
         } else if (token.value.value === '{') {
             openCurlyBraceCount += 1;
-            console.log('open!', openCurlyBraceCount, closeCurlyBraceCount);
         } else if (token.value.value === '}') {
             closeCurlyBraceCount += 1;
-            console.log('close!', openCurlyBraceCount, closeCurlyBraceCount);
         } else if (token.tokenType === 'else') {
             ifCount -= 1;
         } else if (token.tokenType === 'if') {
             ifCount += 1;
         }
-        console.log(closeCurlyBraceCount, openCurlyBraceCount);
         if (
             ['else', ';'].includes(token.value.value) &&
             closeParensCount === openParensCount &&
             closeCurlyBraceCount === openCurlyBraceCount &&
             ifCount <= 0
         ) {
-            console.log('yep');
             outerTerminatorSeen = true;
             break;
         }
@@ -216,7 +210,6 @@ export function consumeThenUntilElse(input: Tokens): Either<ParseError, { input:
             });
         }
         if (closeCurlyBraceCount > openCurlyBraceCount) {
-            console.log('hm');
             return left({
                 line: token.value.line,
                 column: token.value.column,
@@ -227,7 +220,6 @@ export function consumeThenUntilElse(input: Tokens): Either<ParseError, { input:
         prevToken = token;
         token = input.shift()!;
     }
-    console.log(token.value);
 
     if (!['else', 'statement-terminator'].includes(token.tokenType)) {
         return left({

@@ -170,7 +170,6 @@ export function functionDeclaration(
     let openingBraceCount = 1;
     let closingBraceCount = 0;
     while (closingBraceCount < openingBraceCount) {
-        console.log('looping', token.value.value);
         bodyTokens.push(token!);
         prevToken = token;
         token = input.shift()!;
@@ -186,7 +185,6 @@ export function functionDeclaration(
             });
         }
     }
-    console.log('body tokens length is:', bodyTokens.length);
 
     let bodyResult = makeFunctionBodySyntaxTree(
         bodyTokens,
