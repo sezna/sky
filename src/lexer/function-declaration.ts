@@ -6,9 +6,9 @@ import { VariableDeclaration } from './variable-declaration';
 export interface FunctionDeclaration {
     _type: 'FunctionDeclaration';
     functionName: Token;
-    parameters: { name: Token; varType: Token }[];
+    parameters: { varName: Token; varType: Token }[];
     body: Steps;
-    returnType: Token; // type-name
+    returnType: Token;
 }
 
 /// Takes in the entire input stream of tokens and either consumes enough for the function declaration, including its body, or fails and returns a parse error. On success, it returns the remaining input token stream and the parsed function declaration.
@@ -59,7 +59,7 @@ export function functionDeclaration(
     // Get the argument list out of the function signature
     prevToken = token;
     token = input.shift()!;
-    let parameters: { name: Token; varType: Token }[] = [];
+    let parameters: { varName: Token; varType: Token }[] = [];
     while (token.value.value !== ')') {
         if (token === undefined) {
             return left({
@@ -105,7 +105,7 @@ export function functionDeclaration(
             });
         }
         const typeName = token!;
-        parameters.push({ name: argName, varType: typeName });
+        parameters.push({ varName: argName, varType: typeName });
 
         // If this is not the last argument, then there should be a comma here.
         // since we don't know if this is the last one, we will instead just make
@@ -186,10 +186,12 @@ export function functionDeclaration(
         }
     }
 
+    // Inject the function params into the variable namespace
     let bodyResult = makeFunctionBodySyntaxTree(
         bodyTokens,
         functionNamespace,
         variableNamespace,
+        parameters,
         functionNameToken,
         returnType,
     );

@@ -60,6 +60,7 @@ describe('Expression parsing tests', () => {
         }
         expect(isRight(result)).toBe(true);
     });
+    /*
     it('Should throw an error if a variable is already declared with the same name', () => {
         let tokens = tokenize('number x = 0; number x = 2;');
         let result = makeSyntaxTree(tokens);
@@ -101,4 +102,5 @@ describe('Expression parsing tests', () => {
         }
         expect(isRight(result)).toBe(true);
     });
+  */
 });

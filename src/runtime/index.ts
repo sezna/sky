@@ -16,7 +16,7 @@ interface SkyOutput {
 // can't use the word 'Function' because JS
 interface Func {
     _type: 'Func';
-    parameters: { name: Token; varType: Token }[];
+    parameters: { varName: Token; varType: Token }[];
     body: Steps;
     returnType: String;
 }

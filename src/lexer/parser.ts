@@ -73,6 +73,7 @@ export function makeFunctionBodySyntaxTree(
     input: Tokens,
     initialFunctionNamespace: FunctionDeclaration[],
     initialVariableNamespace: VariableDeclaration[],
+    params: { varName: Token; varType: Token }[],
     functionNameToken: Token,
     returnType: Token,
 ): Either<ParseError, Steps> {
@@ -118,12 +119,11 @@ export function makeFunctionBodySyntaxTree(
                     reason: `Expected expression after "return" keyword but received end of input`,
                 });
             }
-            let returnExprResult = parseExpression(input, functionNamespace, variableNamespace);
+            let returnExprResult = parseExpression(input, functionNamespace, variableNamespace, params);
             if (isLeft(returnExprResult)) {
                 return returnExprResult;
             }
             let returnExpr = returnExprResult.right.expression;
-
             if (returnExpr.returnType !== returnType.value.value) {
                 return left({
                     line: returnKeyword.value.line,

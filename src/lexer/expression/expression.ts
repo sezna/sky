@@ -56,6 +56,7 @@ export function parseExpression(
     input: Tokens,
     functionNamespace: FunctionDeclaration[],
     variableNamespace: VariableDeclaration[],
+    params: { varName: Token; varType: Token }[] = [],
 ): Either<ParseError, { input: Tokens; expression: Expression }> {
     // Extract the expression out of the beginning of the input.
     const result = consumeExpression(input);
@@ -76,17 +77,19 @@ export function parseExpression(
             let matchingVariables = variableNamespace.filter(
                 x => x.varName.value.value === expressionContents[0].value.value,
             );
+            let matchingParams = params.filter(x => x.varName.value.value === expressionContents[0].value.value);
             let matchingFunctions = functionNamespace.filter(
                 x => x.functionName.value.value === expressionContents[0].value.value,
             );
             // If nothing in the namespace matched, then this is an undeclared variable.
-            if (matchingVariables.length === 0 && matchingFunctions.length === 0) {
+            if (matchingVariables.length === 0 && matchingFunctions.length === 0 && matchingParams.length === 0) {
                 return left({
                     line: expressionContents[0].value.line,
                     column: expressionContents[0].value.column,
                     reason: `Identifier "${expressionContents[0].value.value}" has not been declared`,
                 });
             }
+            // TODO redo the below error messages to include params
             // As an invariant, there should never be more than one thing in either of these arrays, and at least one
             // of them must have a length of zero.
             if (matchingVariables.length > 0 && matchingFunctions.length > 0) {
@@ -108,6 +111,14 @@ export function parseExpression(
                     _type: 'VarExp',
                     varName: expressionContents[0],
                     returnType: matchingVariables[0].varType.value.value,
+                });
+                expressionContents.shift();
+            } else if (matchingParams.length > 0) {
+                let returnType = matchingParams[0].varType.value.value;
+                expressionStack.push({
+                    _type: 'VarExp',
+                    varName: expressionContents[0],
+                    returnType,
                 });
                 expressionContents.shift();
             } else if (matchingFunctions.length === 1) {
@@ -267,6 +278,12 @@ export function parseExpression(
                     functionName,
                     args,
                     returnType,
+                });
+            } else {
+                return left({
+                    line: 0,
+                    column: 0,
+                    reason: `Internal compiler error #000. Please submit the code that triggered this error as an issue to https://github.com/sezna/sky.`,
                 });
             }
         } else if (expressionContents[0].tokenType === 'operator') {
