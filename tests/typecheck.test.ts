@@ -62,9 +62,10 @@ describe('Invalid ops tests', () => {
         expect(isLeft(steps)).toBe(true);
     });
     it('Should not allow values of the wrong type to be assigned to a variable', () => {
-        let program = `fn main():song { 
+        let program = `fn main(): number { 
           number x = 3;
           x = c#4;
+          return 0;
         }`;
         let steps = makeSyntaxTree(tokenize(program));
         if (isRight(steps)) {
@@ -77,7 +78,7 @@ describe('Invalid ops tests', () => {
         );
     });
     it('an incorrect typename should fail', () => {
-        let program = `fn main(): song { degree x = iii; degree y = ii; number z = x + y; }`;
+        let program = `fn main(): number { degree x = iii; degree y = ii; number z = x + y; return 0; }`;
         let steps = makeSyntaxTree(tokenize(program));
         expect(isLeft(steps)).toBe(true);
     });
@@ -85,7 +86,7 @@ describe('Invalid ops tests', () => {
 
 describe('If expression typechecking', () => {
     it('Should not allow an if expression which returns two different types from its branches', () => {
-        let program = `fn main(): song { number x = if true then 5 else false; }`;
+        let program = `fn main(): number { number x = if true then 5 else false; return 0; }`;
 
         let steps = makeSyntaxTree(tokenize(program));
         if (isRight(steps)) {
@@ -98,7 +99,7 @@ describe('If expression typechecking', () => {
         );
     });
     it('Should not allow an if expression which returns a different type than the declaration of the variable', () => {
-        let program = `fn main(): song { number x = if true then c#4 else d#4; }`;
+        let program = `fn main(): number { number x = if true then c#4 else d#4; return 0; }`;
 
         let steps = makeSyntaxTree(tokenize(program));
         if (isRight(steps)) {
@@ -108,7 +109,7 @@ describe('If expression typechecking', () => {
         expect(isLeft(steps)).toBe(true);
     });
     it('Should allow an if expression result to be assigned to a variable', () => {
-        let program = `fn main(): song { number x = if 3 < 5 then 3 else 5; }`;
+        let program = `fn main(): number { number x = if 3 < 5 then 3 else 5; return 0; }`;
 
         let steps = makeSyntaxTree(tokenize(program));
         if (isLeft(steps)) {
@@ -119,7 +120,7 @@ describe('If expression typechecking', () => {
         expect(isRight(steps)).toBe(true);
     });
     it('Should allow an if expression result to be not assigned to a variable', () => {
-        let program = `fn main(): song { if 3 < 5 then 3 else 5; }`;
+        let program = `fn main(): number { if 3 < 5 then 3 else 5; return 0; }`;
 
         let steps = makeSyntaxTree(tokenize(program));
         if (isLeft(steps)) {
@@ -130,7 +131,7 @@ describe('If expression typechecking', () => {
         expect(isRight(steps)).toBe(true);
     });
     it('Should not allow an if expression condition to be non-boolean', () => {
-        let program = `fn main(): song { if 5 then 3 else 5; }`;
+        let program = `fn main(): number { if 5 then 3 else 5; return 0; }`;
 
         let steps = makeSyntaxTree(tokenize(program));
         if (isRight(steps)) {
@@ -148,8 +149,9 @@ describe('function application typechecking', () => {
        return c#3; -- this mismatch should get caught
     }
 
-    fn main():song {
+    fn main(): number {
       pitch x = other_func();
+      return 0;
     }
     `;
         let steps = makeSyntaxTree(tokenize(program));
@@ -168,8 +170,9 @@ describe('function application typechecking', () => {
        return 10;
     }
 
-    fn main():song {
+    fn main(): number{
       pitch x = other_func(); --this mismatch should get caught
+      return 0;
     }
     `;
         let steps = makeSyntaxTree(tokenize(program));
@@ -188,8 +191,9 @@ describe('function application typechecking', () => {
        return 10;
     }
     
-    fn main():song {
+    fn main(): number {
       number result = C#1 + other_func();
+      return 0;
     }
     `;
         let steps = makeSyntaxTree(tokenize(program));
@@ -206,8 +210,9 @@ describe('function application typechecking', () => {
        return 10;
     }
 
-    fn main():song {
+    fn main(): number {
       pitch result = C#1 + other_func();
+      return 0;
     }
     `;
         let steps = makeSyntaxTree(tokenize(program));
@@ -221,6 +226,7 @@ describe('function application typechecking', () => {
     it("Should reject a function which doesn't return anything", () => {
         let program = `fn main():song { --the lack of "song" return should get caught
       pitch result = C#1;
+      return false;
     }
     `;
         let steps = makeSyntaxTree(tokenize(program));
@@ -229,7 +235,9 @@ describe('function application typechecking', () => {
             return;
         }
         expect(isLeft(steps)).toBe(true);
-        expect(steps.left.reason).toBe('Mismatched type: ');
+        expect(steps.left.reason).toBe(
+            'Function "main" is declared to return type "song" but actually returns type "boolean"',
+        );
     });
     it('Should identify in a complicated expression an invalid function application type', () => {
         let program = `
@@ -257,10 +265,11 @@ describe('function application typechecking', () => {
        return 10;
     }
 
-    fn main():song { --the lack of "song" return should get caught
+    fn main(): number { --the lack of "song" return should get caught
       number x = 10;
       number y = 20;
       number z = (1 + x) - (3 * y * x) + (x - other_func());
+      return 0;
     }
     `;
         let steps = makeSyntaxTree(tokenize(program));

@@ -5,10 +5,11 @@ import { isLeft } from 'fp-ts/lib/Either';
 
 describe('pitch operator tests', () => {
     it('should be able to add two pitches', () => {
-        let tokens = tokenize(`fn main():song {
+        let tokens = tokenize(`fn main(): number {
 				pitch first = A#2; 
 				pitch second = b0;
         list third = first + second; 
+        return 0;
 			 }`);
         let steps = makeSyntaxTree(tokens);
         if (isLeft(steps)) {
@@ -34,11 +35,12 @@ describe('pitch operator tests', () => {
         expect((variableEnvironment['third'] as any).value[1].octave).toBe(0);
     });
     it('Should be able to add a pitch into a list of pitches', () => {
-        let tokens = tokenize(`fn main():song {
+        let tokens = tokenize(`fn main(): number {
 				pitch first = A#2; 
 				pitch second = b0; 
 				list third = first + second; 
 				list fourth = third + c#2;
+        return 0;
 			 }`);
         let steps = makeSyntaxTree(tokens);
         if (isLeft(steps)) {
@@ -60,10 +62,11 @@ describe('pitch operator tests', () => {
         expect((variableEnvironment['fourth'] as any).value[2].octave).toBe(2);
     });
     it('should not be able to subtract two pitches', () => {
-        let tokens = tokenize(`fn main():song {
+        let tokens = tokenize(`fn main(): number {
 				pitch first = F6; 
 				pitch second = b0;
 				list third = first - second;
+        return 0;
 			 }`);
         let steps = makeSyntaxTree(tokens);
         if (isLeft(steps)) {

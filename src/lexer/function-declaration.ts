@@ -199,6 +199,32 @@ export function functionDeclaration(
         return bodyResult;
     }
     let body = bodyResult.right;
+
+    // Find the return statement in the function body
+    let stepReturnType, hasReturn;
+    for (const step of body) {
+        hasReturn = false;
+        if (step._type === 'Return') {
+            hasReturn = true;
+            stepReturnType = step.returnExpr.returnType;
+        }
+    }
+    if (!hasReturn) {
+        return left({
+            line: functionNameToken.value.line,
+            column: functionNameToken.value.column,
+            reason: `Function "${functionName}" does not return anything. Every function must return.`,
+        });
+    }
+
+    if (stepReturnType !== returnType.value.value) {
+        return left({
+            line: functionNameToken.value.line,
+            column: functionNameToken.value.column,
+            reason: `Function "${functionNameToken.value.value}" is declared to return type "${returnType.value.value}" but actually returns type "${stepReturnType}".`,
+        });
+    }
+
     return right({
         input,
         declaration: {

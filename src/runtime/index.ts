@@ -5,6 +5,7 @@ import { Either, right, left, isLeft } from 'fp-ts/lib/Either';
 import { VariableDeclaration } from '../lexer/variable-declaration';
 import { FunctionDeclaration } from '../lexer/function-declaration';
 import { IfExp, LiteralExp, OpExp, VarExp } from '../lexer/expression';
+import { evalFunction } from './eval-function';
 import { addition, multiplication, division, subtraction, and, or, greaterThan, lessThan } from './operators';
 
 interface SkyOutput {
@@ -14,7 +15,7 @@ interface SkyOutput {
 }
 
 // can't use the word 'Function' because JS
-interface Func {
+export interface Func {
     _type: 'Func';
     parameters: { varName: Token; varType: Token }[];
     body: Steps;
@@ -55,13 +56,9 @@ export function runtime(steps: Steps): Either<RuntimeError, SkyOutput> {
         });
     }
 
-    for (const step of functionEnvironment['main'].body) {
-        let result = evaluate(step, functionEnvironment, variableEnvironment);
-        if (isLeft(result)) {
-            return result;
-        }
-        functionEnvironment = result.right.functionEnvironment;
-        variableEnvironment = result.right.variableEnvironment;
+    let res = evalFunction(functionEnvironment['main'], functionEnvironment, variableEnvironment);
+    if (isLeft(res)) {
+        return res;
     }
 
     return right({
@@ -214,6 +211,12 @@ export function evaluate(
         }
         returnType = step.returnType;
         returnValue = branchResult && branchResult.right.returnValue;
+    } else if (step._type === 'Return') {
+        return left({
+            line: 0,
+            column: 0,
+            reason: `Attempted to evaluate a return statement. This is a bug in the compiler. Please file an issue with the code that triggered this bug at https://github.com/sezna/sky.`,
+        });
     } else {
         return left({
             line: 0,

@@ -5,8 +5,9 @@ import { isLeft } from 'fp-ts/lib/Either';
 
 describe('if expr tests', () => {
     it('should correctly assign its result to a variable #1', () => {
-        let program = `fn main(): song {
+        let program = `fn main(): number {
                       number x = if 200 < 5 then 5 else 2;
+                      return 0;
                    }`;
         let steps = makeSyntaxTree(tokenize(program));
 
@@ -27,8 +28,9 @@ describe('if expr tests', () => {
         expect(result.right.variableEnvironment['x'].value).toBe(2);
     });
     it('should correctly assign its result to a variable #2', () => {
-        let program = `fn main(): song {
+        let program = `fn main(): number {
                       number x = if 200 > 5 then 6 else 3;
+                      return 0;
                    }`;
         let steps = makeSyntaxTree(tokenize(program));
         if (isLeft(steps)) {
@@ -69,9 +71,8 @@ describe('if expr tests', () => {
         }
         expect(result.right.variableEnvironment['x'].value).toBe(6);
     });
-   */
     it('should handle if expressions with multiple statements and an implicit return', () => {
-        let program = `fn main(): song {
+        let program = `fn main(): number {
                        number x = if 200 > 5 then {
                           number y = 20;
                           number z = 10;
@@ -81,6 +82,7 @@ describe('if expr tests', () => {
                           number z = 10;
                          3
                         };
+                        return 0;
                    }`;
         let steps = makeSyntaxTree(tokenize(program));
         if (isLeft(steps)) {
@@ -99,4 +101,5 @@ describe('if expr tests', () => {
         }
         expect(result.right.variableEnvironment['x'].value).toBe(6);
     });
+   */
 });
