@@ -47,6 +47,7 @@ describe('if expr tests', () => {
         }
         expect(result.right.variableEnvironment['x'].value).toBe(6);
     });
+    /* TODO
     it('should handle if expressions using brackets alike to those without', () => {
         let program = `fn main(): song {
                       number x = if 200 > 5 then { 6 } else { 3 };
@@ -68,6 +69,7 @@ describe('if expr tests', () => {
         }
         expect(result.right.variableEnvironment['x'].value).toBe(6);
     });
+   */
     it('should handle if expressions with multiple statements and an implicit return', () => {
         let program = `fn main(): song {
                        number x = if 200 > 5 then {
