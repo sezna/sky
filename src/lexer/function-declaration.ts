@@ -213,7 +213,7 @@ export function functionDeclaration(
         return left({
             line: functionNameToken.value.line,
             column: functionNameToken.value.column,
-            reason: `Function "${functionName}" does not return anything. Every function must return.`,
+            reason: `Function "${functionName}" does not return anything. Every function must return something, and this function should return something of type "${returnType.value.value}".`,
         });
     }
 
