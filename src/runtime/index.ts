@@ -6,7 +6,7 @@ import { VariableDeclaration } from '../lexer/variable-declaration';
 import { FunctionDeclaration } from '../lexer/function-declaration';
 import { IfExp, LiteralExp, OpExp, VarExp } from '../lexer/expression';
 import { evalFunction } from './eval-function';
-import { addition, multiplication, division, subtraction, and, or, greaterThan, lessThan } from './operators';
+import { addition, multiplication, division, subtraction, and, or, greaterThan, lessThan, equals } from './operators';
 
 interface SkyOutput {
     midi: String; // TODO
@@ -155,6 +155,9 @@ export function evaluate(
                 break;
             case '<':
                 operatorFunc = lessThan;
+                break;
+            case '==':
+                operatorFunc = equals;
                 break;
             default:
                 return left({
