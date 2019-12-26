@@ -57,7 +57,7 @@ export function tokenize(input: string): Tokens {
             tokens.push({ tokenType: 'bracket', value: symbol });
         } else if (['{', '}'].includes(symbolValue)) {
             tokens.push({ tokenType: 'curly-bracket', value: symbol });
-        } else if (['+', '-', '/', '%', '*', '>', '<'].includes(symbolValue)) {
+        } else if (['+', '-', '/', '%', '*', '>', '<', '||', '&&'].includes(symbolValue)) {
             tokens.push({ tokenType: 'operator', value: symbol });
         } else if (symbolValue.match(new RegExp('^[0-9]+$'))) {
             tokens.push({ tokenType: 'numeric-literal', value: symbol });
@@ -95,15 +95,20 @@ export function tokenize(input: string): Tokens {
                 'boolean',
                 'chord',
                 'duration',
-                'notes',
                 'polyphony',
                 'rhythm',
                 'note',
                 'song',
+                'pitch_rhythm',
+                'degree_rhythm',
             ].includes(symbolValue)
         ) {
-            tokens.push({ tokenType: 'type-keyword', value: symbol });
-        } else if (['compose'].includes(symbolValue)) {
+            if (prevSymbol.value === 'list') {
+                tokens.push({ tokenType: 'type-keyword', value: { ...symbol, value: 'list ' + symbolValue } });
+            } else {
+                tokens.push({ tokenType: 'type-keyword', value: symbol });
+            }
+        } else if (['compose', 'return'].includes(symbolValue)) {
             tokens.push({ tokenType: 'return-keyword', value: symbol });
         } else if ([':'].includes(symbolValue)) {
             tokens.push({ tokenType: 'type-ascription', value: symbol });
@@ -137,6 +142,8 @@ export function tokenize(input: string): Tokens {
             } else {
                 tokens.push({ tokenType: 'rhythm-literal', value: symbol });
             }
+        } else if (symbolValue === 'list') {
+            /* do nothing; wait for the next symbol for the type inside the list */
         } else {
             // `name` here denotes that it is the name of either a function or a variable in the
             // environment.

@@ -5,10 +5,11 @@ import { isLeft } from 'fp-ts/lib/Either';
 
 describe('pitch operator tests', () => {
     it('should be able to add two pitches', () => {
-        let tokens = tokenize(`fn main():song {
+        let tokens = tokenize(`fn main(): number {
 				pitch first = A#2; 
 				pitch second = b0;
-				notes third = first + second; 
+        list pitch third = first + second; 
+        return 0;
 			 }`);
         let steps = makeSyntaxTree(tokens);
         if (isLeft(steps)) {
@@ -24,7 +25,7 @@ describe('pitch operator tests', () => {
             return;
         }
         let variableEnvironment = result.right.variableEnvironment;
-        expect((variableEnvironment['third'] as any).varType).toBe('notes');
+        expect((variableEnvironment['third'] as any).varType).toBe('list pitch');
         //        expect((variableEnvironment['third'] as any).value).toHaveLength(2);
         expect((variableEnvironment['third'] as any).value[0].noteName).toBe('a');
         expect((variableEnvironment['third'] as any).value[0].accidental).toBe('sharp');
@@ -33,12 +34,13 @@ describe('pitch operator tests', () => {
         expect((variableEnvironment['third'] as any).value[1].accidental).toBe('natural');
         expect((variableEnvironment['third'] as any).value[1].octave).toBe(0);
     });
-    it('Should be able to add a pitch into a list of notes', () => {
-        let tokens = tokenize(`fn main():song {
+    it('Should be able to add a pitch into a list pitch of pitches', () => {
+        let tokens = tokenize(`fn main(): number {
 				pitch first = A#2; 
 				pitch second = b0; 
-				notes third = first + second; 
-				notes fourth = third + c#2;
+				list pitch third = first + second; 
+				list pitch fourth = third + c#2;
+        return 0;
 			 }`);
         let steps = makeSyntaxTree(tokens);
         if (isLeft(steps)) {
@@ -54,17 +56,17 @@ describe('pitch operator tests', () => {
             return;
         }
         let variableEnvironment = result.right.variableEnvironment;
-        expect((variableEnvironment['fourth'] as any).varType).toBe('notes');
+        expect((variableEnvironment['fourth'] as any).varType).toBe('list pitch');
         expect((variableEnvironment['fourth'] as any).value[2].noteName).toBe('c');
         expect((variableEnvironment['fourth'] as any).value[2].accidental).toBe('sharp');
         expect((variableEnvironment['fourth'] as any).value[2].octave).toBe(2);
     });
     it('should not be able to subtract two pitches', () => {
-        let tokens = tokenize(`fn main():song {
+        let tokens = tokenize(`fn main(): number {
 				pitch first = F6; 
 				pitch second = b0;
-				notes third = first - second;
-
+				pitch third = first - second;
+        return 0;
 			 }`);
         let steps = makeSyntaxTree(tokens);
         if (isLeft(steps)) {

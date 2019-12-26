@@ -4,8 +4,9 @@ import * as LiteralTypes from '../lexer/expression/literal';
 import { Either, right, left, isLeft } from 'fp-ts/lib/Either';
 import { VariableDeclaration } from '../lexer/variable-declaration';
 import { FunctionDeclaration } from '../lexer/function-declaration';
-import { LiteralExp, OpExp, VarExp } from '../lexer/expression';
-import { addition, multiplication, division, subtraction } from './operators';
+import { IfExp, LiteralExp, OpExp, VarExp } from '../lexer/expression';
+import { evalFunction } from './eval-function';
+import { addition, multiplication, division, subtraction, and, or, greaterThan, lessThan } from './operators';
 
 interface SkyOutput {
     midi: String; // TODO
@@ -14,9 +15,9 @@ interface SkyOutput {
 }
 
 // can't use the word 'Function' because JS
-interface Func {
+export interface Func {
     _type: 'Func';
-    parameters: { name: Token; varType: Token }[];
+    parameters: { varName: Token; varType: Token }[];
     body: Steps;
     returnType: String;
 }
@@ -55,13 +56,9 @@ export function runtime(steps: Steps): Either<RuntimeError, SkyOutput> {
         });
     }
 
-    for (const step of functionEnvironment['main'].body) {
-        let result = evaluate(step, functionEnvironment, variableEnvironment);
-        if (isLeft(result)) {
-            return result;
-        }
-        functionEnvironment = result.right.functionEnvironment;
-        variableEnvironment = result.right.variableEnvironment;
+    let res = evalFunction(functionEnvironment['main'], functionEnvironment, variableEnvironment);
+    if (isLeft(res)) {
+        return res;
     }
 
     return right({
@@ -85,7 +82,7 @@ export function evaluate(
 ): Either<RuntimeError, EvalResult> {
     let returnValue;
     let returnType;
-    if ((step as VariableDeclaration)._type === 'VariableDeclaration') {
+    if (step._type === 'VariableDeclaration') {
         step = step as VariableDeclaration;
         let value = evaluate((step as VariableDeclaration).varBody, functionEnvironment, variableEnvironment);
         if (isLeft(value)) {
@@ -110,7 +107,7 @@ export function evaluate(
             varType: (step as VariableDeclaration).varType.value.value,
         };
         // TODO validate that type matches return value
-    } else if ((step as LiteralExp)._type === 'LiteralExp') {
+    } else if (step._type === 'LiteralExp') {
         let result = evalLiteral(step as LiteralExp);
         if (isLeft(result)) {
             return result;
@@ -118,7 +115,7 @@ export function evaluate(
         let lit = result.right;
         returnValue = lit.returnValue;
         returnType = lit.returnType;
-    } else if ((step as OpExp)._type === 'OpExp') {
+    } else if (step._type === 'OpExp') {
         let leftResult = evaluate((step as OpExp).left, functionEnvironment, variableEnvironment);
         let rightResult = evaluate((step as OpExp).right, functionEnvironment, variableEnvironment);
         if (isLeft(leftResult)) {
@@ -147,6 +144,18 @@ export function evaluate(
             case '/':
                 operatorFunc = division;
                 break;
+            case '||':
+                operatorFunc = or;
+                break;
+            case '&&':
+                operatorFunc = and;
+                break;
+            case '>':
+                operatorFunc = greaterThan;
+                break;
+            case '<':
+                operatorFunc = lessThan;
+                break;
             default:
                 return left({
                     line: (step as OpExp).operator.value.value.line,
@@ -163,7 +172,7 @@ export function evaluate(
         // assume they are numbers
         returnType = opResult.right.valueType;
         returnValue = opResult.right.value;
-    } else if ((step as VarExp)._type === 'VarExp') {
+    } else if (step._type === 'VarExp') {
         let varValue = variableEnvironment[(step as VarExp).varName.value.value];
         if (varValue === undefined) {
             return left({
@@ -174,7 +183,7 @@ export function evaluate(
         }
         returnType = varValue.varType;
         returnValue = varValue.value;
-    } else if ((step as FunctionDeclaration)._type === 'FunctionDeclaration') {
+    } else if (step._type === 'FunctionDeclaration') {
         let funcDeclStep = step as FunctionDeclaration;
         functionEnvironment[funcDeclStep.functionName.value.value] = {
             _type: 'Func',
@@ -182,11 +191,37 @@ export function evaluate(
             body: funcDeclStep.body,
             returnType: funcDeclStep.returnType.value.value,
         };
+    } else if (step._type === 'IfExp') {
+        let conditionResult = evaluate((step as IfExp).condition, functionEnvironment, variableEnvironment);
+        if (isLeft(conditionResult)) {
+            return conditionResult;
+        }
+        let condition = conditionResult.right;
+        let branchResult;
+        // If there is a 'then' and an 'else', then this is an evaluatable expression. If there is only a 'then', then this returns type 'none'.
+        if (condition.returnValue === true) {
+            branchResult = evaluate((step as IfExp).thenBranch, functionEnvironment, variableEnvironment);
+        } else {
+            if ((step as IfExp).elseBranch !== undefined) {
+                branchResult = evaluate((step as IfExp).elseBranch!, functionEnvironment, variableEnvironment);
+            }
+        }
+        if (branchResult && isLeft(branchResult)) {
+            return branchResult;
+        }
+        returnType = step.returnType;
+        returnValue = branchResult && branchResult.right.returnValue;
+    } else if (step._type === 'Return') {
+        return left({
+            line: 0,
+            column: 0,
+            reason: `Attempted to evaluate a return statement. This is a bug in the compiler. Please file an issue with the code that triggered this bug at https://github.com/sezna/sky.`,
+        });
     } else {
         return left({
             line: 0,
             column: 0,
-            reason: `Unimplemented step: ${JSON.stringify(step, null, 2)}`,
+            reason: `Unimplemented step: ${step._type}`,
         });
     }
 
@@ -231,8 +266,21 @@ function evalLiteral(
             returnType = 'pitch';
             break;
         case 'LiteralList':
+            let returnTypes = (literal as LiteralTypes.LiteralList).listContents.map(x => x.returnType);
+            let typesMatch = returnTypes.filter(x => x === returnTypes[0]).length === returnTypes.length;
+            if (!typesMatch) {
+                return left({
+                    line: token.value.line,
+                    column: token.value.column,
+                    reason: `List inferred to have type of "list ${returnTypes[0]}" due to the first element, but contains items of a different type.`,
+                });
+            }
             returnValue = (literal as LiteralTypes.LiteralList).listContents;
-            returnType = 'notes'; // TODO this in the future could be a list of rhythms or soething
+            returnType = `list ${returnTypes[0]}`;
+            break;
+        case 'LiteralBoolean':
+            returnValue = (literal as LiteralTypes.LiteralBoolean).value;
+            returnType = 'boolean';
             break;
         default:
             return left({

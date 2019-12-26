@@ -59,13 +59,29 @@ export function variableDeclaration(
         return left({
             line: equals.value.line,
             column: equals.value.column,
-            reason: `Expected an equals sign ("=") after variable name "${varName.value.value}", but instead received "${equals.value.value}."`,
+            reason: `Expected an equals sign ("=") after variable name "${varName.value.value}", but instead received "${equals.value.value}".`,
         });
     }
 
     let parseResult = parseExpression(input, functionNamespace, variableNamespace);
     if (isLeft(parseResult)) {
         return parseResult;
+    }
+
+    // If this is a list, type inference for the inner type is supported.
+    // If auto type inferencing for vars was ever to be supported, this line
+    // is what performs the inference based off of the RHS.
+    if (varType.value.value === 'list') {
+        let exprVarType = parseResult.right.expression.returnType;
+        varType.value.value = exprVarType;
+    }
+
+    if (varType.value.value !== parseResult.right.expression.returnType) {
+        return left({
+            line: varType.value.line,
+            column: varType.value.column,
+            reason: `Variable "${varName.value.value}" is declared with type "${varType.value.value}" but the expression assigned to it returns type "${parseResult.right.expression.returnType}"`,
+        });
     }
 
     return right({

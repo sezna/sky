@@ -6,9 +6,9 @@ import { VariableDeclaration } from './variable-declaration';
 export interface FunctionDeclaration {
     _type: 'FunctionDeclaration';
     functionName: Token;
-    parameters: { name: Token; varType: Token }[];
+    parameters: { varName: Token; varType: Token }[];
     body: Steps;
-    returnType: Token; // type-name
+    returnType: Token;
 }
 
 /// Takes in the entire input stream of tokens and either consumes enough for the function declaration, including its body, or fails and returns a parse error. On success, it returns the remaining input token stream and the parsed function declaration.
@@ -23,6 +23,7 @@ export function functionDeclaration(
     const functionNameToken = input.shift()!;
     const functionName = functionNameToken.value.value;
     const conflictingFunctionNames = functionNamespace.filter(x => x.functionName.value.value === functionName);
+    // getting the function name
     if (conflictingFunctionNames.length > 0) {
         return left({
             line: token.value.line,
@@ -38,6 +39,7 @@ export function functionDeclaration(
             reason: `Function "${functionName}"'s name conflicts with variable of the same name declared at line ${conflictingVariableNames[0].varName.value.line}, column ${conflictingVariableNames[0].varName.value.column}`,
         });
     }
+    // matching the args
     let prevToken = token;
     token = input.shift()!;
     if (token && token!.value.value !== '(') {
@@ -51,24 +53,26 @@ export function functionDeclaration(
         return left({
             line: prevToken.value.line,
             column: prevToken.value.column,
-            reason: `Unexpected EOF after function keyword ('fn')`,
+            reason: `Unexpected end of input after function keyword ('fn')`,
         });
     }
     // Get the argument list out of the function signature
     prevToken = token;
     token = input.shift()!;
-    let parameters: { name: Token; varType: Token }[] = [];
+    let parameters: { varName: Token; varType: Token }[] = [];
     while (token.value.value !== ')') {
         if (token === undefined) {
             return left({
                 line: prevToken.value.line,
                 column: prevToken.value.column,
-                reason: `Unexpected EOF in function "${functionName}" declaration after open parenthesis `,
+                reason: `Unexpected end of input in function "${functionName}" declaration after open parenthesis `,
             });
         }
+        // name for first arg
         const argName = token;
         prevToken = token;
         token = input.shift()!;
+        // colon for first var
         if (token && token.tokenType !== 'type-ascription') {
             return left({
                 line: token.value.line,
@@ -81,7 +85,7 @@ export function functionDeclaration(
             return left({
                 line: prevToken.value.line,
                 column: prevToken.value.column,
-                reason: `Unexpected EOF in function parameters declaration for function "${functionName}". Expected a colon (':') and type name after parameter "${argName.value.value}".`,
+                reason: `Unexpected end of input in function parameters declaration for function "${functionName}". Expected a colon (':') and type name after parameter "${argName.value.value}".`,
             });
         }
         prevToken = token;
@@ -97,11 +101,11 @@ export function functionDeclaration(
             return left({
                 line: prevToken.value.line,
                 column: prevToken.value.column,
-                reason: `Unexpected EOF in function declaration for function "${functionName}" after colon (':'). Expected a type name for parameter "${argName.value.value}".`,
+                reason: `Unexpected end of input in function declaration for function "${functionName}" after colon (':'). Expected a type name for parameter "${argName.value.value}".`,
             });
         }
         const typeName = token!;
-        parameters.push({ name: argName, varType: typeName });
+        parameters.push({ varName: argName, varType: typeName });
 
         // If this is not the last argument, then there should be a comma here.
         // since we don't know if this is the last one, we will instead just make
@@ -113,6 +117,7 @@ export function functionDeclaration(
         prevToken = token;
         token = input.shift()!;
     }
+    // get the return type of the function
     prevToken = token;
     token = input.shift()!;
     if (token && token.tokenType !== 'type-ascription') {
@@ -126,10 +131,11 @@ export function functionDeclaration(
         return left({
             line: prevToken.value.line,
             column: prevToken.value.column,
-            reason: `Unexpected EOF in function declaration for function "${functionName}" after colon (':'). Expected a type name.`,
+            reason: `Unexpected end of input in function declaration for function "${functionName}" after colon (':'). Expected a type name.`,
         });
     }
 
+    // return type itself
     prevToken = token;
     token = input.shift()!;
     if (token && token.tokenType !== 'type-keyword') {
@@ -155,15 +161,23 @@ export function functionDeclaration(
         return left({
             line: prevToken.value.line,
             column: prevToken.value.column,
-            reason: `Unexpected EOF in function declaration for function "${functionName}." Expected a body enclosed in curly brackets.`,
+            reason: `Unexpected end of input in function declaration for function "${functionName}." Expected a body enclosed in curly brackets.`,
         });
     }
+
+    // opening the function body
     let bodyTokens: Tokens = [];
-    while (token!.value.value !== '}') {
+    let openingBraceCount = 1;
+    let closingBraceCount = 0;
+    while (closingBraceCount < openingBraceCount) {
         bodyTokens.push(token!);
         prevToken = token;
         token = input.shift()!;
-        if (token === undefined) {
+        if (token.value.value === '}') {
+            closingBraceCount += 1;
+        } else if (token.value.value === '{') {
+            openingBraceCount += 1;
+        } else if (token === undefined) {
             return left({
                 line: prevToken.value.line,
                 column: prevToken.value.column,
@@ -171,11 +185,46 @@ export function functionDeclaration(
             });
         }
     }
-    let bodyResult = makeFunctionBodySyntaxTree(bodyTokens, functionNamespace, variableNamespace);
+
+    // Inject the function params into the variable namespace
+    let bodyResult = makeFunctionBodySyntaxTree(
+        bodyTokens,
+        functionNamespace,
+        variableNamespace,
+        parameters,
+        functionNameToken,
+        returnType,
+    );
     if (isLeft(bodyResult)) {
         return bodyResult;
     }
     let body = bodyResult.right;
+
+    // Find the return statement in the function body
+    let stepReturnType, hasReturn;
+    for (const step of body) {
+        hasReturn = false;
+        if (step._type === 'Return') {
+            hasReturn = true;
+            stepReturnType = step.returnExpr.returnType;
+        }
+    }
+    if (!hasReturn) {
+        return left({
+            line: functionNameToken.value.line,
+            column: functionNameToken.value.column,
+            reason: `Function "${functionName}" does not return anything. Every function must return.`,
+        });
+    }
+
+    if (stepReturnType !== returnType.value.value) {
+        return left({
+            line: functionNameToken.value.line,
+            column: functionNameToken.value.column,
+            reason: `Function "${functionNameToken.value.value}" is declared to return type "${returnType.value.value}" but actually returns type "${stepReturnType}".`,
+        });
+    }
+
     return right({
         input,
         declaration: {

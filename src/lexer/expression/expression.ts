@@ -10,19 +10,22 @@ import {
     consumeThenUntilElse,
     consumeElseUntilEnd,
 } from './consumers';
-import { precedence } from './utils';
+import { precedence, opReturnTypeMap } from './utils';
 import { LiteralExp, isLiteral, liftTokenIntoLiteral } from './literal';
 export type Expression = IfExp | VarExp | OpExp | LiteralExp | FunctionApplication;
 
-interface IfExp {
+export interface IfExp {
+    _type: 'IfExp';
     condition: Expression;
     thenBranch: Expression;
     elseBranch?: Expression;
+    returnType: string;
 }
 
 export interface VarExp {
     _type: 'VarExp';
     varName: Token;
+    returnType: string;
 }
 
 export interface OpExp {
@@ -30,15 +33,18 @@ export interface OpExp {
     left: Expression;
     right: Expression;
     operator: Operator;
+    returnType: string;
 }
 
 interface FunctionApplication {
+    _type: 'FunctionApplication';
     functionName: Token;
     args: Expression[];
+    returnType: string;
 }
 
-interface Operator {
-    operatorType: '+' | '-' | '/' | '%' | '(';
+export interface Operator {
+    operatorType: '+' | '-' | '/' | '%' | '(' | '*' | '==' | '>=' | '<=' | '>' | '<' | '||' | '&&';
     value: Token;
 }
 
@@ -50,6 +56,7 @@ export function parseExpression(
     input: Tokens,
     functionNamespace: FunctionDeclaration[],
     variableNamespace: VariableDeclaration[],
+    params: { varName: Token; varType: Token }[] = [],
 ): Either<ParseError, { input: Tokens; expression: Expression }> {
     // Extract the expression out of the beginning of the input.
     const result = consumeExpression(input);
@@ -70,17 +77,19 @@ export function parseExpression(
             let matchingVariables = variableNamespace.filter(
                 x => x.varName.value.value === expressionContents[0].value.value,
             );
+            let matchingParams = params.filter(x => x.varName.value.value === expressionContents[0].value.value);
             let matchingFunctions = functionNamespace.filter(
                 x => x.functionName.value.value === expressionContents[0].value.value,
             );
             // If nothing in the namespace matched, then this is an undeclared variable.
-            if (matchingVariables.length === 0 && matchingFunctions.length === 0) {
+            if (matchingVariables.length === 0 && matchingFunctions.length === 0 && matchingParams.length === 0) {
                 return left({
                     line: expressionContents[0].value.line,
                     column: expressionContents[0].value.column,
                     reason: `Identifier "${expressionContents[0].value.value}" has not been declared`,
                 });
             }
+            // TODO redo the below error messages to include params
             // As an invariant, there should never be more than one thing in either of these arrays, and at least one
             // of them must have a length of zero.
             if (matchingVariables.length > 0 && matchingFunctions.length > 0) {
@@ -98,7 +107,19 @@ export function parseExpression(
                 });
             }
             if (matchingVariables.length > 0) {
-                expressionStack.push({ _type: 'VarExp', varName: expressionContents[0] });
+                expressionStack.push({
+                    _type: 'VarExp',
+                    varName: expressionContents[0],
+                    returnType: matchingVariables[0].varType.value.value,
+                });
+                expressionContents.shift();
+            } else if (matchingParams.length > 0) {
+                let returnType = matchingParams[0].varType.value.value;
+                expressionStack.push({
+                    _type: 'VarExp',
+                    varName: expressionContents[0],
+                    returnType,
+                });
                 expressionContents.shift();
             } else if (matchingFunctions.length === 1) {
                 // get the args out of the following parenthesis
@@ -123,135 +144,146 @@ export function parseExpression(
                             reason: `Malformed function application. It should look like this: ${name.value.value}(), as the function ${name.value.value} takes no arguments.`,
                         });
                     }
-                }
-                const leftParens = expressionContents.shift();
-                if (leftParens === undefined) {
-                    return left({
-                        line: name.value.line,
-                        column: name.value.column,
-                        reason: `Unexpected EOF after function name "${name.value.value}". Expected an opening parenthesis "("`,
-                    });
-                }
-                if (leftParens.value.value !== '(') {
-                    return left({
-                        line: name.value.line,
-                        column: name.value.column,
-                        reason: `Expected an opening parenthesis "(" after function name "${name.value.value}". Instead, received a "${leftParens.value.value}".`,
-                    });
-                }
-                while (args.length < numberOfArgs) {
-                    let prevToken = rover;
-                    rover = expressionContents.shift()!;
-                    if (rover === undefined) {
+                } else {
+                    const leftParens = expressionContents.shift();
+                    if (leftParens === undefined) {
                         return left({
-                            line: prevToken.value.line,
-                            column: prevToken.value.column,
-                            reason: `Unexpected end of expression while parsing arguments for function "${functionName.value.value}." Expected ${numberOfArgs} arguments, but only received ${args.length} arguments.`,
+                            line: name.value.line,
+                            column: name.value.column,
+                            reason: `Unexpected EOF after function call "${name.value.value}". Expected an opening parenthesis "("`,
                         });
                     }
-                    // there could be any sort of expression between here and the next comma
-                    // so we first consume until the next comma if this is not the last arg,
-                    // and until the last closing parens if it is the last arg
-                    // ```
-                    // foo(a, b, c)
-                    // ``` ^ we are parsing this part right now.
-                    //       notice that the "terminator" of this expression is a comma if the
-                    //       current arg is not the last argument
-                    //
-                    // Now we handle the case where there is a nested expression in the function
-                    // application, like this:
-                    // foo(bar(x + 20, b), 10, (c / 2))
-                    const isLastArg = args.length + 1 === numberOfArgs;
-                    const terminator = isLastArg ? 'parens' : 'comma';
-
-                    if (terminator === 'parens') {
-                        let openingParensCount = 1;
-                        let closingParensCount = 0;
-
-                        let expressionBuffer = [];
-                        while (openingParensCount > closingParensCount) {
-                            expressionBuffer.push(rover);
-                            prevToken = rover;
-                            rover = expressionContents.shift()!;
-                            if (rover.value.value === '(') {
-                                openingParensCount += 1;
-                            } else if (rover.value.value === ')') {
-                                closingParensCount += 1;
-                            }
-                        }
-                        // This is not optimal, but we need to add a semicolon to every expression in the function args
-                        // in order for the parse to work.
-                        expressionBuffer.push({
-                            tokenType: 'statement-terminator' as const,
-                            value: {
-                                line: 0,
-                                column: 0,
-                                value: ';',
-                            },
+                    if (leftParens.value.value !== '(') {
+                        return left({
+                            line: name.value.line,
+                            column: name.value.column,
+                            reason: `Expected an opening parenthesis "(" after function call "${name.value.value}". Instead, received a "${leftParens.value.value}".`,
                         });
-                        let result = parseExpression(expressionBuffer, functionNamespace, variableNamespace);
-                        if (isLeft(result)) {
-                            return result;
+                    }
+                    while (args.length < numberOfArgs) {
+                        let prevToken = rover;
+                        rover = expressionContents.shift()!;
+                        if (rover === undefined) {
+                            return left({
+                                line: prevToken.value.line,
+                                column: prevToken.value.column,
+                                reason: `Unexpected end of expression while parsing arguments for function "${functionName.value.value}." Expected ${numberOfArgs} arguments, but only received ${args.length} arguments.`,
+                            });
                         }
-                        args.push(result.right.expression);
-                    } else if (terminator === 'comma') {
-                        let openingParensCount = 0;
-                        let closingParensCount = 0;
-                        let seenOuterComma = false;
-                        let expressionBuffer = [];
-                        while (!seenOuterComma) {
-                            if (rover.value.value === '(') {
-                                openingParensCount += 1;
-                            } else if (rover.value.value === ')') {
-                                closingParensCount += 1;
-                            }
-                            // If we have seen an "outer comma", i.e. a comma outside of any inner expressions
-                            //
-                            //            inner comma
-                            //               |
-                            //               V
-                            // foo (x, (bar(2, 10)), z);
-                            //       ^             ^
-                            //       |             |
-                            //   outer comma   outer comma
-                            //
-                            if (rover.tokenType !== 'comma') {
+                        // there could be any sort of expression between here and the next comma
+                        // so we first consume until the next comma if this is not the last arg,
+                        // and until the last closing parens if it is the last arg
+                        // ```
+                        // foo(a, b, c)
+                        // ``` ^ we are parsing this part right now.
+                        //       notice that the "terminator" of this expression is a comma if the
+                        //       current arg is not the last argument
+                        //
+                        // Now we handle the case where there is a nested expression in the function
+                        // application, like this:
+                        // foo(bar(x + 20, b), 10, (c / 2))
+                        const isLastArg = args.length + 1 === numberOfArgs;
+                        const terminator = isLastArg ? 'parens' : 'comma';
+
+                        if (terminator === 'parens') {
+                            let openingParensCount = 1;
+                            let closingParensCount = 0;
+
+                            let expressionBuffer = [];
+                            while (openingParensCount > closingParensCount) {
                                 expressionBuffer.push(rover);
+                                prevToken = rover;
+                                rover = expressionContents.shift()!;
+                                if (rover.value.value === '(') {
+                                    openingParensCount += 1;
+                                } else if (rover.value.value === ')') {
+                                    closingParensCount += 1;
+                                }
                             }
-
-                            rover = expressionContents.shift()!;
-                            if (rover === undefined) {
-                                return left({
-                                    line: prevToken.value.line,
-                                    column: prevToken.value.column,
-                                    reason: `Unexpected end of expression while parsing arguments for function "${functionName.value.value}." Expected ${numberOfArgs} arguments, but only received ${args.length} arguments.`,
-                                });
+                            // This is not optimal, but we need to add a semicolon to every expression in the function args
+                            // in order for the parse to work.
+                            expressionBuffer.push({
+                                tokenType: 'statement-terminator' as const,
+                                value: {
+                                    line: 0,
+                                    column: 0,
+                                    value: ';',
+                                },
+                            });
+                            let result = parseExpression(expressionBuffer, functionNamespace, variableNamespace);
+                            if (isLeft(result)) {
+                                return result;
                             }
-                            seenOuterComma = openingParensCount === closingParensCount && rover.tokenType === 'comma';
-                            prevToken = rover;
-                        }
-                        // This is not optimal, but we need to add a semicolon to every expression in the function args
-                        // in order for the parse to work.
-                        expressionBuffer.push({
-                            tokenType: 'statement-terminator' as const,
-                            value: {
-                                line: 0,
-                                column: 0,
-                                value: ';',
-                            },
-                        });
+                            args.push(result.right.expression);
+                        } else if (terminator === 'comma') {
+                            let openingParensCount = 0;
+                            let closingParensCount = 0;
+                            let seenOuterComma = false;
+                            let expressionBuffer = [];
+                            while (!seenOuterComma) {
+                                if (rover.value.value === '(') {
+                                    openingParensCount += 1;
+                                } else if (rover.value.value === ')') {
+                                    closingParensCount += 1;
+                                }
+                                // If we have seen an "outer comma", i.e. a comma outside of any inner expressions
+                                //
+                                //            inner comma
+                                //               |
+                                //               V
+                                // foo (x, (bar(2, 10)), z);
+                                //       ^             ^
+                                //       |             |
+                                //   outer comma   outer comma
+                                //
+                                if (rover.tokenType !== 'comma') {
+                                    expressionBuffer.push(rover);
+                                }
 
-                        let result = parseExpression(expressionBuffer, functionNamespace, variableNamespace);
-                        if (isLeft(result)) {
-                            return result;
+                                rover = expressionContents.shift()!;
+                                if (rover === undefined) {
+                                    return left({
+                                        line: prevToken.value.line,
+                                        column: prevToken.value.column,
+                                        reason: `Unexpected end of expression while parsing arguments for function "${functionName.value.value}." Expected ${numberOfArgs} arguments, but only received ${args.length} arguments.`,
+                                    });
+                                }
+                                seenOuterComma =
+                                    openingParensCount === closingParensCount && rover.tokenType === 'comma';
+                                prevToken = rover;
+                            }
+                            // This is not optimal, but we need to add a semicolon to every expression in the function args
+                            // in order for the parse to work.
+                            expressionBuffer.push({
+                                tokenType: 'statement-terminator' as const,
+                                value: {
+                                    line: 0,
+                                    column: 0,
+                                    value: ';',
+                                },
+                            });
+
+                            let result = parseExpression(expressionBuffer, functionNamespace, variableNamespace);
+                            if (isLeft(result)) {
+                                return result;
+                            }
+                            args.push(result.right.expression);
                         }
-                        args.push(result.right.expression);
                     }
                 }
+                let returnType = matchingFunctions[0].returnType.value.value;
                 // Now we have the arguments and the function name, so we can add it to the expression stack.
                 expressionStack.push({
+                    _type: 'FunctionApplication',
                     functionName,
                     args,
+                    returnType,
+                });
+            } else {
+                return left({
+                    line: 0,
+                    column: 0,
+                    reason: `Internal compiler error #000. Please submit the code that triggered this error as an issue to https://github.com/sezna/sky.`,
                 });
             }
         } else if (expressionContents[0].tokenType === 'operator') {
@@ -262,13 +294,24 @@ export function parseExpression(
                     precedence(thisOperator.value.value)
             ) {
                 const newOp = operatorStack.pop()!;
-                const right = expressionStack.pop()!;
-                const left = expressionStack.pop()!;
+                const rhs = expressionStack.pop()!;
+                const lhs = expressionStack.pop()!;
+                let returnTypeResult = opReturnTypeMap(rhs.returnType, lhs.returnType, newOp.value.value
+                    .value as Operator['operatorType']); // is this a valid cast?
+                if (isLeft(returnTypeResult)) {
+                    return left({
+                        line: newOp.value.value.line,
+                        column: newOp.value.value.column,
+                        reason: returnTypeResult.left,
+                    });
+                }
+                let returnType = returnTypeResult.right;
                 let operation = {
                     _type: 'OpExp' as const,
                     operator: newOp,
-                    right,
-                    left,
+                    right: rhs,
+                    left: lhs,
+                    returnType,
                 };
                 expressionStack.push(operation);
             }
@@ -291,7 +334,7 @@ export function parseExpression(
                 return literalParseResult;
             }
             let { literalValue } = literalParseResult.right;
-            let literalExp = { _type: 'LiteralExp' as const, literalValue };
+            let literalExp = { _type: 'LiteralExp' as const, literalValue, returnType: literalValue.returnType };
             expressionStack.push(literalExp);
             expressionContents.shift();
         } else if (expressionContents[0].tokenType === 'parens') {
@@ -303,13 +346,24 @@ export function parseExpression(
             } else {
                 while (operatorStack.length > 0 && operatorStack[operatorStack.length - 1].value.value.value !== '(') {
                     let operator = operatorStack.pop()!;
-                    let right = expressionStack.pop()!;
-                    let left = expressionStack.pop()!;
+                    let rhs = expressionStack.pop()!;
+                    let lhs = expressionStack.pop()!;
+                    let returnTypeResult = opReturnTypeMap(lhs.returnType, rhs.returnType, operator.value.value
+                        .value as Operator['operatorType']);
+                    if (isLeft(returnTypeResult)) {
+                        return left({
+                            line: operator.value.value.line,
+                            column: operator.value.value.column,
+                            reason: returnTypeResult.left,
+                        });
+                    }
+                    let returnType = returnTypeResult.right;
                     expressionStack.push({
                         _type: 'OpExp' as const,
                         operator,
-                        left,
-                        right,
+                        left: lhs,
+                        right: rhs,
+                        returnType,
                     });
                 }
                 // This discards the opening parenthesis in the op stack.
@@ -327,18 +381,21 @@ export function parseExpression(
             if (isLeft(listContentsResult)) {
                 return listContentsResult;
             }
+            let returnType = 'list ' + listContentsResult.right.listContents[0].returnType;
             let literalValue = {
                 _type: 'LiteralList' as const,
-                //												listType: TODO?
                 listContents: listContentsResult.right.listContents,
                 token: openBracketToken,
+                returnType,
             };
             expressionStack.push({
                 _type: 'LiteralExp' as const,
                 literalValue,
+                returnType, // again, this will be literalValue.returnType once that gets added
             });
         } else if (expressionContents[0].value.value === 'if') {
             // consume the stuff in between "if" and "then" and parse an expression out of it
+            let token = expressionContents[0]; // for error messages, keep track of the token
             let result = consumeIfUntilThen(expressionContents);
             if (isLeft(result)) {
                 return result;
@@ -388,15 +445,12 @@ export function parseExpression(
             }
 
             let thenBranch = thenBranchResult.right.expression;
-
-            expressionContents = result.right.input;
-
-            result = consumeElseUntilEnd(expressionContents);
-            if (isLeft(result)) {
-                return result;
-            }
             let elseBranch;
             if (expressionContents.length > 0 && expressionContents[0].tokenType === 'else') {
+                result = consumeElseUntilEnd(expressionContents);
+                if (isLeft(result)) {
+                    return result;
+                }
                 let elseBranchResult = parseExpression(
                     [
                         ...result.right.tokens,
@@ -419,10 +473,35 @@ export function parseExpression(
             } else {
                 elseBranch = undefined;
             }
+            // Typecheck the condition to be boolean and that the two branches return the same type.
+            if (condition.returnType !== 'boolean') {
+                return left({
+                    line: token.value.line,
+                    column: token.value.column,
+                    reason: `Condition of if expression does not return a boolean`,
+                });
+            }
+            if (elseBranch && elseBranch.returnType !== thenBranch.returnType) {
+                return left({
+                    line: token.value.line,
+                    column: token.value.column,
+                    reason: `Branches of if expression do not return the same type. The "then" branch returns type ${thenBranch.returnType} but the "else" branch returns type ${elseBranch.returnType}`,
+                });
+            }
+            // If there is no else branch, then this must return 'none'/
+            let returnType;
+            if (!elseBranch) {
+                returnType = 'none';
+            } else {
+                returnType = thenBranch.returnType;
+            }
+
             expressionStack.push({
+                _type: 'IfExp',
                 condition,
                 thenBranch,
                 elseBranch,
+                returnType,
             });
         } else {
             return left({
@@ -435,13 +514,30 @@ export function parseExpression(
 
     while (operatorStack.length > 0) {
         let operator = operatorStack.pop()!;
-        let right = expressionStack.pop()!;
-        let left = expressionStack.pop()!;
+        let rhs = expressionStack.pop()!;
+        let lhs = expressionStack.pop()!;
+        let returnType;
+        let returnTypeResult = opReturnTypeMap(rhs.returnType, lhs.returnType, operator.value.value
+            .value as Operator['operatorType']); // is this a valid cast?
+        if (operator.value.value.value !== '(') {
+            if (isLeft(returnTypeResult)) {
+                return left({
+                    line: operator.value.value.line,
+                    column: operator.value.value.column,
+                    reason: returnTypeResult.left,
+                });
+            }
+            returnType = returnTypeResult.right;
+        } else {
+            returnType = lhs.returnType;
+        }
+
         let operation = {
             _type: 'OpExp' as const,
             operator,
-            right,
-            left,
+            right: rhs,
+            left: lhs,
+            returnType,
         };
         expressionStack.push(operation);
     }

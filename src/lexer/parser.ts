@@ -5,9 +5,13 @@ import { variableDeclaration, VariableDeclaration } from './variable-declaration
 import { Expression, parseExpression } from './expression/expression';
 
 type Declaration = FunctionDeclaration | VariableDeclaration | Reassignment;
-
-export type Step = Expression | Declaration;
+export type Step = Expression | Declaration | Return;
 export type Steps = Step[];
+
+export interface Return {
+    _type: 'Return';
+    returnExpr: Expression;
+}
 
 export interface Reassignment {
     _type: 'Reassignment';
@@ -62,11 +66,16 @@ export function makeSyntaxTree(input: Tokens): Either<ParseError, Steps> {
  *
  * Programatically, this identifies if each expression is a declaration or an expression, and then calls the appropriate
  * declaration or expression parser. It assembles the results of all of these parsers into an array of steps.
+ * The return type is used to validate the type correctness of any return statements.
+ * `functionName` is just used for error messages
  */
 export function makeFunctionBodySyntaxTree(
     input: Tokens,
     initialFunctionNamespace: FunctionDeclaration[],
     initialVariableNamespace: VariableDeclaration[],
+    params: { varName: Token; varType: Token }[],
+    functionNameToken: Token,
+    returnType: Token,
 ): Either<ParseError, Steps> {
     let functionNamespace = [...initialFunctionNamespace];
     let variableNamespace = [...initialVariableNamespace];
@@ -101,6 +110,31 @@ export function makeFunctionBodySyntaxTree(
             } else {
                 return left(parseResult.left);
             }
+        } else if (input[0].tokenType === 'return-keyword') {
+            let returnKeyword = input.shift()!; // remove te word "return" itself
+            if (input.length === 0) {
+                return left({
+                    line: returnKeyword.value.line,
+                    column: returnKeyword.value.column,
+                    reason: `Expected expression after "return" keyword but received end of input`,
+                });
+            }
+            let returnExprResult = parseExpression(input, functionNamespace, variableNamespace, params);
+            if (isLeft(returnExprResult)) {
+                return returnExprResult;
+            }
+            let returnExpr = returnExprResult.right.expression;
+            if (returnExpr.returnType !== returnType.value.value) {
+                return left({
+                    line: returnKeyword.value.line,
+                    column: returnKeyword.value.column,
+                    reason: `Function "${functionNameToken.value.value}" is declared to return type "${returnType.value.value}" but actually returns type "${returnExpr.returnType}"`,
+                });
+            }
+            steps.push({
+                _type: 'Return',
+                returnExpr,
+            });
         } else if (input[0].tokenType === 'name') {
             // Determine if this is a variable name, function name, or undeclared name.
             let matchingFunctions = functionNamespace.filter(x => x.functionName.value.value === input[0].value.value);
@@ -116,7 +150,7 @@ export function makeFunctionBodySyntaxTree(
                 return left({
                     line: input[0].value.line,
                     column: input[0].value.column,
-                    reason: `Name ${input[0].value.value} has not been defined.`,
+                    reason: `Name "${input[0].value.value}" has not been defined.`,
                 });
             }
             let typeOfName = matchingFunctions.length === 1 ? 'function' : 'variable';
@@ -201,7 +235,14 @@ function reassignVariable(
 
     let newVarBody = newVarBodyResult.right;
 
-    // TODO typecheck here
+    if (matches[0].varType.value.value !== newVarBody.expression.returnType) {
+        return left({
+            line: name.value.line,
+            column: name.value.column,
+            reason: `Attempted to assign value of type "${newVarBody.expression.returnType}" to variable "${matches[0].varName.value.value}", which has type "${matches[0].varType.value.value}".`,
+        });
+    }
+
     matches[0].varBody = newVarBody.expression;
 
     return right({

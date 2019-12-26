@@ -10,17 +10,18 @@ export function addition(lhs: EvalResult, rhs: EvalResult): Either<RuntimeError,
         return right({ valueType: 'degree', value: lhs.returnValue + rhs.returnValue });
     }
     if (lhs.returnType === 'pitch' && rhs.returnType === 'pitch') {
-        return right({ valueType: 'notes', value: [lhs.returnValue, rhs.returnValue] });
+        return right({ valueType: 'list pitch', value: [lhs.returnValue, rhs.returnValue] });
     }
-    if (lhs.returnType === 'notes' && rhs.returnType === 'pitch') {
-        return right({ valueType: 'notes', value: lhs.returnValue.concat(rhs.returnValue) });
+    // TODO make this generic, if it contains a list
+    if (lhs.returnType === 'list pitch' && rhs.returnType === 'pitch') {
+        return right({ valueType: 'list pitch', value: lhs.returnValue.concat(rhs.returnValue) });
     }
-    if (lhs.returnType === 'pitch' && rhs.returnType === 'notes') {
-        return right({ valueType: 'notes', value: [lhs.returnValue, ...rhs.returnValue] });
+    if (lhs.returnType === 'pitch' && rhs.returnType === 'list pitch') {
+        return right({ valueType: 'list pitch', value: [lhs.returnValue, ...rhs.returnValue] });
     }
     return left({
         line: 0,
         column: 0,
-        reason: `Addition unimplemented for type ${lhs.returnType}`,
+        reason: `Addition unimplemented for types "${lhs.returnType}" and "${rhs.returnType}"`,
     });
 }
