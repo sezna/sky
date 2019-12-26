@@ -95,7 +95,6 @@ export function tokenize(input: string): Tokens {
                 'boolean',
                 'chord',
                 'duration',
-                'list',
                 'polyphony',
                 'rhythm',
                 'note',
@@ -104,7 +103,11 @@ export function tokenize(input: string): Tokens {
                 'degree_rhythm',
             ].includes(symbolValue)
         ) {
-            tokens.push({ tokenType: 'type-keyword', value: symbol });
+            if (prevSymbol.value === 'list') {
+                tokens.push({ tokenType: 'type-keyword', value: { ...symbol, value: 'list ' + symbolValue } });
+            } else {
+                tokens.push({ tokenType: 'type-keyword', value: symbol });
+            }
         } else if (['compose', 'return'].includes(symbolValue)) {
             tokens.push({ tokenType: 'return-keyword', value: symbol });
         } else if ([':'].includes(symbolValue)) {
@@ -139,6 +142,8 @@ export function tokenize(input: string): Tokens {
             } else {
                 tokens.push({ tokenType: 'rhythm-literal', value: symbol });
             }
+        } else if (symbolValue === 'list') {
+            /* do nothing; wait for the next symbol for the type inside the list */
         } else {
             // `name` here denotes that it is the name of either a function or a variable in the
             // environment.

@@ -8,7 +8,7 @@ describe('pitch operator tests', () => {
         let tokens = tokenize(`fn main(): number {
 				pitch first = A#2; 
 				pitch second = b0;
-        list third = first + second; 
+        list pitch third = first + second; 
         return 0;
 			 }`);
         let steps = makeSyntaxTree(tokens);
@@ -34,12 +34,12 @@ describe('pitch operator tests', () => {
         expect((variableEnvironment['third'] as any).value[1].accidental).toBe('natural');
         expect((variableEnvironment['third'] as any).value[1].octave).toBe(0);
     });
-    it('Should be able to add a pitch into a list of pitches', () => {
+    it('Should be able to add a pitch into a list pitch of pitches', () => {
         let tokens = tokenize(`fn main(): number {
 				pitch first = A#2; 
 				pitch second = b0; 
-				list third = first + second; 
-				list fourth = third + c#2;
+				list pitch third = first + second; 
+				list pitch fourth = third + c#2;
         return 0;
 			 }`);
         let steps = makeSyntaxTree(tokens);
@@ -65,7 +65,7 @@ describe('pitch operator tests', () => {
         let tokens = tokenize(`fn main(): number {
 				pitch first = F6; 
 				pitch second = b0;
-				list third = first - second;
+				pitch third = first - second;
         return 0;
 			 }`);
         let steps = makeSyntaxTree(tokens);
