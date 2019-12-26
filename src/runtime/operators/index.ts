@@ -6,3 +6,4 @@ export { or } from './or';
 export { and } from './and';
 export { lessThan } from './less-than';
 export { greaterThan } from './greater-than';
+export { equals } from './equals';
