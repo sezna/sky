@@ -1,4 +1,5 @@
-import { EvalResult, RuntimeError } from '../';
+import { RuntimeError } from '../';
+import { EvalResult } from '../evaluate';
 import { Either, right, left } from 'fp-ts/lib/Either';
 import { OperationSuccess } from './operation-success';
 // Handle the + operator

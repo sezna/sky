@@ -1,4 +1,4 @@
-import { evaluate } from '../../src/runtime';
+import { evaluate } from '../../src/runtime/evaluate';
 import { makeSyntaxTree } from '../../src/lexer/parser';
 import { tokenize } from '../../src/lexer/tokenizer';
 import { isLeft } from 'fp-ts/lib/Either';

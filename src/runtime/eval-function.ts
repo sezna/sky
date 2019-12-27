@@ -1,4 +1,6 @@
-import { Func, FunctionEnvironment, VariableEnvironment, evaluate, RuntimeError } from '.';
+import { RuntimeError } from '.';
+import { Func, FunctionEnvironment, VariableEnvironment } from './environments';
+import { evaluate } from './evaluate';
 import { isLeft, right, left, Either } from 'fp-ts/lib/Either';
 export function evalFunction(
     func: Func,
