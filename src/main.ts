@@ -3,6 +3,7 @@ import { tokenize } from './lexer/tokenizer';
 import { makeSyntaxTree } from './lexer/parser';
 import { runtime } from './runtime';
 import { isLeft } from 'fp-ts/lib/Either';
+import { render } from './renderer';
 
 function main() {
     let args = process.argv;
@@ -25,7 +26,8 @@ ${syntaxTreeResult.left.reason}`);
 ${result.left.reason}`);
         return;
     }
-    console.log(result.right);
+
+    render(result.right);
 }
 
 main();

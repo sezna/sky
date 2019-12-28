@@ -4,9 +4,9 @@ import { evalFunction } from './eval-function';
 import { evaluate } from './evaluate';
 import { makeInitialFunctionEnvironment, makeInitialVariableEnvironment, VariableEnvironment } from './environments';
 
-interface SkyOutput {
-    midi: String; // TODO
-    sheetMusic: String; // TODO
+export interface RuntimeOutput {
+    // `mainReturn` is whatever the main function returned.
+    mainReturn: any;
     variableEnvironment: VariableEnvironment;
 }
 
@@ -16,7 +16,7 @@ export interface RuntimeError {
     column?: number;
 }
 
-export function runtime(steps: Steps): Either<RuntimeError, SkyOutput> {
+export function runtime(steps: Steps): Either<RuntimeError, RuntimeOutput> {
     let functionEnvironment = makeInitialFunctionEnvironment();
     let variableEnvironment = makeInitialVariableEnvironment();
 
@@ -42,8 +42,7 @@ export function runtime(steps: Steps): Either<RuntimeError, SkyOutput> {
     }
 
     return right({
-        midi: '',
-        sheetMusic: '',
+        mainReturn: res.right,
         variableEnvironment,
     });
 }
