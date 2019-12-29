@@ -39,6 +39,10 @@ export function evalLiteral(
             returnValue = (literal as LiteralTypes.LiteralBoolean).value;
             returnType = 'boolean';
             break;
+        case 'LiteralPitchRhythm':
+            returnValue = literal;
+            returnType = 'pitch_rhythm';
+            break;
         default:
             return left({
                 line: token.value.line,

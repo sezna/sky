@@ -27,7 +27,7 @@ ${result.left.reason}`);
         return;
     }
 
-    render(result.right);
+    console.log(render(result.right));
 }
 
 main();
