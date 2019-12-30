@@ -4,7 +4,6 @@ import { LiteralRhythm } from '../lexer/expression/literal';
 /**
  * This function takes whatever the main sky function returned and renders it into the output.
  */
-
 export function render(input: RuntimeOutput): any {
     let mainReturnType = input.mainReturn.returnType;
     let mainReturnValue = input.mainReturn.returnValue.returnValue;
@@ -15,7 +14,7 @@ export function render(input: RuntimeOutput): any {
             {
                 let abcNote = `${(sharpFlatABCMapping as any)[mainReturnValue.accidental]}${
                     mainReturnValue.noteName
-                }${convertOctaveToAbc(mainReturnValue.octave)}`;
+                }${convertOctaveToAbc(mainReturnValue.octave)}32`; // default to a quarter (32) for non-rhythm'd notes.
                 output += abcNote;
             }
             break;
