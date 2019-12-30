@@ -1,4 +1,4 @@
-import { tokenize, Tokens } from '../src/lexer/tokenizer';
+import { tokenize, Tokens } from '../../src/lexer/tokenizer';
 
 describe('Tokenizer tests', () => {
     it('Should tokenize the correct number of tokens', () => {

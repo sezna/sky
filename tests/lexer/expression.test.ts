@@ -1,8 +1,8 @@
-import { tokenize } from '../src/lexer/tokenizer';
+import { tokenize } from '../../src/lexer/tokenizer';
 //import { parseExpression } from './expression';
-import { variableDeclaration } from '../src/lexer/variable-declaration';
+import { variableDeclaration } from '../../src/lexer/variable-declaration';
 import { isRight, isLeft } from 'fp-ts/lib/Either';
-import { makeSyntaxTree } from '../src/lexer/parser';
+import { makeSyntaxTree } from '../../src/lexer/parser';
 
 describe('Expression parsing tests', () => {
     it('Should not throw an error when parsing a valid expression #1', () => {

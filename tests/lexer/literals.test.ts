@@ -1,5 +1,5 @@
-import { tokenize } from '../src/lexer/tokenizer';
-import { makeSyntaxTree } from '../src/lexer/parser';
+import { tokenize } from '../../src/lexer/tokenizer';
+import { makeSyntaxTree } from '../../src/lexer/parser';
 import { isLeft } from 'fp-ts/lib/Either';
 
 // TODO test the lifting here

@@ -1,7 +1,7 @@
 // Function declaration bodies are a little tricky so they get their own test file
-import { tokenize } from '../src/lexer/tokenizer';
+import { tokenize } from '../../src/lexer/tokenizer';
 import { isRight, isLeft } from 'fp-ts/lib/Either';
-import { makeSyntaxTree } from '../src/lexer/parser';
+import { makeSyntaxTree } from '../../src/lexer/parser';
 
 describe('Function Declaration tests', () => {
     it('Should be able to handle variable declarations and assignments', () => {

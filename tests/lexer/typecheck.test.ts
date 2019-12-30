@@ -1,5 +1,5 @@
-import { makeSyntaxTree } from '../src/lexer/parser';
-import { tokenize } from '../src/lexer/tokenizer';
+import { makeSyntaxTree } from '../../src/lexer/parser';
+import { tokenize } from '../../src/lexer/tokenizer';
 import { isRight, isLeft } from 'fp-ts/lib/Either';
 
 describe('Invalid ops tests', () => {

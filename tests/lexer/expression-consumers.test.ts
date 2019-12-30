@@ -1,11 +1,11 @@
-import { tokenize, Tokens } from '../src/lexer/tokenizer';
+import { tokenize, Tokens } from '../../src/lexer/tokenizer';
 import { isRight, isLeft, Right } from 'fp-ts/lib/Either';
 import {
     consumeIfUntilThen,
     consumeThenUntilElse,
     consumeAndLiftListContents,
-} from '../src/lexer/expression/consumers';
-import { LiteralExp } from '../src/lexer/expression';
+} from '../../src/lexer/expression/consumers';
+import { LiteralExp } from '../../src/lexer/expression';
 
 describe('consumer tests', () => {
     it('consumeIfUntilThen  should consume arbitrary tokens from between the if and then, but not consume the then itself', () => {
