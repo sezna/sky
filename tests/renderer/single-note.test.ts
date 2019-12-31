@@ -75,4 +75,76 @@ describe('single note renderer tests', () => {
         let renderedAbc = render(runtimeResult.right);
         expect(renderedAbc.split('\n').pop()).toBe('^c,48');
     });
+    it('Should be able to render a b#3 with a quarter rhythm', () => {
+        let program = `fn main(): pitch_rhythm { return b#3 quarter; }`;
+        let stepsResult = makeSyntaxTree(tokenize(program));
+        if (isLeft(stepsResult)) {
+            console.log(`Parse error at line ${stepsResult.left.line}, column ${stepsResult.left.column}`);
+            expect(true).toBe(false);
+            return;
+        }
+        let runtimeResult = runtime(stepsResult.right);
+        if (isLeft(runtimeResult)) {
+            console.log(`Runtime error: ${runtimeResult.left.reason}`);
+            expect(true).toBe(false);
+            return;
+        }
+
+        let renderedAbc = render(runtimeResult.right);
+        expect(renderedAbc.split('\n').pop()).toBe('^b,32');
+    });
+    it('Should be able to render a cb7 with a quarter rhythm', () => {
+        let program = `fn main(): pitch_rhythm { return cb7 quarter; }`;
+        let stepsResult = makeSyntaxTree(tokenize(program));
+        if (isLeft(stepsResult)) {
+            console.log(`Parse error at line ${stepsResult.left.line}, column ${stepsResult.left.column}`);
+            expect(true).toBe(false);
+            return;
+        }
+        let runtimeResult = runtime(stepsResult.right);
+        if (isLeft(runtimeResult)) {
+            console.log(`Runtime error: ${runtimeResult.left.reason}`);
+            expect(true).toBe(false);
+            return;
+        }
+
+        let renderedAbc = render(runtimeResult.right);
+        expect(renderedAbc.split('\n').pop()).toBe("_c'''32");
+    });
+    it('Should be able to render a fb8 with a quarter rhythm', () => {
+        let program = `fn main(): pitch_rhythm { return fb8 quarter; }`;
+        let stepsResult = makeSyntaxTree(tokenize(program));
+        if (isLeft(stepsResult)) {
+            console.log(`Parse error at line ${stepsResult.left.line}, column ${stepsResult.left.column}`);
+            expect(true).toBe(false);
+            return;
+        }
+        let runtimeResult = runtime(stepsResult.right);
+        if (isLeft(runtimeResult)) {
+            console.log(`Runtime error: ${runtimeResult.left.reason}`);
+            expect(true).toBe(false);
+            return;
+        }
+
+        let renderedAbc = render(runtimeResult.right);
+        expect(renderedAbc.split('\n').pop()).toBe("_f''''32");
+    });
+    it('Should be able to render a e#1 with a quarter rhythm', () => {
+        let program = `fn main(): pitch_rhythm { return e#1 quarter; }`;
+        let stepsResult = makeSyntaxTree(tokenize(program));
+        if (isLeft(stepsResult)) {
+            console.log(`Parse error at line ${stepsResult.left.line}, column ${stepsResult.left.column}`);
+            expect(true).toBe(false);
+            return;
+        }
+        let runtimeResult = runtime(stepsResult.right);
+        if (isLeft(runtimeResult)) {
+            console.log(`Runtime error: ${runtimeResult.left.reason}`);
+            expect(true).toBe(false);
+            return;
+        }
+
+        let renderedAbc = render(runtimeResult.right);
+        expect(renderedAbc.split('\n').pop()).toBe('^e,,,32');
+    });
 });
