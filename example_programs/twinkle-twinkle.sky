@@ -1,0 +1,7 @@
+-- "Twinkle Twinkle Little Star"
+fn main(): list pitch_rhythm {
+  return [ d4 quarter, d4 quarter, a4 quarter, a4 quarter,
+           b4 quarter, b4 quarter, a4 half,
+           g4 quarter, g4 quarter, f#4 quarter, f#4 quarter,
+           e4 quarter, e4 quarter, d4 half ];
+}
