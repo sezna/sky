@@ -47,7 +47,7 @@ export function evaluate(
         };
         // TODO validate that type matches return value
     } else if (step._type === 'LiteralExp') {
-        let result = evalLiteral(step as LiteralExp);
+        let result = evalLiteral(step as LiteralExp, functionEnvironment, variableEnvironment);
         if (isLeft(result)) {
             return result;
         }
