@@ -59,4 +59,24 @@ describe('list of notes renderer tests', () => {
         let renderedAbc = render(runtimeResult.right);
         expect(renderedAbc.split('\n').pop()).toBe("a'64^a'16b'48c'96");
     });
+    it('Should be able to render a chromatic list of pitches with no specified rhythm, defaulting to quarter notes', () => {
+        let program = `
+fn main(): list pitch { 
+return [a5, a#5, b5, c5]; }`;
+        let stepsResult = makeSyntaxTree(tokenize(program));
+        if (isLeft(stepsResult)) {
+            console.log(`Parse error at line ${stepsResult.left.line}, column ${stepsResult.left.column}`);
+            expect(true).toBe(false);
+            return;
+        }
+        let runtimeResult = runtime(stepsResult.right);
+        if (isLeft(runtimeResult)) {
+            console.log(`Runtime error: ${runtimeResult.left.reason}`);
+            expect(true).toBe(false);
+            return;
+        }
+
+        let renderedAbc = render(runtimeResult.right);
+        expect(renderedAbc.split('\n').pop()).toBe("a'32^a'32b'32c'32");
+    });
 });
