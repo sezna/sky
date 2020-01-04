@@ -1,6 +1,8 @@
 import { RuntimeOutput } from '../runtime';
-import { handleGlobalMetadata, sharpFlatABCMapping, convertOctaveToAbc } from './utils';
-import { renderPitchRhythm } from './pitch_rhythm';
+import { handleGlobalMetadata } from './utils';
+import { renderPitchRhythm } from './pitch-rhythm';
+import { renderPitch } from './pitch';
+import { renderListPitchRhythm } from './list-pitch-rhythm';
 
 /**
  * This function takes whatever the main sky function returned and renders it into the output.
@@ -12,20 +14,13 @@ export function render(input: RuntimeOutput): any {
     // Pattern match each potential return type here
     switch (mainReturnType) {
         case 'pitch':
-            {
-                let abcNote = `${(sharpFlatABCMapping as any)[mainReturnValue.accidental]}${
-                    mainReturnValue.noteName
-                }${convertOctaveToAbc(mainReturnValue.octave)}32`; // default to a quarter (32) for non-rhythm'd notes.
-                output += abcNote;
-            }
+            output += renderPitch(mainReturnValue);
             break;
         case 'pitch_rhythm':
             output += renderPitchRhythm(mainReturnValue);
             break;
         case 'list pitch_rhythm':
-            for (const note of mainReturnValue) {
-                output += renderPitchRhythm(note.returnValue);
-            }
+            output += renderListPitchRhythm(mainReturnValue);
             break;
         default:
             console.log(`Type "${mainReturnType}" cannot currently be rendered. Failed to render:
