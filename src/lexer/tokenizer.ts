@@ -99,6 +99,7 @@ export function tokenize(input: string): Tokens {
                 'rhythm',
                 'note',
                 'song',
+                'piece',
                 'pitch_rhythm',
                 'degree_rhythm',
             ].includes(symbolValue)
