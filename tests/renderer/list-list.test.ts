@@ -54,8 +54,11 @@ fn main(): list list pitch_rhythm {
             return;
         }
 
-        let renderedAbc = render(runtimeResult.right);
-        expect(renderedAbc.split('\n').pop()).toBe('TODO');
+        let renderedAbc = render(runtimeResult.right).split('\n');
+        expect(renderedAbc.pop()).toBe('c32^c32d32^d32e32^d32d32^c32');
+        //        expect(renderedAbc.pop()).toBe('V2:');
+        renderedAbc.pop();
+        expect(renderedAbc.pop()).toBe('V2:');
     });
     it('should be able to render a larger list of lists of notes (aka a song or piece)', () => {
         let program = `
@@ -87,8 +90,8 @@ fn main(): list list pitch_rhythm {
         let renderedAbc = render(runtimeResult.right);
         expect(renderedAbc.split('\n').pop()).toBe('TODO');
     });
-		// This next test brings up an interesting case - there should be two stdlib funcs, one that prepends rests until a certain 
-		// length and one that appends, for matching up parts in cases like this
+    // This next test brings up an interesting case - there should be two stdlib funcs, one that prepends rests until a certain
+    // length and one that appends, for matching up parts in cases like this
     it('should throw an error if one of the parts is too short', () => {
         let program = `
 fn main(): list list pitch_rhythm {
