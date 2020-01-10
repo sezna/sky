@@ -119,4 +119,28 @@ pitch outofnames = c4;
         expect((steps[0] as any).varBody.literalValue.listContents[2].returnType).toBe('list pitch');
         expect((steps[0] as any).varBody.literalValue.listContents[0].listContents[0].returnType).toBe('pitch');
     });
+    it('should reject a 2d list declared with a 1d type', () => {
+        let tokens = tokenize(`list pitch x = [[c4, d4, c4, d4, c4, d4, d4, c4, d4],
+																												[a2, b2, c3, d3, e3, f3, g3, a3, b3],
+																												[a2, b2, c3, d3, e3, f3, g3, a3, b3]];`);
+
+        let stepsResult = makeSyntaxTree(tokens);
+        if (isRight(stepsResult)) {
+            expect(true).toBe(false);
+            return;
+        }
+        expect(isLeft(stepsResult)).toBe(true);
+        expect(stepsResult.left.reason).toBe('mismatched type');
+    });
+    it('should reject a 1d list declared with a 2d type', () => {
+        let tokens = tokenize(`list list pitch x = [c4, d4, c4, d4, c4, d4, d4, c4, d4];	`);
+
+        let stepsResult = makeSyntaxTree(tokens);
+        if (isRight(stepsResult)) {
+            expect(true).toBe(false);
+            return;
+        }
+        expect(isLeft(stepsResult)).toBe(true);
+        expect(stepsResult.left.reason).toBe('Variable "x" is declared with type "list list pitch" but the expression assigned to it returns type "list pitch"');
+    });
 });

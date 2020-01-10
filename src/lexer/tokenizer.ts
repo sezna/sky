@@ -48,6 +48,7 @@ export function tokenize(input: string): Tokens {
     let tokens: Tokens = [];
     // Lookback of one symbol is needed to parse two-word note literals
     let prevSymbol = symbols[0];
+    let listBuffer = ''; // This keeps track of nested list type declarations
     for (let i = 0; i < symbols.length; i++) {
         let symbol = symbols[i];
         const symbolValue = symbol.value;
@@ -104,8 +105,9 @@ export function tokenize(input: string): Tokens {
                 'degree_rhythm',
             ].includes(symbolValue)
         ) {
-            if (prevSymbol.value === 'list') {
-                tokens.push({ tokenType: 'type-keyword', value: { ...symbol, value: 'list ' + symbolValue } });
+            if (listBuffer.length > 0) {
+                tokens.push({ tokenType: 'type-keyword', value: { ...symbol, value: listBuffer + symbolValue } });
+                listBuffer = '';
             } else {
                 tokens.push({ tokenType: 'type-keyword', value: symbol });
             }
@@ -144,12 +146,14 @@ export function tokenize(input: string): Tokens {
                 tokens.push({ tokenType: 'rhythm-literal', value: symbol });
             }
         } else if (symbolValue === 'list') {
-            /* do nothing; wait for the next symbol for the type inside the list */
+            listBuffer += 'list ';
+            continue;
         } else {
             // `name` here denotes that it is the name of either a function or a variable in the
             // environment.
             tokens.push({ tokenType: 'name', value: symbol });
         }
+        listBuffer = '';
         prevSymbol = symbol;
     }
     return tokens;
