@@ -310,6 +310,6 @@ describe('Complicated literals typechecking', () => {
             return;
         }
         expect(isLeft(steps)).toBe(true);
-				expect(steps.left.reason).toBe('mismatched type TODO');
+        expect(steps.left.reason).toBe('mismatched type TODO');
     });
 });

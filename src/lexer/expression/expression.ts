@@ -379,12 +379,12 @@ export function parseExpression(
                 variableNamespace,
             );
             if (isLeft(listContentsResult)) {
-								console.log("yo this was an error");
+                console.log('yo this was an error');
                 return listContentsResult;
             }
-								console.log("this should be literalList: ", listContentsResult.right.listContents[0].returnType);
-								console.log("after consuming list contents:\n", listContentsResult.right.listContents as any);
-								console.log("right return type is: ",listContentsResult.right.listContents[0].returnType)
+            console.log('this should be literalList: ', listContentsResult.right.listContents[0].returnType);
+            console.log('after consuming list contents:\n', listContentsResult.right.listContents as any);
+            console.log('right return type is: ', listContentsResult.right.listContents[0].returnType);
             let returnType = 'list ' + listContentsResult.right.listContents[0].returnType;
             let literalValue = {
                 _type: 'LiteralList' as const,

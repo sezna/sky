@@ -130,7 +130,7 @@ fn main(): list list pitch_rhythm {
 								[e4 quarter, d#4 quarter, d4 quarter, c#4 quarter]
 								[c3 quarter, e#3 quarter, f3 quarter, g#3 quarter],
 								[a1 quarter, c#3 quarter, d3 quarter, d#3 quarter],
-								[e3 quarter, d#3 quarter, d3 quarter]
+								[e3 quarter, d#3 quarter, d3 quarter, d2 dotted whole],
 								[e4 quarter, d#4 quarter, d4 quarter, c#4 quarter]
 								];
 				}`;

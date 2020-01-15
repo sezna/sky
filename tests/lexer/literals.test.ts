@@ -141,6 +141,8 @@ pitch outofnames = c4;
             return;
         }
         expect(isLeft(stepsResult)).toBe(true);
-        expect(stepsResult.left.reason).toBe('Variable "x" is declared with type "list list pitch" but the expression assigned to it returns type "list pitch"');
+        expect(stepsResult.left.reason).toBe(
+            'Variable "x" is declared with type "list list pitch" but the expression assigned to it returns type "list pitch"',
+        );
     });
 });
