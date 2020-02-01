@@ -323,56 +323,82 @@ export function consumeElseUntilEnd(input: Tokens): Either<ParseError, { input: 
     return right({ input, tokens: expressionBuffer });
 }
 
+/**
+ * consume and return a list, which could be multi-dimensional
+ * consumes a single list, and if it encounters another [, calls
+ * itself again
+ */
 export function consumeAndLiftListContents(
     input: Tokens,
     functionNamespace: FunctionDeclaration[],
     variableNamespace: VariableDeclaration[],
 ): Either<ParseError, { input: Tokens; listContents: Expression[] }> {
+    // The first token is a [
+    let firstBracket = input.shift()!;
+    if (firstBracket === undefined) {
+        return left({
+            line: 0,
+            column: 0,
+            reason: `Consuming of list contents was called on an empty list. This is a bug in the compiler. Please file a bug report at https://github.com/sezna/sky and include the code that triggered this error.`,
+        });
+    }
     let listBuffer = [];
-    let elemBuffer = [];
-    let bracketCounter = 0;
-    let line = input[0].value.line;
-    let column = input[0].value.column;
+    let expressionBuffer = [];
     while (input.length > 0) {
-        let token = input.shift()!;
-        if (token === undefined) {
-            return left({ line, column, reason: 'Unexpected EOF in list declaration.' });
-        }
-        line = token.value.line;
-        column = token.value.column;
+        // if this is a nested list, call this function on it and append the output
+        if (input[0].value.value === '[') {
+            let openBracketToken = { ...input[0] };
+            let res = consumeAndLiftListContents(input, functionNamespace, variableNamespace);
+            if (isLeft(res)) {
+                return res;
+            }
+            // TODO verify this return type is correct. It just snags the first elem of the list's return type for now.
+            let returnType =
+                `list ${res.right.listContents[0] && res.right.listContents[0].returnType}` || 'list empty';
+            let literalValue = {
+                _type: 'LiteralList' as const,
+                listContents: res.right.listContents,
+                token: openBracketToken,
+                returnType,
+            };
+            let literalList = { _type: 'LiteralExp' as const, literalValue, returnType: literalValue.returnType };
+            listBuffer.push(literalList);
 
-        if (token.value.value === '[') {
-            bracketCounter = bracketCounter + 1;
-        } else if (token.value.value === ']') {
-            bracketCounter = bracketCounter - 1;
-            if (bracketCounter === 0) {
-                elemBuffer.push({
+            input = res.right.input;
+        }
+        let currentToken = input.shift()!;
+        // If this is a comma or a closing bracket, then this ends the expression.
+        if (currentToken.tokenType === 'comma' || currentToken.value.value === ']') {
+            if (expressionBuffer.length > 0) {
+                // the length is zero when we have just parsed a nested list
+                expressionBuffer.push({
                     tokenType: 'statement-terminator' as const,
-                    value: { line: token.value.line, column: token.value.column, value: ';' },
+                    value: { line: currentToken.value.line, column: currentToken.value.column, value: ';' },
                 });
-                let exprResult = parseExpression(elemBuffer, functionNamespace, variableNamespace);
-                if (isLeft(exprResult)) {
-                    return exprResult;
+                let res = parseExpression(expressionBuffer, functionNamespace, variableNamespace);
+                if (isLeft(res)) {
+                    return res;
                 }
-                let expr = exprResult.right;
+                let expr = res.right;
                 listBuffer.push(expr.expression);
-                return right({ input, listContents: listBuffer });
+                expressionBuffer = [];
             }
-        } else if (token.tokenType === 'comma') {
-            elemBuffer.push({
-                tokenType: 'statement-terminator' as const,
-                value: { line: token.value.line, column: token.value.column, value: ';' },
-            });
-            let exprResult = parseExpression(elemBuffer, functionNamespace, variableNamespace);
-            if (isLeft(exprResult)) {
-                return exprResult;
+            // Additionally, if this was a ']', then this is the end of the list.
+            if (currentToken.value.value === ']') {
+                return right({
+                    input,
+                    listContents: listBuffer,
+                });
             }
-            let expr = exprResult.right;
-            listBuffer.push(expr.expression);
-            elemBuffer = [];
-        } else {
-            elemBuffer.push(token);
+        }
+        // Otherwise, this expression continues.
+        else {
+            expressionBuffer.push(currentToken);
         }
     }
-    return left({ line: 0, column: 0, reason: 'consumeListContents is unimplemented' });
+    return left({
+        line: 0,
+        column: 0,
+        reason: `unimplemented.`,
+    });
 }

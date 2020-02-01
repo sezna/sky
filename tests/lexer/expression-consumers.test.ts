@@ -71,7 +71,8 @@ describe('consumer tests', () => {
         }
         let expressions = result.right.listContents;
         expect(expressions).toHaveLength(1);
-        expect((expressions[0] as LiteralExp)._type).toBe('LiteralList');
+        expect((expressions[0] as LiteralExp)._type).toBe('LiteralExp');
+        expect((expressions[0] as LiteralExp).literalValue._type).toBe('LiteralList');
     });
     it('ConsumeAndLiftListContents should know the type of a nested list of longer length', () => {
         let tokens = tokenize('[[a2, a3, b1, b1, c4], [c2, c2, c2, c2, c2]];');

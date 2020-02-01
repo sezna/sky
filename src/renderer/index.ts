@@ -14,7 +14,6 @@ export function render(input: RuntimeOutput): any {
     let mainReturnValue = input.mainReturn.returnValue.returnValue;
     let output = handleGlobalMetadata();
     // Pattern match each potential return type here
-    console.log('mainREt', mainReturnType);
     switch (mainReturnType) {
         case 'pitch':
             output += renderPitch(mainReturnValue);

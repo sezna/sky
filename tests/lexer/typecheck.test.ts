@@ -310,6 +310,8 @@ describe('Complicated literals typechecking', () => {
             return;
         }
         expect(isLeft(steps)).toBe(true);
-        expect(steps.left.reason).toBe('mismatched type TODO');
+        expect(steps.left.reason).toBe(
+            'Variable "x" is declared with type "list number" but the expression assigned to it returns type "list list number"',
+        );
     });
 });
