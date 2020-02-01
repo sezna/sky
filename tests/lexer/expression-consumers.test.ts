@@ -83,7 +83,8 @@ describe('consumer tests', () => {
             return;
         }
         let expressions = result.right.listContents;
-        expect(expressions).toHaveLength(1);
-        expect((expressions[0] as LiteralExp)._type).toBe('LiteralList');
+        expect(expressions).toHaveLength(2);
+        expect((expressions[0] as LiteralExp)._type).toBe('LiteralExp');
+        expect((expressions[0] as LiteralExp).literalValue._type).toBe('LiteralList');
     });
 });
