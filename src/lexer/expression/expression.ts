@@ -296,8 +296,11 @@ export function parseExpression(
                 const newOp = operatorStack.pop()!;
                 const rhs = expressionStack.pop()!;
                 const lhs = expressionStack.pop()!;
-                let returnTypeResult = opReturnTypeMap(rhs.returnType, lhs.returnType, newOp.value.value
-                    .value as Operator['operatorType']); // is this a valid cast?
+                let returnTypeResult = opReturnTypeMap(
+                    rhs.returnType,
+                    lhs.returnType,
+                    newOp.value.value.value as Operator['operatorType'],
+                ); // is this a valid cast?
                 if (isLeft(returnTypeResult)) {
                     return left({
                         line: newOp.value.value.line,
@@ -348,8 +351,11 @@ export function parseExpression(
                     let operator = operatorStack.pop()!;
                     let rhs = expressionStack.pop()!;
                     let lhs = expressionStack.pop()!;
-                    let returnTypeResult = opReturnTypeMap(lhs.returnType, rhs.returnType, operator.value.value
-                        .value as Operator['operatorType']);
+                    let returnTypeResult = opReturnTypeMap(
+                        lhs.returnType,
+                        rhs.returnType,
+                        operator.value.value.value as Operator['operatorType'],
+                    );
                     if (isLeft(returnTypeResult)) {
                         return left({
                             line: operator.value.value.line,
@@ -521,8 +527,11 @@ export function parseExpression(
         let rhs = expressionStack.pop()!;
         let lhs = expressionStack.pop()!;
         let returnType;
-        let returnTypeResult = opReturnTypeMap(rhs.returnType, lhs.returnType, operator.value.value
-            .value as Operator['operatorType']); // is this a valid cast?
+        let returnTypeResult = opReturnTypeMap(
+            rhs.returnType,
+            lhs.returnType,
+            operator.value.value.value as Operator['operatorType'],
+        ); // is this a valid cast?
         if (operator.value.value.value !== '(') {
             if (isLeft(returnTypeResult)) {
                 return left({

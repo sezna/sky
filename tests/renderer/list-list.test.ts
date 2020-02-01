@@ -93,18 +93,17 @@ fn main(): list list pitch_rhythm {
         expect(renderedAbc).toBe(`
 A: Alex Hansen
 L: 1/128
-V1:
-c32^c32d32^d32
-V2:
-e32^d32d32^c32
-V3:
-c,32^e,32f,32^g,32
-V4:
-a,,,32^c,32d,32^d,32
-V5:
-e,32^d,32d,32^c,32
-V6:
-e32^d32d32^c32
+V:TI clef=treble-8 name=\"Voice 1\" snm=\"V.1\"
+V:TII clef=treble-8 name=\"Voice 2\" snm=\"V.2\"
+V:TIII clef=treble-8 name=\"Voice 3\" snm=\"V.3\"
+V:TIV clef=treble-8 name=\"Voice 4\" snm=\"V.4\"
+V:TV clef=treble-8 name=\"Voice 5\" snm=\"V.5\"
+[V:TI] c32^c32d32^d32
+[V:TII] e32^d32d32^c32
+[V:TIII] c,32^e,32f,32^g,32
+[V:TIV] a,,,32^c,32d,32^d,32
+[V:TV] e,32^d,32d,32^c,32
+[V:TVI] e32^d32d32^c32
 `);
     });
     // This next test brings up an interesting case - there should be two stdlib funcs, one that prepends rests until a certain
