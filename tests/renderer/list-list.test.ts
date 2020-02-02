@@ -5,7 +5,6 @@ import { makeSyntaxTree } from '../../src/lexer/parser';
 import { isLeft } from 'fp-ts/lib/Either';
 
 describe('list of notes renderer tests', () => {
-    /*
     it('should be able to render a piece (aka a list of lists of notes)', () => {
         let program = `
 fn main(): list list pitch_rhythm {
@@ -30,7 +29,13 @@ fn main(): list list pitch_rhythm {
         }
 
         let renderedAbc = render(runtimeResult.right);
-        expect(renderedAbc.split('\n').pop()).toBe('TODO');
+        expect(renderedAbc).toBe(`
+A: Alex Hansen
+L: 1/128
+V:TI clef=treble-8 name="Voice 1" snm="V.1"
+[V:TI] c32^c32d32^d32
+[V:TII] e32^d32d32^c32
+`);
     });
     it('should be able to render a list of lists of notes (aka a song or piece)', () => {
         let program = `
@@ -55,13 +60,15 @@ fn main(): list list pitch_rhythm {
             return;
         }
 
-        let renderedAbc = render(runtimeResult.right).split('\n');
-        expect(renderedAbc.pop()).toBe('TODO');
-        //        expect(renderedAbc.pop()).toBe('V2:');
-        renderedAbc.pop();
-        expect(renderedAbc.pop()).toBe('V2:');
+        let renderedAbc = render(runtimeResult.right);
+        expect(renderedAbc).toBe(`
+A: Alex Hansen
+L: 1/128
+V:TI clef=treble-8 name="Voice 1" snm="V.1"
+[V:TI] c32^c32d32^d32
+[V:TII] e32^d32d32^c32
+`);
     });
-				 */
     it('should be able to render a larger list of lists of notes', () => {
         let program = `
 fn main(): list list pitch_rhythm {
