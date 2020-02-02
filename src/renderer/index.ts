@@ -4,6 +4,7 @@ import { renderPitchRhythm } from './pitch-rhythm';
 import { renderPitch } from './pitch';
 import { renderListPitchRhythm } from './list-pitch-rhythm';
 import { renderListPitch } from './list-pitch';
+import { renderListListPitchRhythm } from './list-list-pitch-rhythm';
 
 /**
  * This function takes whatever the main sky function returned and renders it into the output.
@@ -25,6 +26,9 @@ export function render(input: RuntimeOutput): any {
             break;
         case 'list pitch':
             output += renderListPitch(mainReturnValue);
+            break;
+        case 'list list pitch_rhythm':
+            output += renderListListPitchRhythm(mainReturnValue);
             break;
         default:
             console.log(`Type "${mainReturnType}" cannot currently be rendered. Failed to render:

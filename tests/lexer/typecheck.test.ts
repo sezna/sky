@@ -281,3 +281,37 @@ describe('function application typechecking', () => {
         expect(isRight(steps)).toBe(true);
     });
 });
+describe('Complicated literals typechecking', () => {
+    it('Should know the type of a nested list literal expression', () => {
+        let program = `
+    fn main(): number { 
+      list list number x = [[1,2,3,4,5,6]];
+      return 0;
+    }
+    `;
+        let steps = makeSyntaxTree(tokenize(program));
+        if (isLeft(steps)) {
+            console.log('Error: ', steps.left.reason);
+            expect(true).toBe(false);
+            return;
+        }
+        expect(isRight(steps)).toBe(true);
+    });
+    it('Should reject an incorrectly typed nested list literal expression', () => {
+        let program = `
+    fn main(): number { 
+      list number x = [[1,2,3,4,5,6]];
+      return 0;
+    }
+    `;
+        let steps = makeSyntaxTree(tokenize(program));
+        if (isRight(steps)) {
+            expect(true).toBe(false);
+            return;
+        }
+        expect(isLeft(steps)).toBe(true);
+        expect(steps.left.reason).toBe(
+            'Variable "x" is declared with type "list number" but the expression assigned to it returns type "list list number"',
+        );
+    });
+});

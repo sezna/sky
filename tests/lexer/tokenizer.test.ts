@@ -66,4 +66,16 @@ describe('Tokenizer tests', () => {
         expect(tokens).toHaveLength(1);
         expect(tokens[0].tokenType).toBe('operator');
     });
+    it('should tokenize nested lists as one typename token', () => {
+        let tokens = tokenize('list list pitch_rhythm');
+        expect(tokens).toHaveLength(1);
+        expect(tokens[0].tokenType).toBe('type-keyword');
+        expect(tokens[0].value.value).toBe('list list pitch_rhythm');
+    });
+    it('should tokenize triply nested lists as one typename token', () => {
+        let tokens = tokenize('list list list pitch_rhythm');
+        expect(tokens).toHaveLength(1);
+        expect(tokens[0].tokenType).toBe('type-keyword');
+        expect(tokens[0].value.value).toBe('list list list pitch_rhythm');
+    });
 });
