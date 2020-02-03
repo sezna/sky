@@ -10,8 +10,8 @@ import { evalLiteral } from './eval-literal';
 export interface EvalResult {
     functionEnvironment: FunctionEnvironment;
     variableEnvironment: VariableEnvironment;
-    returnValue?: any; // TODO
-    returnType?: any;
+    returnValue: any; // TODO
+    returnType: any;
 }
 
 export function evaluate(
@@ -157,6 +157,22 @@ export function evaluate(
     } else if (step._type === 'PropertyAssignment') {
         // In a property assignment, the first value of the name is the variable name and the second is the property name
         variableEnvironment[step.name[0].value.value].properties[step.name[1].value.value] = step.value;
+    } else if (step._type === 'Reassignment') {
+        let evalResult = evaluate(step.newVarBody, functionEnvironment, variableEnvironment);
+        if (isLeft(evalResult)) {
+            return evalResult;
+        }
+        let newValue = evalResult.right.returnValue;
+        let newType = evalResult.right.returnType;
+        let varToBeReassigned = variableEnvironment[step.name.value.value];
+        if (newType !== varToBeReassigned.varType) {
+            return left({
+                line: step.name.value.line,
+                column: step.name.value.column,
+                reason: `Value reassigned to variable "${step.name.value.value}" has type "${newType}", which is differs from the declared type of that variable, which is "${varToBeReassigned.varType}"`,
+            });
+        }
+        variableEnvironment[step.name.value.value].value = newValue;
     } else if (step._type === 'Return') {
         return left({
             line: 0,

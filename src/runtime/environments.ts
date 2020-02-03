@@ -28,7 +28,5 @@ export function makeInitialFunctionEnvironment(): FunctionEnvironment {
 
 export function makeInitialVariableEnvironment(): VariableEnvironment {
     // TODO this is just an example
-    return {
-        x: { varType: 'number', value: 5, properties: {} },
-    };
+    return {};
 }
