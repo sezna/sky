@@ -44,6 +44,7 @@ export function evaluate(
         variableEnvironment[step.varName.value.value] = {
             value: value.right.returnValue,
             varType: (step as VariableDeclaration).varType.value.value,
+            properties: {},
         };
         // TODO validate that type matches return value
     } else if (step._type === 'LiteralExp') {
@@ -153,6 +154,9 @@ export function evaluate(
         }
         returnType = step.returnType;
         returnValue = branchResult && branchResult.right.returnValue;
+    } else if (step._type === 'PropertyAssignment') {
+        // In a property assignment, the first value of the name is the variable name and the second is the property name
+        variableEnvironment[step.name[0].value.value].properties[step.name[1].value.value] = step.value;
     } else if (step._type === 'Return') {
         return left({
             line: 0,

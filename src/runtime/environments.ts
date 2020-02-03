@@ -16,16 +16,19 @@ export interface Func {
 interface Variable {
     varType: string;
     value: any;
+    properties: { [propertyName: string]: string };
 }
 
 export function makeInitialFunctionEnvironment(): FunctionEnvironment {
+    // TODO this is just an example
     return {
         rand: { _type: 'Func' as const, parameters: [], body: [], returnType: 'number' },
     };
 }
 
 export function makeInitialVariableEnvironment(): VariableEnvironment {
+    // TODO this is just an example
     return {
-        x: { varType: 'number', value: 5 },
+        x: { varType: 'number', value: 5, properties: {} },
     };
 }
