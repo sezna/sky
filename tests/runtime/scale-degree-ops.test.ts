@@ -10,10 +10,12 @@ describe('scale degree operator tests', () => {
             x: {
                 varType: 'degree',
                 value: 3,
+                properties: {},
             },
             y: {
                 varType: 'degree',
                 value: 1,
+                properties: {},
             },
         };
         let tokens = tokenize('degree x = iii; degree y = ii; degree z = x + y;');
@@ -38,10 +40,12 @@ describe('scale degree operator tests', () => {
             x: {
                 varType: 'degree',
                 value: '3',
+                properties: {},
             },
             y: {
                 varType: 'degree',
                 value: '1',
+                properties: {},
             },
         };
         let tokens = tokenize('degree x = iv; degree y = i; degree z = x - y;');

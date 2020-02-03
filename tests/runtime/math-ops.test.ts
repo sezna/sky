@@ -10,10 +10,12 @@ describe('math operator tests', () => {
             x: {
                 varType: 'number',
                 value: 5,
+                properties: {},
             },
             y: {
                 varType: 'number',
                 value: 5,
+                properties: {},
             },
         };
         let tokens = tokenize('number x = 5; number y = 5; number z = x + y;');
@@ -38,10 +40,12 @@ describe('math operator tests', () => {
             x: {
                 varType: 'number',
                 value: 3,
+                properties: {},
             },
             y: {
                 varType: 'number',
                 value: 5,
+                properties: {},
             },
         };
         let tokens = tokenize('number x = 3; number y = 5; number z = x - y;');
@@ -66,10 +70,12 @@ describe('math operator tests', () => {
             x: {
                 varType: 'number',
                 value: 5,
+                properties: {},
             },
             y: {
                 varType: 'number',
                 value: 4,
+                properties: {},
             },
         };
         let tokens = tokenize('number x = 5; number y = 4; number z=x/y;');
@@ -94,10 +100,12 @@ describe('math operator tests', () => {
             x: {
                 varType: 'number',
                 value: 20,
+                properties: {},
             },
             y: {
                 varType: 'number',
                 value: 102,
+                properties: {},
             },
         };
         let tokens = tokenize('number x = 20; number y = 102; number z=x*y;');
@@ -122,14 +130,17 @@ describe('math operator tests', () => {
             x: {
                 varType: 'number',
                 value: 10,
+                properties: {},
             },
             y: {
                 varType: 'number',
                 value: 2,
+                properties: {},
             },
             z: {
                 varType: 'number',
                 value: 1,
+                properties: {},
             },
         };
         let tokens = tokenize('number x = 10; number y = 2; number z=1; number a = z + y * x;');
@@ -154,14 +165,17 @@ describe('math operator tests', () => {
             x: {
                 varType: 'number',
                 value: 10,
+                properties: {},
             },
             y: {
                 varType: 'number',
                 value: 2,
+                properties: {},
             },
             z: {
                 varType: 'number',
                 value: 1,
+                properties: {},
             },
         };
         let tokens = tokenize('number x = 10; number y = 2; number z=1; number a = (z + y) * x;');
@@ -186,14 +200,17 @@ describe('math operator tests', () => {
             x: {
                 varType: 'number',
                 value: 10,
+                properties: {},
             },
             y: {
                 varType: 'number',
                 value: 2,
+                properties: {},
             },
             z: {
                 varType: 'number',
                 value: 1,
+                properties: {},
             },
         };
         let tokens = tokenize('number x = 10; number y = 2; number z=1; number a = (z + y) * x + 2;');
