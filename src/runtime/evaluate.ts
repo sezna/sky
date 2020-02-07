@@ -7,6 +7,7 @@ import { Step } from '../lexer/parser';
 import { Either, right, left, isLeft } from 'fp-ts/lib/Either';
 import { RuntimeError } from './';
 import { evalLiteral } from './eval-literal';
+import * as _ from 'lodash';
 export interface EvalResult {
     functionEnvironment: FunctionEnvironment;
     variableEnvironment: VariableEnvironment;
@@ -155,24 +156,118 @@ export function evaluate(
         returnType = step.returnType;
         returnValue = branchResult && branchResult.right.returnValue;
     } else if (step._type === 'PropertyAssignment') {
-        // In a property assignment, the first value of the name is the variable name and the second is the property name
-        variableEnvironment[step.name[0].value.value].properties[step.name[1].value.value] = step.value;
+        // TODO: ALL you need to do is assign properties to nested indexes. The code from here -----
+        // First, handle the indexes, if any. Note that this code is duplicated below, and if you want to change it, it is probably worth abstraction. TODO
+        let indexes = [];
+        if (step.indexes && step.indexes.length > 0) {
+            for (const idxExpr of step.indexes) {
+                const evalResult = evaluate(idxExpr, functionEnvironment, variableEnvironment);
+                if (isLeft(evalResult)) {
+                    return evalResult;
+                }
+                if (evalResult.right.returnType !== 'number') {
+                    return left({
+                        line: step.varName.value.line,
+                        column: step.varName.value.column,
+                        reason: `Attempted to index with a non-numerical type.`,
+                    });
+                }
+                let idx = evalResult.right.returnValue as number;
+                indexes.push(idx);
+            }
+        }
+        if (indexes.length > 0) {
+            // this is ugly...could do with a refactor someday. Basically just remove the last ".returnValue".
+            let getString = indexes
+                .map(elem => `[${elem}].returnValue`)
+                .join('')
+                .split('.')
+                .slice(0, -1)!
+                .join('.');
+            if (_.get(variableEnvironment[step.varName.value.value].value, getString).properties === undefined) {
+                _.set(variableEnvironment[step.varName.value.value].value, `${getString}.properties`, {});
+            }
+            _.set(
+                variableEnvironment[step.varName.value.value].value,
+                `${getString}.properties[${step.propertyName.value.value}]`,
+                step.value,
+            );
+        } else {
+            // -- to here is new, and should be questioned. the GETSTRING is probably what's wrong
+            variableEnvironment[step.varName.value.value].properties[step.propertyName.value.value] = step.value;
+        }
     } else if (step._type === 'Reassignment') {
+        // First, handle the indexes, if any.
+        let indexes = [];
+        if (step.indexes && step.indexes.length > 0) {
+            for (const idxExpr of step.indexes) {
+                const evalResult = evaluate(idxExpr, functionEnvironment, variableEnvironment);
+                if (isLeft(evalResult)) {
+                    return evalResult;
+                }
+                if (evalResult.right.returnType !== 'number') {
+                    return left({
+                        line: step.name.value.line,
+                        column: step.name.value.column,
+                        reason: `Attempted to index with a non-numerical type.`,
+                    });
+                }
+                let idx = evalResult.right.returnValue as number;
+                indexes.push(idx);
+            }
+        }
+
         let evalResult = evaluate(step.newVarBody, functionEnvironment, variableEnvironment);
         if (isLeft(evalResult)) {
             return evalResult;
         }
-        let newValue = evalResult.right.returnValue;
-        let newType = evalResult.right.returnType;
+        let newRetValue = evalResult.right.returnValue;
+        let newRetType = evalResult.right.returnType;
+        // Undeclared variable names are caught in the parsing stage, so this can be assumed to be defined. A more rigorous check could be added in the future, though.
         let varToBeReassigned = variableEnvironment[step.name.value.value];
-        if (newType !== varToBeReassigned.varType) {
+        let oldType = varToBeReassigned.varType;
+        if (indexes.length > 0) {
+            let indexedVarToBeReassigned = varToBeReassigned.value;
+            for (const idx of indexes) {
+                indexedVarToBeReassigned = indexedVarToBeReassigned[idx];
+                if (indexedVarToBeReassigned === undefined) {
+                    return left({
+                        line: step.name.value.line,
+                        column: step.name.value.column,
+                        reason: `Attempted to index variable "${step.name.value.value}" with index "${idx}", which was undefined.`,
+                    });
+                }
+                indexedVarToBeReassigned = indexedVarToBeReassigned.returnValue;
+            }
+            // Remove the amount of 'list's from the type that corresponds to the number of index statements.
+            oldType = varToBeReassigned.varType
+                .split(' ')
+                .splice(indexes.length)
+                .join(' ');
+        }
+        if (newRetType !== oldType) {
             return left({
                 line: step.name.value.line,
                 column: step.name.value.column,
-                reason: `Value reassigned to variable "${step.name.value.value}" has type "${newType}", which is differs from the declared type of that variable, which is "${varToBeReassigned.varType}"`,
+                reason: `Value reassigned to variable "${step.name.value.value}" has type "${newRetType}", which is differs from the declared type of that variable, which is "${varToBeReassigned.varType}"`,
             });
         }
-        variableEnvironment[step.name.value.value].value = newValue;
+
+        let newValue = {
+            returnType: newRetType,
+            returnValue: newRetValue,
+        };
+        if (indexes.length > 0) {
+            let getString = indexes
+                .map(elem => `[${elem}].returnValue`)
+                .join('')
+                .split('.')
+                .slice(0, -1)
+                .join('.');
+            _.set(variableEnvironment[step.name.value.value].value, getString, newValue);
+        } else {
+            variableEnvironment[step.name.value.value].value = newRetValue;
+        }
     } else if (step._type === 'Return') {
         return left({
             line: 0,

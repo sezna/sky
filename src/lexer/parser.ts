@@ -3,6 +3,8 @@ import { Token, Tokens } from './tokenizer';
 import { FunctionDeclaration, functionDeclaration } from './function-declaration';
 import { variableDeclaration, VariableDeclaration } from './variable-declaration';
 import { Expression, parseExpression } from './expression/expression';
+import { reassignVariable, Reassignment } from './reassign-variable';
+import { propertyAssignment, PropertyAssignment } from './property-assignment';
 
 type Declaration = FunctionDeclaration | VariableDeclaration | Reassignment | PropertyAssignment;
 export type Step = Expression | Declaration | Return;
@@ -11,18 +13,6 @@ export type Steps = Step[];
 export interface Return {
     _type: 'Return';
     returnExpr: Expression;
-}
-
-export interface Reassignment {
-    _type: 'Reassignment';
-    name: Token;
-    newVarBody: Expression;
-}
-
-export interface PropertyAssignment {
-    _type: 'PropertyAssignment';
-    name: [Token, Token];
-    value: string;
 }
 
 export interface ParseError {
@@ -114,7 +104,7 @@ export function makeFunctionBodySyntaxTree(
                 steps.push(parseResult.right.declaration);
                 variableNamespace.push(parseResult.right.declaration);
             } else {
-                return left(parseResult.left);
+                return parseResult;
             }
         } else if (input[0].tokenType === 'return-keyword') {
             let returnKeyword = input.shift()!; // remove te word "return" itself
@@ -169,9 +159,59 @@ export function makeFunctionBodySyntaxTree(
                 input = functionApplication.input;
                 steps.push(functionApplication.expression);
             } else {
-                let varName = input.shift()!;
+                // This is a variable name, then, so this is a variable reassignment.
+                // It could be of form `name[index][index][index] ( etc. ) .property`, or have no indexes. First, we consume any potential indexes.
+                const varName = input.shift()!;
+                // This is the list of indexing expressions, to be included in the evaluation of the variable later.
+                // A quick typecheck to ensure that this is only happening on a list-type variable could help, but is currently
+                // unimplemented.
+                let indexExprs = [];
+                while (input[0].value.value === '[' && input.length > 0) {
+                    // Then some indexes exist after this name.
+                    let openingBracket = input.shift()!;
+                    let expBuffer = [];
+                    // Consume until the corresponding closing bracket.
+                    let bracketCount = 1;
+                    while (bracketCount > 0 && input.length > 0) {
+                        let currentToken = input.shift()!;
+                        if (currentToken === undefined) {
+                            return left({
+                                line: openingBracket.value.line,
+                                column: openingBracket.value.column,
+                                reason: `Expected closing bracket "]" to terminate index of variable "${varName.value.value}".`,
+                            });
+                        }
+                        if (currentToken.value.value === ']') {
+                            bracketCount -= 1;
+                            if (bracketCount === 0) {
+                                break;
+                            }
+                        } else if (currentToken.value.value === '[') {
+                            bracketCount += 1;
+                        } else {
+                            expBuffer.push(currentToken);
+                        }
+                    }
+                    if (expBuffer.length === 0) {
+                        return left({
+                            line: openingBracket.value.line,
+                            column: openingBracket.value.column,
+                            reason: `Empty indexing expression for variable "${varName}".`,
+                        });
+                    }
+                    expBuffer.push({
+                        tokenType: 'statement-terminator' as const,
+                        value: { line: openingBracket.value.line, column: openingBracket.value.column, value: ';' },
+                    });
+                    const indexExprRes = parseExpression(expBuffer, functionNamespace, variableNamespace);
+                    if (isLeft(indexExprRes)) {
+                        return indexExprRes;
+                    }
+                    const indexExpr = indexExprRes.right.expression;
+                    indexExprs.push(indexExpr);
+                }
                 if ((input[0].tokenType as any) === 'property') {
-                    let res = propertyAssignment(varName, input);
+                    let res = propertyAssignment(varName, input, indexExprs);
                     if (isLeft(res)) {
                         return res;
                     }
@@ -179,7 +219,13 @@ export function makeFunctionBodySyntaxTree(
                     steps.push(res.right.propertyAssignment);
                 } else {
                     // If the next character is not an =, as it should be in a reassignment, `reassignResult` handles the error checking.
-                    let reassignResult = reassignVariable(varName, input, functionNamespace, variableNamespace);
+                    let reassignResult = reassignVariable(
+                        varName,
+                        input,
+                        functionNamespace,
+                        variableNamespace,
+                        indexExprs,
+                    );
                     if (isLeft(reassignResult)) {
                         return reassignResult;
                     }
@@ -200,172 +246,4 @@ export function makeFunctionBodySyntaxTree(
     }
 
     return right(steps);
-}
-
-/**
- * Given a name and a new value, reassigns a variable within a namespace. (TODO should ensure the variable is of the same type as before.)
- */
-function reassignVariable(
-    name: Token,
-    input: Tokens,
-    functionNamespace: FunctionDeclaration[],
-    variableNamespace: VariableDeclaration[],
-): Either<ParseError, { input: Tokens; reassignment: Reassignment }> {
-    let matches = variableNamespace.filter(x => x.varName.value.value === name.value.value);
-    if (matches.length > 1) {
-        return left({
-            line: name.value.line,
-            column: name.value.column,
-            reason: `Multiple matching variable names in namespace for name ${name.value.value}. This should never happen and is an error in the compiler. Please file an issue at https://github.com/sezna/sky and include the code that triggered this error.`,
-        });
-    }
-    if (matches.length == 0) {
-        return left({
-            line: name.value.line,
-            column: name.value.column,
-            reason: `No matching variable names in namespace for ${name.value.value}. This should never happen and is an error in the compiler. Please file an issue at https://github.com/sezna/sky and include the code that triggered this error.`,
-        });
-    }
-
-    let equalsToken = input.shift()!;
-    if (equalsToken === undefined) {
-        return left({
-            line: name.value.line,
-            column: name.value.column,
-            reason: `Expected equals sign in reassignment but instead found the end of a token stream.`,
-        });
-    }
-    if (equalsToken.tokenType !== 'assignment-operator') {
-        return left({
-            line: equalsToken.value.line,
-            column: equalsToken.value.column,
-            reason: `Expected equals sign in reassignment but instead found "${equalsToken.value.value}" (${equalsToken.tokenType}).`,
-        });
-    }
-
-    let newVarBodyResult = parseExpression(input, functionNamespace, variableNamespace);
-
-    if (isLeft(newVarBodyResult)) {
-        return newVarBodyResult;
-    }
-
-    let newVarBody = newVarBodyResult.right;
-
-    if (matches[0].varType.value.value !== newVarBody.expression.returnType) {
-        return left({
-            line: name.value.line,
-            column: name.value.column,
-            reason: `Attempted to assign value of type "${newVarBody.expression.returnType}" to variable "${matches[0].varName.value.value}", which has type "${matches[0].varType.value.value}".`,
-        });
-    }
-
-    matches[0].varBody = newVarBody.expression;
-
-    return right({
-        input: newVarBody.input,
-        reassignment: {
-            _type: 'Reassignment' as const,
-            name,
-            newVarBody: newVarBody.expression,
-        },
-    });
-}
-/* Method invocation, or in reality property assignment, should just parse the following sequence (varName has already been parsed):
- * - the period after the name
- * - the name of the property or property (right now we will probably only support properties)
- * - an equals sign
- * - either a string (TODO -- strings are unimplemented) or one of a preset set of "Atoms"?
- */
-//propertyAssignment(varName, input, functionNamespace, variableNamespace);
-function propertyAssignment(
-    name: Token,
-    input: Token[],
-): Either<ParseError, { input: Tokens; propertyAssignment: PropertyAssignment }> {
-    const dot = input.shift()!;
-    if (dot === undefined || dot.tokenType !== 'property') {
-        return left({
-            line: dot.value.line,
-            column: dot.value.column,
-            reason: `Attempted to call property assignment on a statement which was not a property assignment. This is probably a bug in the compiler. Please file an issue at https://github.com/sezna/sky and include the code that caused this.`,
-        });
-    }
-
-    const propertyName = input.shift()!;
-    if (propertyName === undefined || propertyName.tokenType !== 'name') {
-        return left({
-            line: dot.value.line,
-            column: dot.value.column,
-            reason: `Expected the name of a property, but instead received ${
-                propertyName === undefined ? 'nothing' : `"${propertyName.value.value}"`
-            }.`,
-        });
-    }
-
-    const equals = input.shift()!;
-    if (equals === undefined || equals.tokenType !== 'assignment-operator') {
-        return left({
-            line: equals.value.line,
-            column: equals.value.column,
-            reason: `Expected an equals sign, but instead received ${
-                equals === undefined ? 'nothing' : `"${equals.value.value}"`
-            }.`,
-        });
-    }
-
-    // Consume until a semicolon.
-    let rover = input.shift!();
-    if (rover === undefined) {
-        return left({
-            line: equals.value.line,
-            column: equals.value.column,
-            reason: `Expected a property value for property "${name}.${propertyName}".`,
-        });
-    }
-    let valueBuffer = [];
-    while (rover.tokenType !== 'statement-terminator') {
-        valueBuffer.push({ ...rover });
-        const prevRover = { ...rover };
-        rover = input.shift()!;
-        if (rover === undefined) {
-            return left({
-                line: prevRover.value.line,
-                column: prevRover.value.column,
-                reason: `Expected a semicolon to terminate property value for property "${name}.${propertyName}".`,
-            });
-        }
-    }
-    let value = valueBuffer.map(x => x.value.value).join(' ');
-
-    // This is where there are only a certain amount of pre-defined names that can go here. They aren't string literals, they're something else.
-    // in the future, there can also be string literal values for certain metadata properties like author, etc.
-    // Currently this is a TODO and is very much not exhaustive.
-    let allowedPropertyValues = [
-        'bass',
-        'treble',
-        'alto',
-        'tenor',
-        'pianissimo',
-        'piano',
-        'mezzo piano',
-        'mezzo forte',
-        'forte',
-        'fortissimo',
-    ];
-
-    if (!allowedPropertyValues.includes(value)) {
-        return left({
-            line: valueBuffer[0].value.line,
-            column: valueBuffer[0].value.column,
-            reason: `Value "${value}" is not a valid property value.`,
-        });
-    }
-
-    return right({
-        input,
-        propertyAssignment: {
-            _type: 'PropertyAssignment',
-            name: [name, propertyName],
-            value,
-        },
-    });
 }
