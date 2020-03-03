@@ -98,12 +98,14 @@ export function propertyAssignment(
         'contrabass',
         'cello',
     ];
+    // Properties which can accept any string as a value
+    let wildcardProperties = ['composer', 'title'];
 
-    if (!allowedPropertyValues.includes(value)) {
+    if (!wildcardProperties.includes(propertyName.value.value) && !allowedPropertyValues.includes(value)) {
         return left({
             line: valueBuffer[0].value.line,
             column: valueBuffer[0].value.column,
-            reason: `Value "${value}" is not a valid property value.`,
+            reason: `Value "${value}" is not a valid property value for property "${propertyName.value.value}".`,
         });
     }
 

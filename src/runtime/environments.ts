@@ -19,6 +19,10 @@ interface Variable {
     properties: { [propertyName: string]: string };
 }
 
+/**
+ * Declare any initial stdlib-style functions you want here.
+ * This would be the place to embed functionality from JS into Sky.
+ */
 export function makeInitialFunctionEnvironment(): FunctionEnvironment {
     // TODO this is just an example
     return {
@@ -26,7 +30,9 @@ export function makeInitialFunctionEnvironment(): FunctionEnvironment {
     };
 }
 
+/**
+ * Declare any initial global constants or vars here.
+ */
 export function makeInitialVariableEnvironment(): VariableEnvironment {
-    // TODO this is just an example
     return {};
 }

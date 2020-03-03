@@ -149,7 +149,7 @@ describe('assignment and reassignment tests', () => {
             return;
         }
         expect(isLeft(steps)).toBe(true);
-        expect(steps.left.reason).toBe('Value "something invalid" is not a valid property value.');
+        expect(steps.left.reason).toBe('Value "something invalid" is not a valid property value for property "clef".');
     });
     it('should reject a reassignment of the wrong type', () => {
         let program = `

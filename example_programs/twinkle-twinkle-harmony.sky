@@ -1,0 +1,18 @@
+-- "Twinkle Twinkle Little Star"
+fn main(): list list pitch_rhythm {
+  list list pitch_rhythm twinkle = [ [
+				   d4 quarter, d4 quarter, a4 quarter, a4 quarter,
+           b4 quarter, b4 quarter, a4 half,
+           g4 quarter, g4 quarter, f#4 quarter, f#4 quarter,
+           e4 quarter, e4 quarter, d4 half ],
+					 [
+				   d2 whole,
+					 g2 whole,
+					 b2 whole,
+					 a2 half, d2 half
+					 ]];
+  twinkle[0].clef = treble;
+	twinkle[1].clef = bass;
+  twinkle.composer = Alex Hansen;
+	return twinkle;
+}

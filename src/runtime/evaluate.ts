@@ -13,6 +13,7 @@ export interface EvalResult {
     variableEnvironment: VariableEnvironment;
     returnValue: any; // TODO
     returnType: any;
+    returnProperties?: { [key: string]: string };
 }
 
 export function evaluate(
@@ -22,6 +23,7 @@ export function evaluate(
 ): Either<RuntimeError, EvalResult> {
     let returnValue;
     let returnType;
+    let returnProperties;
     if (step._type === 'VariableDeclaration') {
         step = step as VariableDeclaration;
         let value = evaluate((step as VariableDeclaration).varBody, functionEnvironment, variableEnvironment);
@@ -127,6 +129,7 @@ export function evaluate(
         }
         returnType = varValue.varType;
         returnValue = varValue.value;
+        returnProperties = varValue.properties;
     } else if (step._type === 'FunctionDeclaration') {
         let funcDeclStep = step as FunctionDeclaration;
         functionEnvironment[funcDeclStep.functionName.value.value] = {
@@ -281,11 +284,11 @@ export function evaluate(
             reason: `Unimplemented step: ${step._type}`,
         });
     }
-
     return right({
         functionEnvironment,
         variableEnvironment,
         returnValue,
         returnType,
+        returnProperties,
     });
 }

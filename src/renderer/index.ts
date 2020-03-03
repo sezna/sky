@@ -11,8 +11,8 @@ import { renderListListPitchRhythm } from './list-list-pitch-rhythm';
  */
 export function render(input: RuntimeOutput): any {
     let mainReturnType = input.mainReturn.returnType;
-    let mainReturnValue = input.mainReturn.returnValue.returnValue;
-    let output = handleGlobalMetadata();
+    let mainReturnValue = input.mainReturn.returnValue;
+    let output = handleGlobalMetadata(input);
     // Pattern match each potential return type here
     switch (mainReturnType) {
         case 'pitch':

@@ -1,4 +1,5 @@
 import { LiteralRhythm } from '../lexer/expression/literal';
+import { RuntimeOutput } from '../runtime';
 import * as _ from 'lodash';
 
 /**
@@ -115,10 +116,11 @@ export function convertOctaveToAbc(octave: number): string {
 
 /**
  * TODO this should handle authorship data and whatnot
+ * TODO this any
  */
-export function handleGlobalMetadata(): string {
+export function handleGlobalMetadata(input: RuntimeOutput): string {
     return `
-A: Alex Hansen
+C: ${(input.mainReturn.properties && input.mainReturn.properties.composer) || 'Unspecified'}
 L: 1/128
 `;
 }

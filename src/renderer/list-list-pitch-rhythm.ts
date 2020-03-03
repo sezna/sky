@@ -1,10 +1,11 @@
 import { renderListPitchRhythm } from './list-pitch-rhythm';
 import { generateHeader, romanize } from './utils';
+import { FunctionEvaluationResult } from '../runtime/eval-function';
 
-export function renderListListPitchRhythm(input: any): string {
-    let output = generateHeader(input);
+export function renderListListPitchRhythm(voices: FunctionEvaluationResult['returnValue']): string {
+    let output = generateHeader(voices);
     let index = 1;
-    for (const voice of input) {
+    for (const voice of voices) {
         output += `[V:T${romanize(index)}] `;
         output += renderListPitchRhythm(voice.returnValue);
         output += '\n';

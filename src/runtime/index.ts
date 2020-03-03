@@ -1,12 +1,12 @@
 import { Steps } from '../lexer/parser';
 import { Either, right, left, isLeft } from 'fp-ts/lib/Either';
-import { evalFunction } from './eval-function';
+import { evalFunction, FunctionEvaluationResult } from './eval-function';
 import { evaluate } from './evaluate';
 import { makeInitialFunctionEnvironment, makeInitialVariableEnvironment, VariableEnvironment } from './environments';
 
 export interface RuntimeOutput {
     // `mainReturn` is whatever the main function returned.
-    mainReturn: any;
+    mainReturn: FunctionEvaluationResult;
     variableEnvironment: VariableEnvironment;
 }
 
