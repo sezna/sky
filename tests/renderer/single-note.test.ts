@@ -147,4 +147,94 @@ describe('single note renderer tests', () => {
         let renderedAbc = render(runtimeResult.right);
         expect(renderedAbc.split('\n').pop()).toBe('^e,,,32');
     });
+    it('Should be able to render a forte dynamic', () => {
+        let program = `fn main(): pitch_rhythm { pitch_rhythm x = f#1 quarter; x.dynamic = f; return x; }`;
+        let stepsResult = makeSyntaxTree(tokenize(program));
+        if (isLeft(stepsResult)) {
+            console.log(`Parse error at line ${stepsResult.left.line}, column ${stepsResult.left.column}`);
+            expect(true).toBe(false);
+            return;
+        }
+        let runtimeResult = runtime(stepsResult.right);
+        if (isLeft(runtimeResult)) {
+            console.log(`Runtime error: ${runtimeResult.left.reason}`);
+            expect(true).toBe(false);
+            return;
+        }
+
+        let renderedAbc = render(runtimeResult.right);
+        expect(renderedAbc.split('\n').pop()).toBe('!f!^f,,,32');
+    });
+    it('Should be able to render a fortissimo dynamic', () => {
+        let program = `fn main(): pitch_rhythm { pitch_rhythm x = f#1 quarter; x.dynamic = ff; return x; }`;
+        let stepsResult = makeSyntaxTree(tokenize(program));
+        if (isLeft(stepsResult)) {
+            console.log(`Parse error at line ${stepsResult.left.line}, column ${stepsResult.left.column}`);
+            expect(true).toBe(false);
+            return;
+        }
+        let runtimeResult = runtime(stepsResult.right);
+        if (isLeft(runtimeResult)) {
+            console.log(`Runtime error: ${runtimeResult.left.reason}`);
+            expect(true).toBe(false);
+            return;
+        }
+
+        let renderedAbc = render(runtimeResult.right);
+        expect(renderedAbc.split('\n').pop()).toBe('!ff!^f,,,32');
+    });
+    it('Should be able to render a fortississimo dynamic', () => {
+        let program = `fn main(): pitch_rhythm { pitch_rhythm x = f#1 quarter; x.dynamic = fff; return x; }`;
+        let stepsResult = makeSyntaxTree(tokenize(program));
+        if (isLeft(stepsResult)) {
+            console.log(`Parse error at line ${stepsResult.left.line}, column ${stepsResult.left.column}`);
+            expect(true).toBe(false);
+            return;
+        }
+        let runtimeResult = runtime(stepsResult.right);
+        if (isLeft(runtimeResult)) {
+            console.log(`Runtime error: ${runtimeResult.left.reason}`);
+            expect(true).toBe(false);
+            return;
+        }
+
+        let renderedAbc = render(runtimeResult.right);
+        expect(renderedAbc.split('\n').pop()).toBe('!fff!^f,,,32');
+    });
+    it('Should be able to render a mezzo forte dynamic', () => {
+        let program = `fn main(): pitch_rhythm { pitch_rhythm x = f#1 quarter; x.dynamic = mf; return x; }`;
+        let stepsResult = makeSyntaxTree(tokenize(program));
+        if (isLeft(stepsResult)) {
+            console.log(`Parse error at line ${stepsResult.left.line}, column ${stepsResult.left.column}`);
+            expect(true).toBe(false);
+            return;
+        }
+        let runtimeResult = runtime(stepsResult.right);
+        if (isLeft(runtimeResult)) {
+            console.log(`Runtime error: ${runtimeResult.left.reason}`);
+            expect(true).toBe(false);
+            return;
+        }
+
+        let renderedAbc = render(runtimeResult.right);
+        expect(renderedAbc.split('\n').pop()).toBe('!mf!^f,,,32');
+    });
+    it('Should be able to render a piano dynamic', () => {
+        let program = `fn main(): pitch_rhythm { pitch_rhythm x = f#1 quarter; x.dynamic = p; return x; }`;
+        let stepsResult = makeSyntaxTree(tokenize(program));
+        if (isLeft(stepsResult)) {
+            console.log(`Parse error at line ${stepsResult.left.line}, column ${stepsResult.left.column}`);
+            expect(true).toBe(false);
+            return;
+        }
+        let runtimeResult = runtime(stepsResult.right);
+        if (isLeft(runtimeResult)) {
+            console.log(`Runtime error: ${runtimeResult.left.reason}`);
+            expect(true).toBe(false);
+            return;
+        }
+
+        let renderedAbc = render(runtimeResult.right);
+        expect(renderedAbc.split('\n').pop()).toBe('!p!^f,,,32');
+    });
 });

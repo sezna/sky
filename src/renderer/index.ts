@@ -9,7 +9,7 @@ import { renderListListPitchRhythm } from './list-list-pitch-rhythm';
 /**
  * This function takes whatever the main sky function returned and renders it into the output.
  */
-export function render(input: RuntimeOutput): any {
+export function render(input: RuntimeOutput): string {
     let mainReturnType = input.mainReturn.returnType;
     let mainReturnValue = input.mainReturn.returnValue;
     let output = handleGlobalMetadata(input);
@@ -19,7 +19,7 @@ export function render(input: RuntimeOutput): any {
             output += renderPitch(mainReturnValue);
             break;
         case 'pitch_rhythm':
-            output += renderPitchRhythm(mainReturnValue);
+            output += renderPitchRhythm(input.mainReturn);
             break;
         case 'list pitch_rhythm':
             output += renderListPitchRhythm(mainReturnValue);

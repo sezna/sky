@@ -87,7 +87,7 @@ describe('assignment and reassignment tests', () => {
         let program = `
 				fn main(): number {
 								number x = 0;
-								x.dynamic = mezzo forte;
+								x.composer = Alex Hansen;
 								return 0;
 				}
 				`;
@@ -105,15 +105,15 @@ describe('assignment and reassignment tests', () => {
             expect(true).toBe(false);
             return;
         }
-        expect(result.right.variableEnvironment['x'].properties).toHaveProperty('dynamic');
-        expect(result.right.variableEnvironment['x'].properties.dynamic).toEqual('mezzo forte');
+        expect(result.right.variableEnvironment['x'].properties).toHaveProperty('composer');
+        expect(result.right.variableEnvironment['x'].properties.composer).toEqual('Alex Hansen');
     });
     it('be able to reassign a multi-word property', () => {
         let program = `
 				fn main(): number {
 								number x = 0;
-								x.dynamic = mezzo forte;
-								x.dynamic = forte;
+								x.dynamic = mf;
+								x.dynamic = f;
 								return 0;
 				}
 				`;
@@ -132,7 +132,7 @@ describe('assignment and reassignment tests', () => {
             return;
         }
         expect(result.right.variableEnvironment['x'].properties).toHaveProperty('dynamic');
-        expect(result.right.variableEnvironment['x'].properties.dynamic).toEqual('forte');
+        expect(result.right.variableEnvironment['x'].properties.dynamic).toEqual('f');
     });
     it('should reject an invalid property', () => {
         let program = `
