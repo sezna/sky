@@ -1,5 +1,8 @@
 import { convertOctaveToAbc, sharpFlatABCMapping } from './utils';
 
-export function renderPitch(input: any): string {
-    return `${(sharpFlatABCMapping as any)[input.accidental]}${input.noteName}${convertOctaveToAbc(input.octave)}32`; // default to a quarter (32) for non-rhythm'd notes.
+export function renderPitch(input: any, duration = '32'): string {
+    let dynamic = input.properties && input.properties.dynamic ? `!${input.properties.dynamic}!` : '';
+    return `${dynamic}${(sharpFlatABCMapping as any)[input.returnValue.accidental]}${
+        input.returnValue.noteName
+    }${convertOctaveToAbc(input.returnValue.octave)}${duration}`;
 }

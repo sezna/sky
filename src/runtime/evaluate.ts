@@ -159,7 +159,6 @@ export function evaluate(
         returnType = step.returnType;
         returnValue = branchResult && branchResult.right.returnValue;
     } else if (step._type === 'PropertyAssignment') {
-        // TODO: ALL you need to do is assign properties to nested indexes. The code from here -----
         // First, handle the indexes, if any. Note that this code is duplicated below, and if you want to change it, it is probably worth abstraction. TODO
         let indexes = [];
         if (step.indexes && step.indexes.length > 0) {
@@ -196,7 +195,6 @@ export function evaluate(
                 step.value,
             );
         } else {
-            // -- to here is new, and should be questioned. the GETSTRING is probably what's wrong
             variableEnvironment[step.varName.value.value].properties[step.propertyName.value.value] = step.value;
         }
     } else if (step._type === 'Reassignment') {

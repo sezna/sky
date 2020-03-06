@@ -16,7 +16,7 @@ export function render(input: RuntimeOutput): string {
     // Pattern match each potential return type here
     switch (mainReturnType) {
         case 'pitch':
-            output += renderPitch(mainReturnValue);
+            output += renderPitch(input.mainReturn);
             break;
         case 'pitch_rhythm':
             output += renderPitchRhythm(input.mainReturn);

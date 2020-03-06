@@ -1,8 +1,10 @@
 -- "Twinkle Twinkle Little Star"
 fn main(): list list pitch_rhythm {
+  pitch_rhythm piano_a4 = a4 half;
+  piano_a4.dynamic = p;
   list list pitch_rhythm twinkle = [ [
 				   d4 quarter, d4 quarter, a4 quarter, a4 quarter,
-           b4 quarter, b4 quarter, a4 half,
+           b4 quarter, b4 quarter, piano_a4,
            g4 quarter, g4 quarter, f#4 quarter, f#4 quarter,
            e4 quarter, e4 quarter, d4 half ],
 					 [

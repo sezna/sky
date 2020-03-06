@@ -47,7 +47,11 @@ export function evalLiteral(
                 if (isLeft(elem)) {
                     return elem;
                 }
-                outputList.push({ returnValue: elem.right.returnValue, returnType: returnTypes[0] });
+                outputList.push({
+                    returnValue: elem.right.returnValue,
+                    returnType: returnTypes[0],
+                    properties: elem.right.returnProperties,
+                });
             }
             returnValue = outputList;
             returnType = `list ${returnTypes[0]}`;
