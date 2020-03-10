@@ -1,4 +1,65 @@
 import { LiteralRhythm } from '../lexer/expression/literal';
+import { RuntimeOutput } from '../runtime';
+import * as _ from 'lodash';
+
+/**
+ * Generate header information pertaining to voices.
+ * Currently just defaults to treble clef with numbered voices.
+ * Support for other attributes is TODO.
+ * See this page for an idea of what needs to be done: http://abcnotation.com/wiki/abc:standard:v2.1#multiple_voices
+ * TODO type the any
+ */
+export function generateHeader(input: any): string {
+    const numberOfVoices = input.length;
+    let output = '';
+    for (let voiceIndex = 0; voiceIndex < numberOfVoices; voiceIndex++) {
+        output += `V:T${romanize(voiceIndex + 1)} clef=${_.get(input[voiceIndex], 'properties.clef') ||
+            'treble'} name="Voice ${voiceIndex + 1}" snm="V.${voiceIndex + 1}"\n`;
+    }
+    return output;
+}
+
+// https://stackoverflow.com/questions/9083037/convert-a-number-into-a-roman-numeral-in-javascript
+// all the libs on npm that do roman numeral conversion are pretty bad
+export function romanize(num: number) {
+    var digits = String(+num).split(''),
+        key = [
+            '',
+            'C',
+            'CC',
+            'CCC',
+            'CD',
+            'D',
+            'DC',
+            'DCC',
+            'DCCC',
+            'CM',
+            '',
+            'X',
+            'XX',
+            'XXX',
+            'XL',
+            'L',
+            'LX',
+            'LXX',
+            'LXXX',
+            'XC',
+            '',
+            'I',
+            'II',
+            'III',
+            'IV',
+            'V',
+            'VI',
+            'VII',
+            'VIII',
+            'IX',
+        ],
+        roman = '',
+        i = 3;
+    while (i--) roman = (key[+digits.pop()! + i * 10] || '') + roman;
+    return Array(+digits.join('') + 1).join('M') + roman;
+}
 
 /**
  * Convert the rhythm names into ABC note numbers.
@@ -55,10 +116,11 @@ export function convertOctaveToAbc(octave: number): string {
 
 /**
  * TODO this should handle authorship data and whatnot
+ * TODO this any
  */
-export function handleGlobalMetadata(): string {
+export function handleGlobalMetadata(input: RuntimeOutput): string {
     return `
-A: Alex Hansen
+C: ${(input.mainReturn.properties && input.mainReturn.properties.composer) || 'Unspecified'}
 L: 1/128
 `;
 }

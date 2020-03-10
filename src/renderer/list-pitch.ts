@@ -2,7 +2,7 @@ import { renderPitch } from './pitch';
 export function renderListPitch(input: any): string {
     let output = '';
     for (const note of input) {
-        output += renderPitch(note.returnValue);
+        output += renderPitch(note);
     }
     return output;
 }

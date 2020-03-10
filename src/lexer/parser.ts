@@ -3,20 +3,16 @@ import { Token, Tokens } from './tokenizer';
 import { FunctionDeclaration, functionDeclaration } from './function-declaration';
 import { variableDeclaration, VariableDeclaration } from './variable-declaration';
 import { Expression, parseExpression } from './expression/expression';
+import { reassignVariable, Reassignment } from './reassign-variable';
+import { propertyAssignment, PropertyAssignment } from './property-assignment';
 
-type Declaration = FunctionDeclaration | VariableDeclaration | Reassignment;
+type Declaration = FunctionDeclaration | VariableDeclaration | Reassignment | PropertyAssignment;
 export type Step = Expression | Declaration | Return;
 export type Steps = Step[];
 
 export interface Return {
     _type: 'Return';
     returnExpr: Expression;
-}
-
-export interface Reassignment {
-    _type: 'Reassignment';
-    name: Token;
-    newVarBody: Expression;
 }
 
 export interface ParseError {
@@ -108,7 +104,7 @@ export function makeFunctionBodySyntaxTree(
                 steps.push(parseResult.right.declaration);
                 variableNamespace.push(parseResult.right.declaration);
             } else {
-                return left(parseResult.left);
+                return parseResult;
             }
         } else if (input[0].tokenType === 'return-keyword') {
             let returnKeyword = input.shift()!; // remove te word "return" itself
@@ -163,14 +159,80 @@ export function makeFunctionBodySyntaxTree(
                 input = functionApplication.input;
                 steps.push(functionApplication.expression);
             } else {
-                let varName = input.shift()!;
-                let reassignResult = reassignVariable(varName, input, functionNamespace, variableNamespace);
-                if (isLeft(reassignResult)) {
-                    return reassignResult;
+                // This is a variable name, then, so this is a variable reassignment.
+                // It could be of form `name[index][index][index] ( etc. ) .property`, or have no indexes. First, we consume any potential indexes.
+                const varName = input.shift()!;
+                // This is the list of indexing expressions, to be included in the evaluation of the variable later.
+                // A quick typecheck to ensure that this is only happening on a list-type variable could help, but is currently
+                // unimplemented.
+                let indexExprs = [];
+                while (input[0].value.value === '[' && input.length > 0) {
+                    // Then some indexes exist after this name.
+                    let openingBracket = input.shift()!;
+                    let expBuffer = [];
+                    // Consume until the corresponding closing bracket.
+                    let bracketCount = 1;
+                    while (bracketCount > 0 && input.length > 0) {
+                        let currentToken = input.shift()!;
+                        if (currentToken === undefined) {
+                            return left({
+                                line: openingBracket.value.line,
+                                column: openingBracket.value.column,
+                                reason: `Expected closing bracket "]" to terminate index of variable "${varName.value.value}".`,
+                            });
+                        }
+                        if (currentToken.value.value === ']') {
+                            bracketCount -= 1;
+                            if (bracketCount === 0) {
+                                break;
+                            }
+                        } else if (currentToken.value.value === '[') {
+                            bracketCount += 1;
+                        } else {
+                            expBuffer.push(currentToken);
+                        }
+                    }
+                    if (expBuffer.length === 0) {
+                        return left({
+                            line: openingBracket.value.line,
+                            column: openingBracket.value.column,
+                            reason: `Empty indexing expression for variable "${varName}".`,
+                        });
+                    }
+                    expBuffer.push({
+                        tokenType: 'statement-terminator' as const,
+                        value: { line: openingBracket.value.line, column: openingBracket.value.column, value: ';' },
+                    });
+                    const indexExprRes = parseExpression(expBuffer, functionNamespace, variableNamespace);
+                    if (isLeft(indexExprRes)) {
+                        return indexExprRes;
+                    }
+                    const indexExpr = indexExprRes.right.expression;
+                    indexExprs.push(indexExpr);
                 }
-                let reassignment = reassignResult.right;
-                input = reassignment.input;
-                steps.push(reassignment.reassignment);
+                if ((input[0].tokenType as any) === 'property') {
+                    let res = propertyAssignment(varName, input, indexExprs);
+                    if (isLeft(res)) {
+                        return res;
+                    }
+                    input = res.right.input;
+                    steps.push(res.right.propertyAssignment);
+                } else {
+                    // If the next character is not an =, as it should be in a reassignment, `reassignResult` handles the error checking.
+                    let reassignResult = reassignVariable(
+                        varName,
+                        input,
+                        functionNamespace,
+                        variableNamespace,
+                        indexExprs,
+                    );
+                    if (isLeft(reassignResult)) {
+                        return reassignResult;
+                    }
+                    let reassignment = reassignResult.right;
+                    input = reassignment.input;
+                    steps.push(reassignment.reassignment);
+                }
             }
         } else {
             let expressionResult = parseExpression(input, functionNamespace, variableNamespace);
@@ -184,73 +246,4 @@ export function makeFunctionBodySyntaxTree(
     }
 
     return right(steps);
-}
-
-/**
- * Given a name and a new value, reassigns a variable within a namespace. (TODO should ensure the variable is of the same type as before.)
- */
-function reassignVariable(
-    name: Token,
-    input: Tokens,
-    functionNamespace: FunctionDeclaration[],
-    variableNamespace: VariableDeclaration[],
-): Either<ParseError, { input: Tokens; reassignment: Reassignment }> {
-    let matches = variableNamespace.filter(x => x.varName.value.value === name.value.value);
-    if (matches.length > 1) {
-        return left({
-            line: name.value.line,
-            column: name.value.column,
-            reason: `Multiple matching variable names in namespace for name ${name.value.value}. This should never happen and is an error in the compiler. Please file an issue at https://github.com/sezna/sky and include the code that triggered this error.`,
-        });
-    }
-    if (matches.length == 0) {
-        return left({
-            line: name.value.line,
-            column: name.value.column,
-            reason: `No matching variable names in namespace for ${name.value.value}. This should never happen and is an error in the compiler. Please file an issue at https://github.com/sezna/sky and include the code that triggered this error.`,
-        });
-    }
-
-    let equalsToken = input.shift()!;
-    if (equalsToken === undefined) {
-        return left({
-            line: name.value.line,
-            column: name.value.column,
-            reason: `Expected equals sign in reassignment but instead found the end of a token stream.`,
-        });
-    }
-    if (equalsToken.tokenType !== 'assignment-operator') {
-        return left({
-            line: equalsToken.value.line,
-            column: equalsToken.value.column,
-            reason: `Expected equals sign in reassignment but instead found "${equalsToken.value.value}" (${equalsToken.tokenType}).`,
-        });
-    }
-
-    let newVarBodyResult = parseExpression(input, functionNamespace, variableNamespace);
-
-    if (isLeft(newVarBodyResult)) {
-        return newVarBodyResult;
-    }
-
-    let newVarBody = newVarBodyResult.right;
-
-    if (matches[0].varType.value.value !== newVarBody.expression.returnType) {
-        return left({
-            line: name.value.line,
-            column: name.value.column,
-            reason: `Attempted to assign value of type "${newVarBody.expression.returnType}" to variable "${matches[0].varName.value.value}", which has type "${matches[0].varType.value.value}".`,
-        });
-    }
-
-    matches[0].varBody = newVarBody.expression;
-
-    return right({
-        input: newVarBody.input,
-        reassignment: {
-            _type: 'Reassignment' as const,
-            name,
-            newVarBody: newVarBody.expression,
-        },
-    });
 }

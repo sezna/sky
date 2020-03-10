@@ -79,4 +79,44 @@ return [a5, a#5, b5, c5]; }`;
         let renderedAbc = render(runtimeResult.right);
         expect(renderedAbc.split('\n').pop()).toBe("a'32^a'32b'32c'32");
     });
+    it('Should be able to render a dynamic within a list of pitches', () => {
+        let program = `
+fn main(): list pitch { 
+  pitch x = a5;
+  x.dynamic = f;
+return [x, a#5, b5, c5]; }`;
+        let stepsResult = makeSyntaxTree(tokenize(program));
+        if (isLeft(stepsResult)) {
+            console.log(`Parse error at line ${stepsResult.left.line}, column ${stepsResult.left.column}`);
+            expect(true).toBe(false);
+            return;
+        }
+        let runtimeResult = runtime(stepsResult.right);
+        if (isLeft(runtimeResult)) {
+            console.log(`Runtime error: ${runtimeResult.left.reason}`);
+            expect(true).toBe(false);
+            return;
+        }
+
+        let renderedAbc = render(runtimeResult.right);
+        expect(renderedAbc.split('\n').pop()).toBe("!f!a'32^a'32b'32c'32");
+    });
+    it('Should be able to render a dynamic within a list of pitch rhythms', () => {
+        let program = `fn main(): list pitch_rhythm { pitch_rhythm x = a5 half; x.dynamic = p; return [x, a#5 eighth, b5 dotted quarter, c5 dotted half]; }`;
+        let stepsResult = makeSyntaxTree(tokenize(program));
+        if (isLeft(stepsResult)) {
+            console.log(`Parse error at line ${stepsResult.left.line}, column ${stepsResult.left.column}`);
+            expect(true).toBe(false);
+            return;
+        }
+        let runtimeResult = runtime(stepsResult.right);
+        if (isLeft(runtimeResult)) {
+            console.log(`Runtime error: ${runtimeResult.left.reason}`);
+            expect(true).toBe(false);
+            return;
+        }
+
+        let renderedAbc = render(runtimeResult.right);
+        expect(renderedAbc.split('\n').pop()).toBe("!p!a'64^a'16b'48c'96");
+    });
 });
