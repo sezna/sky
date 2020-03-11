@@ -1,4 +1,4 @@
-import { render } from '../../src/renderer';
+import { render } from '../../src/abc-renderer';
 import { runtime } from '../../src/runtime';
 import { tokenize } from '../../src/lexer/tokenizer';
 import { makeSyntaxTree } from '../../src/lexer/parser';
