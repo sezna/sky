@@ -9,12 +9,14 @@ import * as _ from 'lodash';
  * See this page for an idea of what needs to be done: http://abcnotation.com/wiki/abc:standard:v2.1#multiple_voices
  * TODO type the any
  */
-export function generateHeader(input: any): string {
+export function generateVoiceHeaders(input: any): string[] {
     const numberOfVoices = input.length;
-    let output = '';
+    let output: string[] = [];
     for (let voiceIndex = 0; voiceIndex < numberOfVoices; voiceIndex++) {
-        output += `V:T${romanize(voiceIndex + 1)} clef=${_.get(input[voiceIndex], 'properties.clef') ||
-            'treble'} name="Voice ${voiceIndex + 1}" snm="V.${voiceIndex + 1}"\n`;
+        output.push(
+            `V:T${romanize(voiceIndex + 1)} clef=${_.get(input[voiceIndex], 'properties.clef') ||
+                'treble'} name="Voice ${voiceIndex + 1}" snm="V.${voiceIndex + 1}"\n`,
+        );
     }
     return output;
 }

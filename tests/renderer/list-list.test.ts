@@ -33,8 +33,8 @@ fn main(): list list pitch_rhythm {
 C: Unspecified
 L: 1/128
 V:TI clef=treble name="Voice 1" snm="V.1"
-V:TII clef=treble name="Voice 2" snm="V.2"
 [V:TI] c32^c32d32^d32
+V:TII clef=treble name="Voice 2" snm="V.2"
 [V:TII] e32^d32d32^c32
 `);
     });
@@ -66,8 +66,8 @@ fn main(): list list pitch_rhythm {
 C: Unspecified
 L: 1/128
 V:TI clef=treble name="Voice 1" snm="V.1"
-V:TII clef=treble name="Voice 2" snm="V.2"
 [V:TI] c32^c32d32^d32
+V:TII clef=treble name="Voice 2" snm="V.2"
 [V:TII] e32^d32d32^c32
 `);
     });
@@ -103,16 +103,16 @@ fn main(): list list pitch_rhythm {
 C: Unspecified
 L: 1/128
 V:TI clef=treble name="Voice 1" snm="V.1"
-V:TII clef=treble name="Voice 2" snm="V.2"
-V:TIII clef=treble name="Voice 3" snm="V.3"
-V:TIV clef=treble name="Voice 4" snm="V.4"
-V:TV clef=treble name="Voice 5" snm="V.5"
-V:TVI clef=treble name="Voice 6" snm="V.6"
 [V:TI] c32^c32d32^d32
+V:TII clef=treble name="Voice 2" snm="V.2"
 [V:TII] e32^d32d32^c32
+V:TIII clef=treble name="Voice 3" snm="V.3"
 [V:TIII] c,32^e,32f,32^g,32
+V:TIV clef=treble name="Voice 4" snm="V.4"
 [V:TIV] a,,,32^c,32d,32^d,32
+V:TV clef=treble name="Voice 5" snm="V.5"
 [V:TV] e,32^d,32d,32^c,32
+V:TVI clef=treble name="Voice 6" snm="V.6"
 [V:TVI] e32^d32d32^c32
 `);
     });
@@ -153,16 +153,16 @@ fn main(): list list pitch_rhythm {
 C: Unspecified
 L: 1/128
 V:TI clef=treble name="Voice 1" snm="V.1"
-V:TII clef=bass name="Voice 2" snm="V.2"
-V:TIII clef=alto name="Voice 3" snm="V.3"
-V:TIV clef=treble name="Voice 4" snm="V.4"
-V:TV clef=treble name="Voice 5" snm="V.5"
-V:TVI clef=treble name="Voice 6" snm="V.6"
 [V:TI] c32^c32d32^d32
+V:TII clef=bass name="Voice 2" snm="V.2"
 [V:TII] e32^d32d32^c32
+V:TIII clef=alto name="Voice 3" snm="V.3"
 [V:TIII] c,32^e,32f,32^g,32
+V:TIV clef=treble name="Voice 4" snm="V.4"
 [V:TIV] a,,,32^c,32d,32^d,32
+V:TV clef=treble name="Voice 5" snm="V.5"
 [V:TV] e,32^d,32d,32^c,32
+V:TVI clef=treble name="Voice 6" snm="V.6"
 [V:TVI] e32^d32d32^c32
 `);
     });
@@ -200,16 +200,16 @@ fn main(): list list pitch_rhythm {
 C: Alex Hansen
 L: 1/128
 V:TI clef=treble name="Voice 1" snm="V.1"
-V:TII clef=treble name="Voice 2" snm="V.2"
-V:TIII clef=treble name="Voice 3" snm="V.3"
-V:TIV clef=treble name="Voice 4" snm="V.4"
-V:TV clef=treble name="Voice 5" snm="V.5"
-V:TVI clef=treble name="Voice 6" snm="V.6"
 [V:TI] c32^c32d32^d32
+V:TII clef=treble name="Voice 2" snm="V.2"
 [V:TII] e32^d32d32^c32
+V:TIII clef=treble name="Voice 3" snm="V.3"
 [V:TIII] c,32^e,32f,32^g,32
+V:TIV clef=treble name="Voice 4" snm="V.4"
 [V:TIV] a,,,32^c,32d,32^d,32
+V:TV clef=treble name="Voice 5" snm="V.5"
 [V:TV] e,32^d,32d,32^c,32
+V:TVI clef=treble name="Voice 6" snm="V.6"
 [V:TVI] e32^d32d32^c32
 `);
     });
@@ -252,16 +252,16 @@ fn main(): list list pitch_rhythm {
 C: Alex Hansen
 L: 1/128
 V:TI clef=treble name="Voice 1" snm="V.1"
-V:TII clef=treble name="Voice 2" snm="V.2"
-V:TIII clef=treble name="Voice 3" snm="V.3"
-V:TIV clef=treble name="Voice 4" snm="V.4"
-V:TV clef=treble name="Voice 5" snm="V.5"
-V:TVI clef=treble name="Voice 6" snm="V.6"
 [V:TI] !f!c32^c32d32^d32
+V:TII clef=treble name="Voice 2" snm="V.2"
 [V:TII] e32^d32d32^c32
+V:TIII clef=treble name="Voice 3" snm="V.3"
 [V:TIII] !p!c,32^e,32f,32^g,32
+V:TIV clef=treble name="Voice 4" snm="V.4"
 [V:TIV] a,,,32^c,32d,32^d,32
+V:TV clef=treble name="Voice 5" snm="V.5"
 [V:TV] e,32^d,32d,32^c,32
+V:TVI clef=treble name="Voice 6" snm="V.6"
 [V:TVI] e32^d32d32^c32
 `);
     });
