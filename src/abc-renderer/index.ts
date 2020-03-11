@@ -10,8 +10,8 @@ import { renderListListPitchRhythm } from './list-list-pitch-rhythm';
  * This function takes whatever the main sky function returned and renders it into the output.
  */
 export function render(input: RuntimeOutput): string {
-    let mainReturnType = input.mainReturn.returnType;
-    let mainReturnValue = input.mainReturn.returnValue;
+    const mainReturnType = input.mainReturn.returnType;
+    const mainReturnValue = input.mainReturn.returnValue;
     let output = handleGlobalMetadata(input);
     // Pattern match each potential return type here
     switch (mainReturnType) {
