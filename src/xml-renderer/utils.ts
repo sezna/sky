@@ -11,7 +11,7 @@ const nameToNumberMapping = {
 };
 
 export function timeSignatureDurationMapping(duration: LiteralRhythm, signature: [number, number]): number {
-    const [top, bottom] = signature;
+    const [, bottom] = signature;
     const durationAsNumber = nameToNumberMapping[duration.rhythmName];
     let numBeats = bottom / durationAsNumber;
     // If this is compound time...
