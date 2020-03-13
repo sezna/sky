@@ -50,7 +50,7 @@ export interface LiteralRhythm {
 export interface LiteralPitch {
     _type: 'LiteralPitch';
     noteName: string;
-    accidental: Accidental;
+    accidental?: Accidental;
     octave: number;
     token: Token;
     midiNumber: number;

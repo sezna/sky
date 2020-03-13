@@ -75,14 +75,16 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
                 let noteName = token.value.value[0].toLowerCase();
 
                 let accidentalChar = token.value.value.slice(1, 2);
-                let accidental = 'natural' as Accidental;
+                let accidental;
                 if (accidentalChar === 'b') {
-                    accidental = 'flat' as const;
+                    accidental = ('flat' as const) as Accidental;
                 } else if (accidentalChar === '#') {
-                    accidental = 'sharp' as const;
+                    accidental = ('sharp' as const) as Accidental;
+                } else if (accidentalChar === 'n') {
+                    accidental = ('natural' as const) as Accidental;
                 }
 
-                let result = pitchNumbers(noteName, accidental, octave);
+                let result = pitchNumbers(noteName, octave, accidental as Accidental);
                 if (isLeft(result)) {
                     return left({
                         line: token.value.line,
@@ -98,7 +100,7 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
                     noteName,
                     midiNumber,
                     pitchNumber,
-                    accidental,
+                    accidental: accidental as Accidental,
                     octave,
                     token,
                     returnType: 'pitch',

@@ -31,7 +31,7 @@ describe('pitch operator tests', () => {
         expect((variableEnvironment['third'] as any).value[0].accidental).toBe('sharp');
         expect((variableEnvironment['third'] as any).value[0].octave).toBe(2);
         expect((variableEnvironment['third'] as any).value[1].noteName).toBe('b');
-        expect((variableEnvironment['third'] as any).value[1].accidental).toBe('natural');
+        expect((variableEnvironment['third'] as any).value[1].accidental).toBe(undefined);
         expect((variableEnvironment['third'] as any).value[1].octave).toBe(0);
     });
     it('Should be able to add a pitch into a list pitch of pitches', () => {
