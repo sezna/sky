@@ -4,7 +4,7 @@ import { tokenize } from '../../src/lexer/tokenizer';
 import { makeSyntaxTree } from '../../src/lexer/parser';
 import { isLeft } from 'fp-ts/lib/Either';
 
-describe('single note renderer tests', () => {
+describe('single note XML renderer tests', () => {
     it('Should be able to render a c4, and the default rhythm should be a quarter note', () => {
         let program = `fn main(): pitch { return c4; }`;
         let stepsResult = makeSyntaxTree(tokenize(program));
@@ -81,6 +81,62 @@ describe('single note renderer tests', () => {
     <octave>5</octave>
     <duration>1</duration>
     <alter>flat</alter>
+  </pitch>
+</note>`,
+        );
+    });
+    it('Should be able to render a pitch with a rhythm - Bb5 half', () => {
+        let program = `fn main(): pitch_rhythm { return Bb5 half; }`;
+        let stepsResult = makeSyntaxTree(tokenize(program));
+
+        if (isLeft(stepsResult)) {
+            console.log(`Parse error at line ${stepsResult.left.line}, column ${stepsResult.left.column}`);
+            expect(true).toBe(false);
+            return;
+        }
+        let runtimeResult = runtime(stepsResult.right);
+        if (isLeft(runtimeResult)) {
+            console.log(`Runtime error: ${runtimeResult.left.reason}`);
+            expect(true).toBe(false);
+            return;
+        }
+
+        let renderedXml = render(runtimeResult.right);
+        expect(renderedXml).toBe(
+            `<note>
+  <pitch>
+    <step>B</step>
+    <octave>5</octave>
+    <duration>2</duration>
+    <alter>flat</alter>
+  </pitch>
+</note>`,
+        );
+    });
+    it('Should be able to render a pitch with a rhythm - G#7 dotted half', () => {
+        let program = `fn main(): pitch_rhythm { return g#7 dotted half; }`;
+        let stepsResult = makeSyntaxTree(tokenize(program));
+
+        if (isLeft(stepsResult)) {
+            console.log(`Parse error at line ${stepsResult.left.line}, column ${stepsResult.left.column}`);
+            expect(true).toBe(false);
+            return;
+        }
+        let runtimeResult = runtime(stepsResult.right);
+        if (isLeft(runtimeResult)) {
+            console.log(`Runtime error: ${runtimeResult.left.reason}`);
+            expect(true).toBe(false);
+            return;
+        }
+
+        let renderedXml = render(runtimeResult.right);
+        expect(renderedXml).toBe(
+            `<note>
+  <pitch>
+    <step>g</step>
+    <octave>7</octave>
+    <duration>3</duration>
+    <alter>sharp</alter>
   </pitch>
 </note>`,
         );

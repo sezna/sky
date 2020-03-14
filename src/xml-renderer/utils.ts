@@ -1,6 +1,7 @@
 import { LiteralRhythm } from '../lexer/expression/literal/types';
 
-const nameToNumberMapping = {
+// This is temporarily exported and used directly until time signatures are implemented.
+export const nameToNumberMapping = {
     'sixty-fourth': 64,
     'thirty-second': 32,
     sixteenth: 16,
