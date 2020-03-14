@@ -21,3 +21,15 @@ export function timeSignatureDurationMapping(duration: LiteralRhythm, signature:
     }
     return numBeats;
 }
+
+export function generateHeader(): string {
+return `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE score-partwise PUBLIC
+    "-//Recordare//DTD MusicXML 3.0 Partwise//EN"
+    "http://www.musicxml.org/dtds/partwise.dtd">
+<score-partwise version="3.0">`
+}
+export function generateCloser(): string {
+    return `
+</score-partwise>`;
+}
