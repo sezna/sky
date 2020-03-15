@@ -1,11 +1,10 @@
 import { RuntimeOutput } from '../runtime';
 import { renderPitch } from './pitch';
 
-
 export function renderListPitch(input: RuntimeOutput['mainReturn']): string {
-    let output = "";
+    let output = '';
     for (const note of input.returnValue) {
-        output += renderPitch(note)
+        output += renderPitch(note);
     }
 
     return output;

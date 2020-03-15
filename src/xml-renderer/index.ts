@@ -2,6 +2,7 @@ import { RuntimeOutput } from '../runtime';
 import { renderPitch } from './pitch';
 import { renderPitchRhythm } from './pitch-rhythm';
 import { renderListPitch } from './list-pitch';
+import { renderListPitchRhythm } from './list-pitch-rhythm';
 import { generateHeader, generateCloser } from './utils';
 
 /**
@@ -21,9 +22,9 @@ export function render(input: RuntimeOutput): string {
         case 'list pitch':
             output += generateHeader() + renderListPitch(input.mainReturn) + generateCloser();
             break;
-        // case 'list pitch_rhythm':
-        //     output += renderListPitchRhythm(input.mainReturn);
-        //     break;
+        case 'list pitch_rhythm':
+            output += generateHeader() + renderListPitchRhythm(input.mainReturn) + generateCloser();
+            break;
         default:
             console.log(`Type "${mainReturnType}" cannot currently be rendered into XML. Failed to render:
 ${JSON.stringify(input.mainReturn.returnValue, null, 2)}`);
