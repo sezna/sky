@@ -110,9 +110,9 @@ describe('list of notes XML renderer tests', () => {
     "http://www.musicxml.org/dtds/partwise.dtd">
 <score-partwise version="3.0">
     <part-list>
-    <score-part id="P1">
-        <part-name>P1</part-name>
-    </score-part>
+        <score-part id="P1">
+            <part-name>P1</part-name>
+        </score-part>
     </part-list>
     <part id="P1">
         <measure number="1">

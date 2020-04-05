@@ -19,5 +19,8 @@ export function renderListPitchRhythm(input: RuntimeOutput['mainReturn']): strin
         output += status.output;
     }
 
+    output += `
+    </part>`;
+
     return output;
 }

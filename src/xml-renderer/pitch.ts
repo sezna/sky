@@ -32,18 +32,21 @@ export function renderPitch(
             timeNumerator = num;
             timeDenominator = denom;
         }
-        newMeasureText = `        <measure number="${measureNumber}">
+        newMeasureText = `
+        <measure number="${measureNumber}">
             <attributes>
                 <time>
                     <beats>${timeNumerator}</beats>
                     <beat-type>${timeDenominator}</beat-type>
                 </time>
-            </attributes>`;
+            </attributes>
+`;
     } else if (beatsThusFar === 0) {
         // Check if this is the first beat
 
         newMeasureText = `
-        <measure number="${measureNumber}">`;
+        <measure number="${measureNumber}">
+`;
     }
 
     // Check if this note contains a time signature change, which forces the previous bar to end.
@@ -66,7 +69,8 @@ export function renderPitch(
                     <beats>${timeNumerator}</beats>
                     <beat-type>${timeDenominator}</beat-type>
                 </time>
-            </attributes>`;
+            </attributes>
+`;
             closingMeasureText = `        </measure>`;
         }
     }
@@ -92,9 +96,7 @@ export function renderPitch(
 
     // TODO the <duration> tag which depends on the time signature -- an unimplemented property
     // also the type, which will be passed in for pitch rhythm
-    let output = `
-${newMeasureText}
-            <note>
+    let output = `${newMeasureText}            <note>
                 <pitch>
                     <step>${input.returnValue.noteName}</step>
                     <octave>${input.returnValue.octave}</octave>
@@ -107,8 +109,9 @@ ${newMeasureText}
     output =
         output +
         `                </pitch>
-${input.returnValue.rhythmName ? `            <type>${input.returnValue.rhythmName}</type>\n` : ``}
-                <duration>${numBeats}</duration>
+${
+    input.returnValue.rhythmName ? `            <type>${input.returnValue.rhythmName}</type>\n` : ``
+}                <duration>${numBeats}</duration>
                 <type>${duration ? (duration.isDotted ? 'dotted ' : '') + duration.rhythmName : 'quarter'}</type>
             </note>
 ${closingMeasureText}`;

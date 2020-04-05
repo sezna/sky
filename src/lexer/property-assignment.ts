@@ -3,6 +3,83 @@ import { Either, right, left } from 'fp-ts/lib/Either';
 import { Token, Tokens } from './tokenizer';
 import { ParseError } from './parser';
 
+const allKeys = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+    .reduce((acc: string, x: string) => `${acc}, ${x}, ${x}#, ${x}b`)
+    .split(',');
+
+// TODO support keys with accidentals and double sharps
+const keysObject = {
+    a: {
+        major: {
+            sharps: ['f', 'c', 'g'],
+            flats: [],
+        },
+        minor: {
+            sharps: [],
+            flats: [],
+        },
+    },
+    b: {
+        major: {
+            sharps: ['f', 'c', 'g', 'd', 'a'],
+            flats: [],
+        },
+        minor: {
+            sharps: ['f', 'c'],
+            flats: [],
+        },
+    },
+    c: {
+        major: {
+            sharps: [],
+            flats: [],
+        },
+        minor: {
+            sharps: [],
+            flats: ['b', 'e', 'a'],
+        },
+    },
+    d: {
+        major: {
+            sharps: ['f', 'c'],
+            flats: [],
+        },
+        minor: {
+            sharps: [],
+            flats: ['b'],
+        },
+    },
+    e: {
+        major: {
+            sharps: ['f', 'c', 'g', 'd'],
+            flats: [],
+        },
+        minor: {
+            sharps: ['f'],
+            flats: [],
+        },
+    },
+    f: {
+        major: {
+            sharps: [],
+            flats: ['b'],
+        },
+        minor: {
+            sharps: [],
+            flats: ['b', 'e', 'a', 'd'],
+        },
+    },
+    g: {
+        major: {
+            sharps: ['f'],
+            flats: [],
+        },
+        minor: {
+            sharps: [],
+            flats: ['b', 'e'],
+        },
+    },
+};
 export interface PropertyAssignment {
     _type: 'PropertyAssignment';
     varName: Token;
@@ -134,6 +211,42 @@ export function propertyAssignment(
         }
 
         parsedValue = [numeratorString, denominatorString];
+    }
+
+    // validate the key signature property and transform it
+    if (propertyName.value.value === 'key') {
+        let splitStrings = value.split(' ');
+        if (splitStrings.length !== 2) {
+            return left({
+                line: valueBuffer[0].value.line,
+                column: valueBuffer[0].value.column,
+                reason: `Key signature value "${value}" is invalid. It should be of form "tonic [major/minor]", e.g. "c major".`,
+            });
+        }
+        let [tonic, quality] = splitStrings.map(x => x.toLowerCase());
+        if (!['major', 'minor'].includes(quality)) {
+            return left({
+                line: valueBuffer[0].value.line,
+                column: valueBuffer[0].value.column,
+                reason: `Key signature value "${value}" is invalid. Currently, only major and minor keys are supported.`,
+            });
+        }
+
+        if (!allKeys.includes(tonic)) {
+            return left({
+                line: valueBuffer[0].value.line,
+                column: valueBuffer[0].value.column,
+                reason: `Unrecognized value for tonic ${tonic} in key signature "${value}". Currently, the only supported keys are: [${allKeys.join(
+                    ' ',
+                )}].`,
+            });
+        }
+
+        parsedValue = {
+            tonic,
+            quality,
+            keyData: (keysObject as any)[tonic][quality],
+        };
     }
 
     return right({
