@@ -14,7 +14,7 @@ export function render(input: RuntimeOutput): string {
 
     switch (mainReturnType) {
         case 'pitch':
-            output += renderPitch(input.mainReturn);
+            output += renderPitch(input.mainReturn).output;
             break;
         case 'pitch_rhythm':
             output += renderPitchRhythm(input.mainReturn);

@@ -11,13 +11,19 @@ export const nameToNumberMapping = {
     whole: 1,
 };
 
+/**
+ *
+ * @param duration a rhythm representing this beat's duration
+ * @param signature the time signature
+ *
+ * @returns how many beats this note takes up
+ */
 export function timeSignatureDurationMapping(duration: LiteralRhythm, signature: [number, number]): number {
     const [, bottom] = signature;
     const durationAsNumber = nameToNumberMapping[duration.rhythmName];
     let numBeats = bottom / durationAsNumber;
-    // If this is compound time...
     if (duration.isDotted) {
-        numBeats = numBeats * 2;
+        numBeats = numBeats * 1.5;
     }
     return numBeats;
 }

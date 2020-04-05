@@ -1,12 +1,28 @@
 import { RuntimeOutput } from '../runtime';
 import { renderPitch } from './pitch';
 
+// TODO in single list pitch:
+// part name and single part metadata extracted out into a single part name
+
 export function renderListPitch(input: RuntimeOutput['mainReturn']): string {
-    console.log(JSON.stringify(input));
-    let output = '';
+    let id = 'P1'; // TODO configurability for list list
+    let partName = 'P1';
+    let listPitchHeader = `
+    <part-list>
+        <score-part id="${id}">
+            <part-name>${partName}</part-name>
+        </score-part>
+    </part-list>
+    <part id="${id}">`;
+    let output = listPitchHeader;
+    let status;
     for (const note of input.returnValue) {
-        output += renderPitch(note);
+        status = renderPitch(note, note.returnValue.rhythm, status);
+        output += status.output;
     }
+
+    output += `
+    </part>`;
 
     return output;
 }

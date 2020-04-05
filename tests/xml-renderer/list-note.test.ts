@@ -28,9 +28,9 @@ describe('list of notes XML renderer tests', () => {
     "http://www.musicxml.org/dtds/partwise.dtd">
 <score-partwise version="3.0">
     <part-list>
-    <score-part id="P1">
-        <part-name>P1</part-name>
-    </score-part>
+        <score-part id="P1">
+            <part-name>P1</part-name>
+        </score-part>
     </part-list>
     <part id="P1">
         <measure number="1">
@@ -80,16 +80,18 @@ describe('list of notes XML renderer tests', () => {
                 <duration>1</duration>
                 <type>quarter</type>
             </note>
-            </measure>
+        </measure>
     </part>
 </score-partwise>`,
         );
     });
     it('Should be able to render a list of pitch rhythms and know the correct barlines', () => {
-        let program = `fn main(): list pitch { return [c4 dotted half, d4 quarter, e4 half, f4 half, e3 whole]; }`;
+        let program = `fn main(): list pitch_rhythm { return [c4 dotted half, d4 quarter, e4 half, f4 half, e3 whole]; }`;
         let stepsResult = makeSyntaxTree(tokenize(program));
         if (isLeft(stepsResult)) {
-            console.log(`Parse error at line ${stepsResult.left.line}, column ${stepsResult.left.column}`);
+            console.log(
+                `Parse error at line ${stepsResult.left.line}, column ${stepsResult.left.column}: ${stepsResult.left.reason}`,
+            );
             expect(true).toBe(false);
             return;
         }
@@ -159,7 +161,7 @@ describe('list of notes XML renderer tests', () => {
                     <step>f</step>
                     <octave>4</octave>
                 </pitch>
-                <duration>w</duration>
+                <duration>2</duration>
                 <type>half</type>
             </note>
         </measure>
@@ -167,9 +169,9 @@ describe('list of notes XML renderer tests', () => {
             <note>
                 <pitch>
                     <step>e</step>
-                    <octave>4</octave>
+                    <octave>3</octave>
                 </pitch>
-                <duration>3</duration>
+                <duration>4</duration>
                 <type>whole</type>
             </note>
         </measure>
