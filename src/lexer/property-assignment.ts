@@ -9,6 +9,7 @@ export interface PropertyAssignment {
     indexes?: Expression[];
     propertyName: Token;
     value: string;
+    parsedValue?: any;
 }
 
 /* Method invocation, or in reality property assignment, should just parse the following sequence (varName has already been parsed):
@@ -100,8 +101,8 @@ export function propertyAssignment(
         'contrabass',
         'cello',
     ];
-    // Properties which can accept any string as a value
-    let wildcardProperties = ['composer', 'title'];
+    // Properties which can accept any string as a value -- TODO custom validation for different properties
+    let wildcardProperties = ['composer', 'title', 'time'];
 
     if (!wildcardProperties.includes(propertyName.value.value) && !allowedPropertyValues.includes(value)) {
         return left({
@@ -111,6 +112,30 @@ export function propertyAssignment(
         });
     }
 
+    let parsedValue = undefined;
+    // validate the time signature property and transform it
+    if (propertyName.value.value === 'time') {
+        let splitStrings = value.split('/');
+        if (splitStrings.length !== 2) {
+            return left({
+                line: valueBuffer[0].value.line,
+                column: valueBuffer[0].value.column,
+                reason: `Time signature value "${value}" is invalid. It should be of form "beats/beat-type", e.g. 4/4 or 12/8.`,
+            });
+        }
+        let [numeratorString, denominatorString] = splitStrings.map(x => parseInt(x));
+
+        if (numeratorString === undefined || denominatorString === undefined) {
+            return left({
+                line: valueBuffer[0].value.line,
+                column: valueBuffer[0].value.column,
+                reason: `Time signature value "${value}" is invalid. It should be of form "beats/beat-type", e.g. 4/4 or 12/8.`,
+            });
+        }
+
+        parsedValue = [numeratorString, denominatorString];
+    }
+
     return right({
         input,
         propertyAssignment: {
@@ -118,6 +143,7 @@ export function propertyAssignment(
             varName: name,
             propertyName,
             value,
+            parsedValue,
             indexes: indexExprs,
         },
     });
