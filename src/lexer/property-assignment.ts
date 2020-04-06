@@ -177,9 +177,10 @@ export function propertyAssignment(
         'guitar',
         'contrabass',
         'cello',
+        
     ];
     // Properties which can accept any string as a value -- TODO custom validation for different properties
-    let wildcardProperties = ['composer', 'title', 'time'];
+    let wildcardProperties = ['composer', 'title', 'time', 'part_name', 'part_id'];
 
     if (!wildcardProperties.includes(propertyName.value.value) && !allowedPropertyValues.includes(value)) {
         return left({
