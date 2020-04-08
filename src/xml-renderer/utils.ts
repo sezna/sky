@@ -39,3 +39,46 @@ export function generateCloser(): string {
     return `
 </score-partwise>`;
 }
+
+/** https://usermanuals.musicxml.com/MusicXML/Content/EL-MusicXML-divisions.html
+ * The duration is how many divisions constitute a note, and the divisions are how many
+ * add up to one beat. For now, we are defaulting to 144 since it is sufficiently large
+ * and divisible by both many triples as well as duples, making it fitting for compound time
+ * as well as regular time.
+ */
+export function calculateDuration(duration: LiteralRhythm, divisions = 144): number {
+    let divs;
+    switch (duration.rhythmName) {
+        case 'sixty-fourth':
+            // A 64th note is 1/16th of a single quarter note, so
+            // divisions / 16
+            divs = divisions / 16;
+            break;
+        case 'thirty-second':
+            // divisions / 8
+            divs = divisions / 8;
+            break;
+        case 'sixteenth':
+            // divisions / 4
+            divs = divisions / 4;
+            break;
+        case 'eighth':
+            // divisions / 2
+            divs = divisions / 2;
+            break;
+        case 'quarter':
+            divs = divisions;
+            break;
+        case 'half':
+            divs = divisions * 2;
+            break;
+        case 'whole':
+            divs = divisions * 4;
+            break;
+    }
+    if (duration.isDotted) {
+        divs = divs * 1.5;
+    }
+
+    return divs;
+}

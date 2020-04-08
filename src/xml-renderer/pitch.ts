@@ -1,7 +1,8 @@
 import { RuntimeOutput } from '../runtime';
-import { timeSignatureDurationMapping } from './utils';
+import { calculateDuration } from './utils';
 import { LiteralRhythm } from '../lexer/expression/literal';
-// import { timeSignatureDurationMapping } from '../utils'; TODO pass time signature info down - make it a property
+
+const divisions = 144;
 
 interface PitchRenderResult {
     output: string;
@@ -35,6 +36,7 @@ export function renderPitch(
         newMeasureText = `
         <measure number="${measureNumber}">
             <attributes>
+                <divisions>144</divisions>
                 <time>
                     <beats>${timeNumerator}</beats>
                     <beat-type>${timeDenominator}</beat-type>
@@ -54,7 +56,7 @@ export function renderPitch(
     if (input.properties && input.properties.time) {
         let [num, denom] = input.properties.time as any; //as [number, number]; // this is definitely [number, number]. TODO figure out how to type this
         if (timeNumerator !== num || timeDenominator !== denom) {
-            if (beatsThusFar !== timeNumerator) {
+            if (beatsThusFar !== divisions * timeNumerator) {
                 console.warn('Changed time signatures before previous measure was complete.'); // TODO symbol location
             }
             measureNumber += 1;
@@ -65,6 +67,7 @@ export function renderPitch(
             newMeasureText = `
         <measure number="${measureNumber}">
             <attributes>
+                <divisions>144</divisions>
                 <time>
                     <beats>${timeNumerator}</beats>
                     <beat-type>${timeDenominator}</beat-type>
@@ -79,14 +82,14 @@ export function renderPitch(
     // Default to 1 beat.
     let numBeats = 1;
     if (duration !== undefined) {
-        numBeats = timeSignatureDurationMapping(duration, [timeNumerator, timeDenominator]);
+        numBeats = calculateDuration(duration, divisions);
     }
 
     beatsThusFar += numBeats;
 
-    if (beatsThusFar >= timeNumerator) {
+    if (beatsThusFar >= divisions * timeNumerator) {
         console.log('New measure. Closing previous one.');
-        if (beatsThusFar > timeNumerator) {
+        if (beatsThusFar > divisions * timeNumerator) {
             console.warn('Measure did not line up with time signature. Excess beats.'); // TODO symbol location
         }
         measureNumber += 1;
@@ -103,7 +106,20 @@ export function renderPitch(
 `;
 
     if (input.returnValue.accidental) {
-        output += `                    <alter>${input.returnValue.accidental}</alter>\n`;
+        // MusicXml uses -1 to represent flats, +1 to represent sharps, +n/-n to support multiple
+        // sharps/flats and supports decimals.
+        // https://usermanuals.musicxml.com/MusicXML/Content/EL-MusicXML-alter.htm
+        // TODO microtones and double sharp/flat
+        let alterTagContent = 0;
+        switch (input.returnValue.accidental) {
+            case 'flat':
+                alterTagContent = -1;
+                break;
+            case 'sharp':
+                alterTagContent = 1;
+                break;
+        }
+        output += `                    <alter>${alterTagContent}</alter>\n`;
     }
 
     output =

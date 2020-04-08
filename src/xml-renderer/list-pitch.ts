@@ -6,7 +6,7 @@ import { renderPitch } from './pitch';
 
 export function renderListPitch(input: RuntimeOutput['mainReturn']): string {
     let id = input.properties?.part_id || 'P1'; // TODO configurability for list list
-    let partName = input.properties?.part_name || "P1";
+    let partName = input.properties?.part_name || 'P1';
     let listPitchHeader = `
     <part-list>
         <score-part id="${id}">
