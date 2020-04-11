@@ -4,7 +4,7 @@ import { Token, Tokens } from './tokenizer';
 import { ParseError } from './parser';
 
 const allKeys = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
-    .reduce((acc: string, x: string) => `${acc}, ${x}, ${x}#, ${x}b`)
+    .reduce((acc: string, x: string) => `${acc},${x},${x}#,${x}b`)
     .split(',');
 
 // TODO support keys with accidentals and double sharps
@@ -12,71 +12,85 @@ const keysObject = {
     a: {
         major: {
             sharps: ['f', 'c', 'g'],
-            flats: [],
+          flats: [],
+          fifths: 3
         },
         minor: {
             sharps: [],
-            flats: [],
+          flats: [],
+          fifths: 0
         },
     },
     b: {
         major: {
             sharps: ['f', 'c', 'g', 'd', 'a'],
-            flats: [],
+          flats: [],
+          fifths: 5
         },
         minor: {
             sharps: ['f', 'c'],
-            flats: [],
+          flats: [],
+          fifths: 2
         },
     },
     c: {
         major: {
             sharps: [],
             flats: [],
+      fifths: 0
         },
         minor: {
             sharps: [],
             flats: ['b', 'e', 'a'],
+          fifths: -3
         },
     },
     d: {
         major: {
             sharps: ['f', 'c'],
             flats: [],
+          fifths: 2
         },
         minor: {
             sharps: [],
             flats: ['b'],
+          fifths: -1
         },
     },
     e: {
         major: {
             sharps: ['f', 'c', 'g', 'd'],
             flats: [],
+          fifths: 4
         },
         minor: {
             sharps: ['f'],
             flats: [],
+          fifths: 1
         },
     },
     f: {
         major: {
             sharps: [],
             flats: ['b'],
+          fifths: -1
         },
         minor: {
             sharps: [],
             flats: ['b', 'e', 'a', 'd'],
+          fifths: -4
         },
     },
     g: {
         major: {
             sharps: ['f'],
             flats: [],
+          fifths: 1
         },
         minor: {
             sharps: [],
             flats: ['b', 'e'],
+          fifths: -2
         },
     },
 };
@@ -179,7 +193,7 @@ export function propertyAssignment(
         'cello',
     ];
     // Properties which can accept any string as a value -- TODO custom validation for different properties
-    let wildcardProperties = ['composer', 'title', 'time', 'part_name', 'part_id'];
+    let wildcardProperties = ['composer', 'title', 'time', 'part_name', 'part_id', 'key'];
 
     if (!wildcardProperties.includes(propertyName.value.value) && !allowedPropertyValues.includes(value)) {
         return left({
@@ -223,7 +237,7 @@ export function propertyAssignment(
                 reason: `Key signature value "${value}" is invalid. It should be of form "tonic [major/minor]", e.g. "c major".`,
             });
         }
-        let [tonic, quality] = splitStrings.map(x => x.toLowerCase());
+        let [tonic, quality] = splitStrings.map(x => x.toLowerCase().trim());
         if (!['major', 'minor'].includes(quality)) {
             return left({
                 line: valueBuffer[0].value.line,

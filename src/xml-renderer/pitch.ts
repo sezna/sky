@@ -26,6 +26,9 @@ export function renderPitch(
     let { timeNumerator, timeDenominator, beatsThusFar, measureNumber } = status;
     let newMeasureText = ``;
     let closingMeasureText = ``;
+    let fifths = (input.properties && input.properties.key && (input.properties.key as any).keyData?.fifths) || 0;
+    let mode = (input.properties && input.properties.key && (input.properties.key as any).quality) || 'major';
+    console.log("[KEY] Key for this section is: ", fifths, mode);
     // Check if this is the first measure
     if (measureNumber === 1 && beatsThusFar === 0) {
         if (input.properties && input.properties.time) {
@@ -37,6 +40,10 @@ export function renderPitch(
         <measure number="${measureNumber}">
             <attributes>
                 <divisions>144</divisions>
+                <key>
+                  <fifths>${fifths}</fifths>
+                  <mode>${mode}</mode>
+                </key>
                 <time>
                     <beats>${timeNumerator}</beats>
                     <beat-type>${timeDenominator}</beat-type>
@@ -50,9 +57,26 @@ export function renderPitch(
         <measure number="${measureNumber}">
 `;
     }
+  let newKeyText = "";
+  // Check if this note contains a key signature change, which forces a new measure
+  if (input.properties && input.properties.key) {
+    let keyProperties = input.properties.key as any; // TODO discriminated union thing
+    let fifths = keyProperties.keyData.fifths;
+    let mode = keyProperties.quality;
+
+    if (beatsThusFar !== 0) {
+      // TODO column and line
+      console.warn(`Key signature "${keyProperties.tonic} ${mode}" in measure ${measureNumber} may not be rendered because it does not fall on a new measure.`);
+    }
+    newKeyText = `
+          <key>
+            <fifths>${fifths}</fifths>
+            <mode>${mode}</mode>
+          </key>
+`
+  }
 
     // Check if this note contains a time signature change, which forces the previous bar to end.
-
     if (input.properties && input.properties.time) {
         let [num, denom] = input.properties.time as any; //as [number, number]; // this is definitely [number, number]. TODO figure out how to type this
         if (timeNumerator !== num || timeDenominator !== denom) {
@@ -66,7 +90,7 @@ export function renderPitch(
             // TODO any note-level properties that apply to measures would be assigned here
             newMeasureText = `
         <measure number="${measureNumber}">
-            <attributes>
+            <attributes>${newKeyText}
                 <divisions>144</divisions>
                 <time>
                     <beats>${timeNumerator}</beats>

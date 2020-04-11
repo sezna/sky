@@ -35,7 +35,7 @@ describe('list of notes XML renderer tests', () => {
     <part id="P1">
         <measure number="1">
             <attributes>
-                <divisions>1</divisions>
+                <divisions>144</divisions>
                 <key>
                     <fifths>0</fifths>
                 </key>
@@ -117,7 +117,7 @@ describe('list of notes XML renderer tests', () => {
     <part id="P1">
         <measure number="1">
             <attributes>
-                <divisions>1</divisions>
+                <divisions>144</divisions>
                 <key>
                     <fifths>0</fifths>
                 </key>
