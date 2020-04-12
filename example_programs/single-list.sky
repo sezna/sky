@@ -1,0 +1,9 @@
+fn main(): list pitch_rhythm {
+	list pitch_rhythm x = [a4 quarter, b4 quarter, c4 quarter, d4 quarter,
+						   e4 eighth, e4 eighth, c4 quarter, c4 half,];
+	x.key = d major;
+	x.time = 2/4;
+	x.clef = bass;	
+	x[2].clef = treble;
+	return x;
+}

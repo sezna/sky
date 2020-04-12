@@ -82,4 +82,3 @@ export function calculateDuration(duration: LiteralRhythm, divisions = 144): num
 
     return divs;
 }
-

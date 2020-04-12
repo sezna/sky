@@ -28,7 +28,12 @@ export function renderPitch(
     let closingMeasureText = ``;
     let fifths = (input.properties && input.properties.key && (input.properties.key as any).keyData?.fifths) || 0;
     let mode = (input.properties && input.properties.key && (input.properties.key as any).quality) || 'major';
-    console.log("[KEY] Key for this section is: ", fifths, mode);
+    let { sign, line, octave } = (input.properties && (input.properties.clef as any)) || {
+        sign: 'G',
+        line: '2',
+        octave: 0,
+    };
+    let addAttributes = false;
     // Check if this is the first measure
     if (measureNumber === 1 && beatsThusFar === 0) {
         if (input.properties && input.properties.time) {
@@ -40,6 +45,11 @@ export function renderPitch(
         <measure number="${measureNumber}">
             <attributes>
                 <divisions>144</divisions>
+                <clef>
+                    <sign>${sign}</sign>
+                    <line>${line}</line>
+                    <octave>${octave}</octave>
+                </clef>
                 <key>
                   <fifths>${fifths}</fifths>
                   <mode>${mode}</mode>
@@ -57,24 +67,47 @@ export function renderPitch(
         <measure number="${measureNumber}">
 `;
     }
-  let newKeyText = "";
-  // Check if this note contains a key signature change, which forces a new measure
-  if (input.properties && input.properties.key) {
-    let keyProperties = input.properties.key as any; // TODO discriminated union thing
-    let fifths = keyProperties.keyData.fifths;
-    let mode = keyProperties.quality;
+    let newKeyText = '';
+    // Check if this note contains a key signature change
+    if (input.properties && input.properties.key) {
+        let keyProperties = input.properties.key as any; // TODO discriminated union thing
+        let fifths = keyProperties.keyData.fifths;
+        let mode = keyProperties.quality;
 
-    if (beatsThusFar !== 0) {
-      // TODO column and line
-      console.warn(`Key signature "${keyProperties.tonic} ${mode}" in measure ${measureNumber} may not be rendered because it does not fall on a new measure.`);
-    }
-    newKeyText = `
+        if (beatsThusFar !== 0) {
+            // TODO column and line
+            console.warn(
+                `Key signature "${keyProperties.tonic} ${mode}" in measure ${measureNumber} may not be rendered because it does not fall on a new measure.`,
+            );
+        }
+        newKeyText = `
           <key>
             <fifths>${fifths}</fifths>
             <mode>${mode}</mode>
           </key>
-`
-  }
+`;
+        addAttributes = true;
+    }
+
+    let newClefText = '';
+    // check if this note contains a clef change
+    if (input.properties && input.properties.clef) {
+        let { sign, line, octave } = input.properties.clef as any;
+        newClefText = `
+                <clef>
+                    <sign>${sign}</sign>
+                    <line>${line}</line>
+                    <octave>${octave}</octave>
+                </clef>
+`;
+        if (beatsThusFar !== 0) {
+            // TODO column and line
+            console.warn(
+                `Clef change in measure ${measureNumber} may not be rendered because it does not fall on a new measure.`,
+            );
+        }
+        addAttributes = true;
+    }
 
     // Check if this note contains a time signature change, which forces the previous bar to end.
     if (input.properties && input.properties.time) {
@@ -90,7 +123,7 @@ export function renderPitch(
             // TODO any note-level properties that apply to measures would be assigned here
             newMeasureText = `
         <measure number="${measureNumber}">
-            <attributes>${newKeyText}
+            <attributes>${newKeyText}${newClefText}
                 <divisions>144</divisions>
                 <time>
                     <beats>${timeNumerator}</beats>
@@ -111,8 +144,8 @@ export function renderPitch(
 
     beatsThusFar += numBeats;
 
+    // New measure
     if (beatsThusFar >= divisions * timeNumerator) {
-        console.log('New measure. Closing previous one.');
         if (beatsThusFar > divisions * timeNumerator) {
             console.warn('Measure did not line up with time signature. Excess beats.'); // TODO symbol location
         }
@@ -121,8 +154,6 @@ export function renderPitch(
         closingMeasureText = `        </measure>`;
     }
 
-    // TODO the <duration> tag which depends on the time signature -- an unimplemented property
-    // also the type, which will be passed in for pitch rhythm
     let output = `${newMeasureText}            <note>
                 <pitch>
                     <step>${input.returnValue.noteName}</step>
