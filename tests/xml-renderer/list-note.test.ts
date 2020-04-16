@@ -135,7 +135,7 @@ describe('list of notes XML renderer tests', () => {
                     <step>c</step>
                     <octave>4</octave>
                 </pitch>
-                <duration>3</duration>
+                <duration>432</duration>
                 <type>dotted half</type>
             </note>
             <note>
@@ -143,7 +143,7 @@ describe('list of notes XML renderer tests', () => {
                     <step>d</step>
                     <octave>4</octave>
                 </pitch>
-                <duration>1</duration>
+                <duration>144</duration>
                 <type>quarter</type>
             </note>
         </measure>
@@ -153,7 +153,7 @@ describe('list of notes XML renderer tests', () => {
                     <step>e</step>
                     <octave>4</octave>
                 </pitch>
-                <duration>2</duration>
+                <duration>288</duration>
                 <type>half</type>
             </note>
             <note>
@@ -161,7 +161,7 @@ describe('list of notes XML renderer tests', () => {
                     <step>f</step>
                     <octave>4</octave>
                 </pitch>
-                <duration>2</duration>
+                <duration>288</duration>
                 <type>half</type>
             </note>
         </measure>
@@ -171,7 +171,7 @@ describe('list of notes XML renderer tests', () => {
                     <step>e</step>
                     <octave>3</octave>
                 </pitch>
-                <duration>4</duration>
+                <duration>576</duration>
                 <type>whole</type>
             </note>
         </measure>
