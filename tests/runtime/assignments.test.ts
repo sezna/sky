@@ -55,7 +55,10 @@ describe('assignment and reassignment tests', () => {
             return;
         }
         expect(result.right.variableEnvironment['x'].properties).toHaveProperty('clef');
-        expect(result.right.variableEnvironment['x'].properties.clef).toEqual('bass');
+        expect(result.right.variableEnvironment['x'].properties.clef).toEqual({
+            line: 4,
+            sign: 'F',
+        });
     });
     it('be able to reassign a property', () => {
         let program = `
@@ -81,7 +84,10 @@ describe('assignment and reassignment tests', () => {
             return;
         }
         expect(result.right.variableEnvironment['x'].properties).toHaveProperty('clef');
-        expect(result.right.variableEnvironment['x'].properties.clef).toEqual('treble');
+        expect(result.right.variableEnvironment['x'].properties.clef).toEqual({
+            line: 2,
+            sign: 'G',
+        });
     });
     it('be able to assign a multi-word property', () => {
         let program = `
@@ -206,7 +212,10 @@ describe('assignment and reassignment tests', () => {
             ],
         });
         expect(result.right.variableEnvironment['test_list'].value[1].properties).toHaveProperty('clef');
-        expect(result.right.variableEnvironment['test_list'].value[1].properties.clef).toEqual('alto');
+        expect(result.right.variableEnvironment['test_list'].value[1].properties.clef).toEqual({
+            line: 3,
+            sign: 'C',
+        });
     });
     it('should allow for reassignment of a 2d list into a 3d list', () => {
         let program = `
@@ -294,7 +303,10 @@ describe('assignment and reassignment tests', () => {
             ],
         });
         expect(result.right.variableEnvironment['test_list'].value[1].returnValue[0].properties).toHaveProperty('clef');
-        expect(result.right.variableEnvironment['test_list'].value[1].returnValue[0].properties.clef).toEqual('alto');
+        expect(result.right.variableEnvironment['test_list'].value[1].returnValue[0].properties.clef).toEqual({
+            line: 3,
+            sign: 'C',
+        });
     });
     it('should allow for reassignment of a very nested index', () => {
         let program = `
