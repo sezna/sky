@@ -42,7 +42,7 @@ pitch outofnames = c4;
         expect(stepsResult.left.reason).toBe('Invalid pitch literal: c0 is not a valid pitch');
     });
     it('should correctly parse a list', () => {
-        let tokens = tokenize(`list pitch x = [c4, d4, c4, d4, c4, d4, d4, c4, d4,
+        let tokens = tokenize(`list pitch x = [cn4, d4, c4, d4, c4, d4, d4, c4, d4,
 						c4, d4, c4, d4, c4, d4, c4, d4, c4, d4, c4, d4, c4, d4, c4, d4, c4, d4, c4, 
 						d4, c4, d4, c4, d4, c4, d4, c4, d4, c4, d4, c4, d4, c4, d4, c4];`);
         let stepsResult = makeSyntaxTree(tokens);
@@ -67,7 +67,7 @@ pitch outofnames = c4;
                 octave: 4,
                 pitchNumber: 39,
                 returnType: 'pitch',
-                token: { tokenType: 'pitch-literal', value: { column: 17, line: 1, value: 'c4' } },
+                token: { tokenType: 'pitch-literal', value: { column: 17, line: 1, value: 'cn4' } },
             },
             returnType: 'pitch',
         });
@@ -75,13 +75,13 @@ pitch outofnames = c4;
             _type: 'LiteralExp',
             literalValue: {
                 _type: 'LiteralPitch',
-                accidental: 'natural',
+                accidental: undefined,
                 midiNumber: 62,
                 noteName: 'd',
                 octave: 4,
                 pitchNumber: 41,
                 returnType: 'pitch',
-                token: { tokenType: 'pitch-literal', value: { column: 21, line: 1, value: 'd4' } },
+                token: { tokenType: 'pitch-literal', value: { column: 22, line: 1, value: 'd4' } },
             },
             returnType: 'pitch',
         });
@@ -89,7 +89,7 @@ pitch outofnames = c4;
             _type: 'LiteralExp',
             literalValue: {
                 _type: 'LiteralPitch',
-                accidental: 'natural',
+                accidental: undefined,
                 midiNumber: 60,
                 noteName: 'c',
                 octave: 4,

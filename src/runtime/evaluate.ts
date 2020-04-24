@@ -189,13 +189,15 @@ export function evaluate(
             if (_.get(variableEnvironment[step.varName.value.value].value, getString).properties === undefined) {
                 _.set(variableEnvironment[step.varName.value.value].value, `${getString}.properties`, {});
             }
+            let valueToSet = step.parsedValue === undefined ? step.value : step.parsedValue;
             _.set(
                 variableEnvironment[step.varName.value.value].value,
                 `${getString}.properties[${step.propertyName.value.value}]`,
-                step.value,
+                valueToSet,
             );
         } else {
-            variableEnvironment[step.varName.value.value].properties[step.propertyName.value.value] = step.value;
+            let valueToSet = step.parsedValue === undefined ? step.value : step.parsedValue;
+            variableEnvironment[step.varName.value.value].properties[step.propertyName.value.value] = valueToSet;
         }
     } else if (step._type === 'Reassignment') {
         // First, handle the indexes, if any.
