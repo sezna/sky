@@ -22,13 +22,45 @@ describe('single note XML renderer tests', () => {
 
         let renderedXml = render(runtimeResult.right);
         expect(renderedXml).toBe(
-            `<note>
-  <pitch>
-    <step>c</step>
-    <octave>4</octave>
-    <duration>1</duration>
-  </pitch>
-</note>`,
+            `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE score-partwise PUBLIC
+    "-//Recordare//DTD MusicXML 3.0 Partwise//EN"
+    "http://www.musicxml.org/dtds/partwise.dtd">
+<score-partwise version="3.0">
+    <part-list>
+        <score-part id="P1">
+            <part-name>Part 1</part-name>
+        </score-part>
+    </part-list>
+    <part id="P1">
+        <measure number="1">
+            <attributes>
+                <divisions>144</divisions>
+                <key>
+                    <fifths>0</fifths>
+                    <mode>major</mode>
+                </key>
+                <time>
+                    <beats>4</beats>
+                    <beat-type>4</beat-type>
+                </time>
+                <clef>
+                    <sign>G</sign>
+                    <line>2</line>
+                    <octave>0</octave>
+                </clef>
+            </attributes>
+            <note>
+                <pitch>
+                    <step>c</step>
+                    <octave>4</octave>
+                </pitch>
+                <duration>144</duration>
+                <type>quarter</type>
+            </note>
+        </measure>
+    </part>
+</score-partwise>`,
         );
     });
     it('Should be able to render an A#3, and the default rhythm should be a quarter note', () => {
@@ -48,14 +80,46 @@ describe('single note XML renderer tests', () => {
 
         let renderedXml = render(runtimeResult.right);
         expect(renderedXml).toBe(
-            `<note>
-  <pitch>
-    <step>a</step>
-    <octave>3</octave>
-    <duration>1</duration>
-    <alter>sharp</alter>
-  </pitch>
-</note>`,
+            `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE score-partwise PUBLIC
+    "-//Recordare//DTD MusicXML 3.0 Partwise//EN"
+    "http://www.musicxml.org/dtds/partwise.dtd">
+<score-partwise version="3.0">
+    <part-list>
+        <score-part id="P1">
+            <part-name>Part 1</part-name>
+        </score-part>
+    </part-list>
+    <part id="P1">
+        <measure number="1">
+            <attributes>
+                <divisions>144</divisions>
+                <key>
+                    <fifths>0</fifths>
+                    <mode>major</mode>
+                </key>
+                <time>
+                    <beats>4</beats>
+                    <beat-type>4</beat-type>
+                </time>
+                <clef>
+                    <sign>G</sign>
+                    <line>2</line>
+                    <octave>0</octave>
+                </clef>
+            </attributes>
+            <note>
+                <pitch>
+                    <step>a</step>
+                    <octave>3</octave>
+                    <alter>1</alter>
+                </pitch>
+                <duration>144</duration>
+                <type>quarter</type>
+            </note>
+        </measure>
+    </part>
+</score-partwise>`,
         );
     });
     it('Should be able to render a Gb5, and the default rhythm should be a quarter note', () => {
@@ -75,14 +139,46 @@ describe('single note XML renderer tests', () => {
 
         let renderedXml = render(runtimeResult.right);
         expect(renderedXml).toBe(
-            `<note>
-  <pitch>
-    <step>g</step>
-    <octave>5</octave>
-    <duration>1</duration>
-    <alter>flat</alter>
-  </pitch>
-</note>`,
+            `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE score-partwise PUBLIC
+    "-//Recordare//DTD MusicXML 3.0 Partwise//EN"
+    "http://www.musicxml.org/dtds/partwise.dtd">
+<score-partwise version="3.0">
+    <part-list>
+        <score-part id="P1">
+            <part-name>Part 1</part-name>
+        </score-part>
+    </part-list>
+    <part id="P1">
+        <measure number="1">
+            <attributes>
+                <divisions>144</divisions>
+                <key>
+                    <fifths>0</fifths>
+                    <mode>major</mode>
+                </key>
+                <time>
+                    <beats>4</beats>
+                    <beat-type>4</beat-type>
+                </time>
+                <clef>
+                    <sign>G</sign>
+                    <line>2</line>
+                    <octave>0</octave>
+                </clef>
+            </attributes>
+            <note>
+                <pitch>
+                    <step>g</step>
+                    <octave>5</octave>
+                    <alter>-1</alter>
+                </pitch>
+                <duration>144</duration>
+                <type>quarter</type>
+            </note>
+        </measure>
+    </part>
+</score-partwise>`,
         );
     });
     it('Should be able to render a pitch with a rhythm - Bb5 half', () => {
@@ -103,14 +199,46 @@ describe('single note XML renderer tests', () => {
 
         let renderedXml = render(runtimeResult.right);
         expect(renderedXml).toBe(
-            `<note>
-  <pitch>
-    <step>B</step>
-    <octave>5</octave>
-    <duration>2</duration>
-    <alter>flat</alter>
-  </pitch>
-</note>`,
+            `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE score-partwise PUBLIC
+    "-//Recordare//DTD MusicXML 3.0 Partwise//EN"
+    "http://www.musicxml.org/dtds/partwise.dtd">
+<score-partwise version="3.0">
+    <part-list>
+        <score-part id="P1">
+            <part-name>Part 1</part-name>
+        </score-part>
+    </part-list>
+    <part id="P1">
+        <measure number="1">
+            <attributes>
+                <divisions>144</divisions>
+                <key>
+                    <fifths>0</fifths>
+                    <mode>major</mode>
+                </key>
+                <time>
+                    <beats>4</beats>
+                    <beat-type>4</beat-type>
+                </time>
+                <clef>
+                    <sign>G</sign>
+                    <line>2</line>
+                    <octave>0</octave>
+                </clef>
+            </attributes>
+            <note>
+                <pitch>
+                    <step>B</step>
+                    <octave>5</octave>
+                    <alter>-1</alter>
+                </pitch>
+                <duration>288</duration>
+                <type>half</type>
+            </note>
+        </measure>
+    </part>
+</score-partwise>`,
         );
     });
     it('Should be able to render a pitch with a rhythm - G#7 dotted half', () => {
@@ -131,14 +259,46 @@ describe('single note XML renderer tests', () => {
 
         let renderedXml = render(runtimeResult.right);
         expect(renderedXml).toBe(
-            `<note>
-  <pitch>
-    <step>g</step>
-    <octave>7</octave>
-    <duration>3</duration>
-    <alter>sharp</alter>
-  </pitch>
-</note>`,
+            `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE score-partwise PUBLIC
+    "-//Recordare//DTD MusicXML 3.0 Partwise//EN"
+    "http://www.musicxml.org/dtds/partwise.dtd">
+<score-partwise version="3.0">
+    <part-list>
+        <score-part id="P1">
+            <part-name>Part 1</part-name>
+        </score-part>
+    </part-list>
+    <part id="P1">
+        <measure number="1">
+            <attributes>
+                <divisions>144</divisions>
+                <key>
+                    <fifths>0</fifths>
+                    <mode>major</mode>
+                </key>
+                <time>
+                    <beats>4</beats>
+                    <beat-type>4</beat-type>
+                </time>
+                <clef>
+                    <sign>G</sign>
+                    <line>2</line>
+                    <octave>0</octave>
+                </clef>
+            </attributes>
+            <note>
+                <pitch>
+                    <step>g</step>
+                    <octave>7</octave>
+                    <alter>1</alter>
+                </pitch>
+                <duration>432</duration>
+                <type>dotted half</type>
+            </note>
+        </measure>
+    </part>
+</score-partwise>`,
         );
     });
 });

@@ -18,8 +18,9 @@ export function renderListPitchRhythm(input: RuntimeOutput['mainReturn']): strin
     let output = listPitchHeader;
 
     let status;
+    let count = 0;
     for (const note of input.returnValue) {
-        status = renderPitch(note, note.returnValue.rhythm, status);
+        status = renderPitch(note, count === input.returnValue.length - 1, note.returnValue.rhythm, status);
         output += status.output;
     }
 

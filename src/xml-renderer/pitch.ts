@@ -20,6 +20,7 @@ interface Prerender {
 
 export function renderPitch(
     input: RuntimeOutput['mainReturn'],
+    isLast: boolean,
     duration?: LiteralRhythm,
     status = {
         output: '',
@@ -53,7 +54,6 @@ export function renderPitch(
             line,
             octave,
         };
-        console.log('[KEY] mode is ', mode);
         prerender.attributes.key = {
             fifths,
             mode,
@@ -183,7 +183,8 @@ export function renderPitch(
                 alterTagContent = 1;
                 break;
         }
-        pitchText += `            <alter>${alterTagContent}</alter>`;
+        pitchText += `
+            <alter>${alterTagContent}</alter>`;
     }
 
     pitchText += `
@@ -204,10 +205,11 @@ export function renderPitch(
         <type>${duration ? (duration.isDotted ? 'dotted ' : '') + duration.rhythmName : 'quarter'}</type>
     </note>`;
 
-    let closingMeasureText = prerender.isEndOfMeasure
-        ? `
+    let closingMeasureText =
+        prerender.isEndOfMeasure || isLast
+            ? `
 </measure>`
-        : '';
+            : '';
 
     let output = newMeasureText + noteText + closingMeasureText;
     // add indentation

@@ -14,10 +14,32 @@ export function render(input: RuntimeOutput): string {
 
     switch (mainReturnType) {
         case 'pitch':
-            output += renderPitch(input.mainReturn).output;
+            output += generateHeader();
+            output += `
+    <part-list>
+        <score-part id="P1">
+            <part-name>Part 1</part-name>
+        </score-part>
+    </part-list>
+    <part id="P1">`;
+            output += renderPitch(input.mainReturn, true).output;
+            output += `
+    </part>`;
+            output += generateCloser();
             break;
         case 'pitch_rhythm':
-            output += renderPitchRhythm(input.mainReturn);
+            output += generateHeader();
+            output += `
+    <part-list>
+        <score-part id="P1">
+            <part-name>Part 1</part-name>
+        </score-part>
+    </part-list>
+    <part id="P1">`;
+            output += renderPitchRhythm(input.mainReturn, true);
+            output += `
+    </part>`;
+            output += generateCloser();
             break;
         case 'list pitch':
             output += generateHeader() + renderListPitch(input.mainReturn) + generateCloser();
