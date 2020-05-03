@@ -3,6 +3,8 @@ import { renderPitch } from './pitch';
 import { renderPitchRhythm } from './pitch-rhythm';
 import { renderListPitch } from './list-pitch';
 import { renderListPitchRhythm } from './list-pitch-rhythm';
+import { renderListListPitch } from './list-list-pitch';
+import { renderListListPitchRhythm } from './list-list-pitch-rhythm';
 import { generateHeader, generateCloser } from './utils';
 
 /**
@@ -36,7 +38,7 @@ export function render(input: RuntimeOutput): string {
         </score-part>
     </part-list>
     <part id="P1">`;
-            output += renderPitchRhythm(input.mainReturn, true);
+            output += renderPitchRhythm(input.mainReturn, true).output;
             output += `
     </part>`;
             output += generateCloser();
@@ -46,6 +48,12 @@ export function render(input: RuntimeOutput): string {
             break;
         case 'list pitch_rhythm':
             output += generateHeader() + renderListPitchRhythm(input.mainReturn) + generateCloser();
+            break;
+        case 'list list pitch':
+            output += generateHeader() + renderListListPitch(input.mainReturn) + generateCloser();
+            break;
+        case 'list list pitch_rhythm':
+            output += generateHeader() + renderListListPitchRhythm(input.mainReturn) + generateCloser();
             break;
         default:
             console.log(`Type "${mainReturnType}" cannot currently be rendered into XML. Failed to render:

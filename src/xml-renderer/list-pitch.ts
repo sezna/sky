@@ -4,10 +4,17 @@ import { renderPitch } from './pitch';
 // TODO in single list pitch:
 // part name and single part metadata extracted out into a single part name
 
-export function renderListPitch(input: RuntimeOutput['mainReturn']): string {
-    let id = input.properties?.part_id || 'P1'; // TODO configurability for list list
+export function renderListPitch(input: RuntimeOutput['mainReturn'], idOverride?: string): string {
+    // first, pass down properties to the first item
+    if (input.properties) {
+        input.returnValue[0].properties = { ...(input.returnValue[0].properties || {}), ...input.properties };
+    }
+    let id = input.properties?.part_id || idOverride || 'P1';
     let partName = input.properties?.part_name || 'P1';
-    let listPitchHeader = `
+    let listPitchHeader = idOverride
+        ? `
+    <part id="${id}">`
+        : `
     <part-list>
         <score-part id="${id}">
             <part-name>${partName}</part-name>
