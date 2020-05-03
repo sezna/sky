@@ -4,7 +4,7 @@ import { renderPitch } from './pitch';
 export function renderListPitchRhythm(input: RuntimeOutput['mainReturn']): string {
     // first, pass down properties to the first item
     if (input.properties) {
-        input.returnValue[0].properties = { ...input.returnValue[0], ...input.properties };
+        input.returnValue[0].properties = { ...(input.returnValue[0].properties || {}), ...input.properties };
     }
     let id = input.properties?.part_id || 'P1'; // TODO configurability for list list
     let partName = input.properties?.part_name || 'P1';

@@ -5,6 +5,10 @@ import { renderPitch } from './pitch';
 // part name and single part metadata extracted out into a single part name
 
 export function renderListPitch(input: RuntimeOutput['mainReturn'], idOverride?: string): string {
+    // first, pass down properties to the first item
+    if (input.properties) {
+        input.returnValue[0].properties = { ...(input.returnValue[0].properties || {}), ...input.properties };
+    }
     let id = input.properties?.part_id || idOverride || 'P1'; // TODO configurability for list list
     let partName = input.properties?.part_name || 'P1';
     let listPitchHeader = idOverride
