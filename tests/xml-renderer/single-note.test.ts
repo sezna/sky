@@ -47,7 +47,6 @@ describe('single note XML renderer tests', () => {
                 <clef>
                     <sign>G</sign>
                     <line>2</line>
-                    <octave>0</octave>
                 </clef>
             </attributes>
             <note>
@@ -105,7 +104,6 @@ describe('single note XML renderer tests', () => {
                 <clef>
                     <sign>G</sign>
                     <line>2</line>
-                    <octave>0</octave>
                 </clef>
             </attributes>
             <note>
@@ -164,7 +162,6 @@ describe('single note XML renderer tests', () => {
                 <clef>
                     <sign>G</sign>
                     <line>2</line>
-                    <octave>0</octave>
                 </clef>
             </attributes>
             <note>
@@ -224,7 +221,6 @@ describe('single note XML renderer tests', () => {
                 <clef>
                     <sign>G</sign>
                     <line>2</line>
-                    <octave>0</octave>
                 </clef>
             </attributes>
             <note>
@@ -284,7 +280,6 @@ describe('single note XML renderer tests', () => {
                 <clef>
                     <sign>G</sign>
                     <line>2</line>
-                    <octave>0</octave>
                 </clef>
             </attributes>
             <note>

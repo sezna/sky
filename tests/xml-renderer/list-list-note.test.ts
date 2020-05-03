@@ -59,7 +59,6 @@ fn main(): list list pitch {
                 <clef>
                     <sign>G</sign>
                     <line>2</line>
-                    <octave>0</octave>
                 </clef>
             </attributes>
             <note>
@@ -113,7 +112,6 @@ fn main(): list list pitch {
                 <clef>
                     <sign>G</sign>
                     <line>2</line>
-                    <octave>0</octave>
                 </clef>
             </attributes>
             <note>
@@ -213,7 +211,6 @@ fn main(): list list pitch {
                 <clef>
                     <sign>G</sign>
                     <line>2</line>
-                    <octave>0</octave>
                 </clef>
             </attributes>
             <note>
@@ -267,7 +264,6 @@ fn main(): list list pitch {
                 <clef>
                     <sign>G</sign>
                     <line>2</line>
-                    <octave>0</octave>
                 </clef>
             </attributes>
             <note>
@@ -319,7 +315,6 @@ fn main(): list list pitch {
                 <clef>
                     <sign>F</sign>
                     <line>4</line>
-                    <octave>undefined</octave>
                 </clef>
             </attributes>
             <note>

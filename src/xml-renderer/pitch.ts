@@ -3,7 +3,7 @@ import { calculateDuration } from './utils';
 import { LiteralRhythm } from '../lexer/expression/literal';
 
 const divisions = 144;
-interface PitchRenderResult {
+export interface PitchRenderResult {
     output: string;
     timeNumerator: number;
     timeDenominator: number;
@@ -159,8 +159,12 @@ export function renderPitch(
             prerender.attributes.clef
                 ? `<clef>
             <sign>${prerender.attributes.clef.sign}</sign>
-            <line>${prerender.attributes.clef.line}</line>
-            <octave>${prerender.attributes.clef.octave}</octave>
+            <line>${prerender.attributes.clef.line}</line>${
+                      prerender.attributes.clef.octave
+                          ? `
+            <octave>${prerender.attributes.clef.octave}</octave>`
+                          : ''
+                  }
         </clef>`
                 : ''
         }

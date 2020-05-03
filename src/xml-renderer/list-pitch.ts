@@ -9,7 +9,7 @@ export function renderListPitch(input: RuntimeOutput['mainReturn'], idOverride?:
     if (input.properties) {
         input.returnValue[0].properties = { ...(input.returnValue[0].properties || {}), ...input.properties };
     }
-    let id = input.properties?.part_id || idOverride || 'P1'; // TODO configurability for list list
+    let id = input.properties?.part_id || idOverride || 'P1';
     let partName = input.properties?.part_name || 'P1';
     let listPitchHeader = idOverride
         ? `
