@@ -174,7 +174,7 @@ export function renderPitch(
     }
 
     let pitchText = `<pitch>
-            <step>${input.returnValue.noteName}</step>
+            <step>${input.returnValue.noteName.toUpperCase()}</step>
             <octave>${input.returnValue.octave}</octave>`;
 
     if (input.returnValue.accidental) {

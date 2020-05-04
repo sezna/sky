@@ -63,7 +63,7 @@ fn main(): list list pitch {
             </attributes>
             <note>
                 <pitch>
-                    <step>c</step>
+                    <step>C</step>
                     <octave>4</octave>
                     <alter>1</alter>
                 </pitch>
@@ -72,7 +72,7 @@ fn main(): list list pitch {
             </note>
             <note>
                 <pitch>
-                    <step>c</step>
+                    <step>C</step>
                     <octave>4</octave>
                     <alter>1</alter>
                 </pitch>
@@ -81,7 +81,7 @@ fn main(): list list pitch {
             </note>
             <note>
                 <pitch>
-                    <step>d</step>
+                    <step>D</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -89,7 +89,7 @@ fn main(): list list pitch {
             </note>
             <note>
                 <pitch>
-                    <step>e</step>
+                    <step>E</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -116,7 +116,7 @@ fn main(): list list pitch {
             </attributes>
             <note>
                 <pitch>
-                    <step>a</step>
+                    <step>A</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -124,7 +124,7 @@ fn main(): list list pitch {
             </note>
             <note>
                 <pitch>
-                    <step>b</step>
+                    <step>B</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -132,7 +132,7 @@ fn main(): list list pitch {
             </note>
             <note>
                 <pitch>
-                    <step>c</step>
+                    <step>C</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -140,7 +140,7 @@ fn main(): list list pitch {
             </note>
             <note>
                 <pitch>
-                    <step>d</step>
+                    <step>D</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -215,7 +215,7 @@ fn main(): list list pitch {
             </attributes>
             <note>
                 <pitch>
-                    <step>c</step>
+                    <step>C</step>
                     <octave>4</octave>
                     <alter>1</alter>
                 </pitch>
@@ -224,7 +224,7 @@ fn main(): list list pitch {
             </note>
             <note>
                 <pitch>
-                    <step>c</step>
+                    <step>C</step>
                     <octave>4</octave>
                     <alter>1</alter>
                 </pitch>
@@ -233,7 +233,7 @@ fn main(): list list pitch {
             </note>
             <note>
                 <pitch>
-                    <step>d</step>
+                    <step>D</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -241,7 +241,7 @@ fn main(): list list pitch {
             </note>
             <note>
                 <pitch>
-                    <step>e</step>
+                    <step>E</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -268,7 +268,7 @@ fn main(): list list pitch {
             </attributes>
             <note>
                 <pitch>
-                    <step>g</step>
+                    <step>G</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -276,7 +276,7 @@ fn main(): list list pitch {
             </note>
             <note>
                 <pitch>
-                    <step>b</step>
+                    <step>B</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -284,7 +284,7 @@ fn main(): list list pitch {
             </note>
             <note>
                 <pitch>
-                    <step>c</step>
+                    <step>C</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -292,7 +292,7 @@ fn main(): list list pitch {
             </note>
             <note>
                 <pitch>
-                    <step>d</step>
+                    <step>D</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -319,7 +319,7 @@ fn main(): list list pitch {
             </attributes>
             <note>
                 <pitch>
-                    <step>c</step>
+                    <step>C</step>
                     <octave>3</octave>
                     <alter>1</alter>
                 </pitch>
@@ -328,7 +328,7 @@ fn main(): list list pitch {
             </note>
             <note>
                 <pitch>
-                    <step>d</step>
+                    <step>D</step>
                     <octave>3</octave>
                 </pitch>
                 <duration>144</duration>
@@ -336,7 +336,7 @@ fn main(): list list pitch {
             </note>
             <note>
                 <pitch>
-                    <step>a</step>
+                    <step>A</step>
                     <octave>7</octave>
                 </pitch>
                 <duration>144</duration>
@@ -344,7 +344,7 @@ fn main(): list list pitch {
             </note>
             <note>
                 <pitch>
-                    <step>f</step>
+                    <step>F</step>
                     <octave>3</octave>
                     <alter>-1</alter>
                 </pitch>
@@ -355,7 +355,7 @@ fn main(): list list pitch {
     </part>
 </score-partwise>`);
     });
-it('List list pitch: sample program #1', () => {
+    it('List list pitch: sample program #1', () => {
         let program = `fn main(): list list pitch_rhythm {
   list list pitch_rhythm x = [
           [c#4 quarter,  c#4 quarter,  d4 quarter,  e4 quarter],
@@ -419,7 +419,7 @@ it('List list pitch: sample program #1', () => {
             </attributes>
             <note>
                 <pitch>
-                    <step>c</step>
+                    <step>C</step>
                     <octave>4</octave>
                     <alter>1</alter>
                 </pitch>
@@ -428,7 +428,7 @@ it('List list pitch: sample program #1', () => {
             </note>
             <note>
                 <pitch>
-                    <step>c</step>
+                    <step>C</step>
                     <octave>4</octave>
                     <alter>1</alter>
                 </pitch>
@@ -437,7 +437,7 @@ it('List list pitch: sample program #1', () => {
             </note>
             <note>
                 <pitch>
-                    <step>d</step>
+                    <step>D</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -445,7 +445,7 @@ it('List list pitch: sample program #1', () => {
             </note>
             <note>
                 <pitch>
-                    <step>e</step>
+                    <step>E</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -472,7 +472,7 @@ it('List list pitch: sample program #1', () => {
             </attributes>
             <note>
                 <pitch>
-                    <step>g</step>
+                    <step>G</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -480,7 +480,7 @@ it('List list pitch: sample program #1', () => {
             </note>
             <note>
                 <pitch>
-                    <step>b</step>
+                    <step>B</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -488,7 +488,7 @@ it('List list pitch: sample program #1', () => {
             </note>
             <note>
                 <pitch>
-                    <step>c</step>
+                    <step>C</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -496,7 +496,7 @@ it('List list pitch: sample program #1', () => {
             </note>
             <note>
                 <pitch>
-                    <step>d</step>
+                    <step>D</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -523,7 +523,7 @@ it('List list pitch: sample program #1', () => {
             </attributes>
             <note>
                 <pitch>
-                    <step>c</step>
+                    <step>C</step>
                     <octave>3</octave>
                     <alter>1</alter>
                 </pitch>
@@ -532,7 +532,7 @@ it('List list pitch: sample program #1', () => {
             </note>
             <note>
                 <pitch>
-                    <step>d</step>
+                    <step>D</step>
                     <octave>3</octave>
                 </pitch>
                 <duration>288</duration>
@@ -541,5 +541,5 @@ it('List list pitch: sample program #1', () => {
         </measure>
     </part>
 </score-partwise>`);
-    })
+    });
 });

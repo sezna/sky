@@ -51,7 +51,7 @@ describe('list of notes XML renderer tests', () => {
             </attributes>
             <note>
                 <pitch>
-                    <step>c</step>
+                    <step>C</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -59,7 +59,7 @@ describe('list of notes XML renderer tests', () => {
             </note>
             <note>
                 <pitch>
-                    <step>d</step>
+                    <step>D</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -67,7 +67,7 @@ describe('list of notes XML renderer tests', () => {
             </note>
             <note>
                 <pitch>
-                    <step>e</step>
+                    <step>E</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -75,7 +75,7 @@ describe('list of notes XML renderer tests', () => {
             </note>
             <note>
                 <pitch>
-                    <step>f</step>
+                    <step>F</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -134,7 +134,7 @@ describe('list of notes XML renderer tests', () => {
             </attributes>
             <note>
                 <pitch>
-                    <step>c</step>
+                    <step>C</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>432</duration>
@@ -142,7 +142,7 @@ describe('list of notes XML renderer tests', () => {
             </note>
             <note>
                 <pitch>
-                    <step>d</step>
+                    <step>D</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -152,7 +152,7 @@ describe('list of notes XML renderer tests', () => {
         <measure number="2">
             <note>
                 <pitch>
-                    <step>e</step>
+                    <step>E</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>288</duration>
@@ -160,7 +160,7 @@ describe('list of notes XML renderer tests', () => {
             </note>
             <note>
                 <pitch>
-                    <step>f</step>
+                    <step>F</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>288</duration>
@@ -170,7 +170,7 @@ describe('list of notes XML renderer tests', () => {
         <measure number="3">
             <note>
                 <pitch>
-                    <step>e</step>
+                    <step>E</step>
                     <octave>3</octave>
                 </pitch>
                 <duration>576</duration>

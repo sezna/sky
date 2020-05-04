@@ -51,7 +51,7 @@ describe('single note XML renderer tests', () => {
             </attributes>
             <note>
                 <pitch>
-                    <step>c</step>
+                    <step>C</step>
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
@@ -108,7 +108,7 @@ describe('single note XML renderer tests', () => {
             </attributes>
             <note>
                 <pitch>
-                    <step>a</step>
+                    <step>A</step>
                     <octave>3</octave>
                     <alter>1</alter>
                 </pitch>
@@ -166,7 +166,7 @@ describe('single note XML renderer tests', () => {
             </attributes>
             <note>
                 <pitch>
-                    <step>g</step>
+                    <step>G</step>
                     <octave>5</octave>
                     <alter>-1</alter>
                 </pitch>
@@ -284,7 +284,7 @@ describe('single note XML renderer tests', () => {
             </attributes>
             <note>
                 <pitch>
-                    <step>g</step>
+                    <step>G</step>
                     <octave>7</octave>
                     <alter>1</alter>
                 </pitch>
