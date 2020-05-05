@@ -38,6 +38,7 @@ export function renderPitch(
         line: '2',
         octave: 0,
     };
+    let dynamic = input.properties?.dynamic;
     let prerender: Prerender = {
         isNewMeasure: false,
         attributes: {},
@@ -194,16 +195,23 @@ export function renderPitch(
     pitchText += `
         </pitch>`;
 
-    let noteText = `
+    let noteText = '';
+    if (dynamic) {
+        noteText += `
+    <direction placement="below">
+        <direction-type>
+            <dynamics default-x="56" default-y="-67" halign="left">
+                <${dynamic}/>
+            </dynamics>
+        </direction-type>
+        <offset sound="yes">8</offset>
+        <sound dynamics="40"/>
+    </direction>`;
+    }
+    noteText += `
     <note>
         ${pitchText}`;
 
-    /*
-  if (input.returnValue.rhythmName) {
-    noteText += `
-    <type>${input.returnValue.rhythmName}</type>`
-  };
-   */
     noteText += `
         <duration>${numBeats}</duration>
         <type>${duration ? (duration.isDotted ? 'dotted ' : '') + duration.rhythmName : 'quarter'}</type>

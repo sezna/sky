@@ -1,0 +1,7 @@
+fn main(): list list pitch_rhythm {
+  list list pitch_rhythm x = [[c4 quarter, d4 quarter, e4 quarter, f4 quarter],
+           [a4 whole]];
+  x.dynamic = f;
+  x[0][2].dynamic = pp;
+  return x;
+}

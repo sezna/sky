@@ -152,7 +152,7 @@ fn main(): list list pitch {
         );
     });
 
-    it('List list pitch: sample program #1', () => {
+    it('List list pitch: sample program #2', () => {
         let program = `fn main(): list list pitch {
   list list pitch x = [
           [c#4 , c#4 , d4 , e4 ],
@@ -355,7 +355,151 @@ fn main(): list list pitch {
     </part>
 </score-partwise>`);
     });
-    it('List list pitch: sample program #1', () => {
+    it('should support dynamics', () => {
+        let program = `
+fn main(): list list pitch_rhythm {
+  list list pitch_rhythm x = [[c4 quarter, d4 quarter, e4 quarter, f4 quarter],
+           [a4 whole]];
+  x.dynamic = f;
+  x[0][2].dynamic = pp;
+  return x;
+}`
+
+        let stepsResult = makeSyntaxTree(tokenize(program));
+        if (isLeft(stepsResult)) {
+            console.log(`Parse error at line ${stepsResult.left.line}, column ${stepsResult.left.column}`);
+            expect(true).toBe(false);
+            return;
+        }
+        let runtimeResult = runtime(stepsResult.right);
+        if (isLeft(runtimeResult)) {
+            console.log(`Runtime error: ${runtimeResult.left.reason}`);
+            expect(true).toBe(false);
+            return;
+        }
+
+        let renderedXml = render(runtimeResult.right);
+        expect(renderedXml).toBe(`<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE score-partwise PUBLIC
+    "-//Recordare//DTD MusicXML 3.0 Partwise//EN"
+    "http://www.musicxml.org/dtds/partwise.dtd">
+<score-partwise version="3.0">
+    <part-list>
+      <score-part id="P1">
+        <part-name>P1</part-name>
+      </score-part>
+      <score-part id="P2">
+        <part-name>P2</part-name>
+      </score-part>
+    </part-list>
+    <part id="P1">
+        <measure number="1">
+            <attributes>
+                <divisions>144</divisions>
+                <key>
+                    <fifths>0</fifths>
+                    <mode>major</mode>
+                </key>
+                <time>
+                    <beats>4</beats>
+                    <beat-type>4</beat-type>
+                </time>
+                <clef>
+                    <sign>G</sign>
+                    <line>2</line>
+                </clef>
+            </attributes>
+            <direction placement="below">
+                <direction-type>
+                    <dynamics default-x="56" default-y="-67" halign="left">
+                        <f/>
+                    </dynamics>
+                </direction-type>
+                <offset sound="yes">8</offset>
+                <sound dynamics="40"/>
+            </direction>
+            <note>
+                <pitch>
+                    <step>C</step>
+                    <octave>4</octave>
+                </pitch>
+                <duration>144</duration>
+                <type>quarter</type>
+            </note>
+            <note>
+                <pitch>
+                    <step>D</step>
+                    <octave>4</octave>
+                </pitch>
+                <duration>144</duration>
+                <type>quarter</type>
+            </note>
+            <direction placement="below">
+                <direction-type>
+                    <dynamics default-x="56" default-y="-67" halign="left">
+                        <pp/>
+                    </dynamics>
+                </direction-type>
+                <offset sound="yes">8</offset>
+                <sound dynamics="40"/>
+            </direction>
+            <note>
+                <pitch>
+                    <step>E</step>
+                    <octave>4</octave>
+                </pitch>
+                <duration>144</duration>
+                <type>quarter</type>
+            </note>
+            <note>
+                <pitch>
+                    <step>F</step>
+                    <octave>4</octave>
+                </pitch>
+                <duration>144</duration>
+                <type>quarter</type>
+            </note>
+        </measure>
+    </part>
+    <part id="P2">
+        <measure number="1">
+            <attributes>
+                <divisions>144</divisions>
+                <key>
+                    <fifths>0</fifths>
+                    <mode>major</mode>
+                </key>
+                <time>
+                    <beats>4</beats>
+                    <beat-type>4</beat-type>
+                </time>
+                <clef>
+                    <sign>G</sign>
+                    <line>2</line>
+                </clef>
+            </attributes>
+            <direction placement="below">
+                <direction-type>
+                    <dynamics default-x="56" default-y="-67" halign="left">
+                        <f/>
+                    </dynamics>
+                </direction-type>
+                <offset sound="yes">8</offset>
+                <sound dynamics="40"/>
+            </direction>
+            <note>
+                <pitch>
+                    <step>A</step>
+                    <octave>4</octave>
+                </pitch>
+                <duration>576</duration>
+                <type>whole</type>
+            </note>
+        </measure>
+    </part>
+</score-partwise>`);
+    });
+    it('List list pitch: sample program #3', () => {
         let program = `fn main(): list list pitch_rhythm {
   list list pitch_rhythm x = [
           [c#4 quarter,  c#4 quarter,  d4 quarter,  e4 quarter],
