@@ -9,6 +9,7 @@ import {
     consumeIfUntilThen,
     consumeThenUntilElse,
     consumeElseUntilEnd,
+    consumeChord,
 } from './consumers';
 import { precedence, opReturnTypeMap } from './utils';
 import { LiteralExp, isLiteral, liftTokenIntoLiteral } from './literal';
@@ -73,7 +74,7 @@ export function parseExpression(
     // We continually take the first token in the expression and try to reduce it.
     while (expressionContents.length > 0 && expressionContents[0].tokenType !== 'statement-terminator') {
         if (expressionContents[0].tokenType === 'name') {
-            // If the token is some sort of identifier, it should be in either the function of variable namespace.
+            // If the token is some sort of identifier, it should be in either the function or variable namespace.
             let matchingVariables = variableNamespace.filter(
                 x => x.varName.value.value === expressionContents[0].value.value,
             );
@@ -385,12 +386,8 @@ export function parseExpression(
                 variableNamespace,
             );
             if (isLeft(listContentsResult)) {
-                //console.log('yo this was an error');
                 return listContentsResult;
             }
-            //console.log('this should be literalList: ', listContentsResult.right.listContents[0].returnType);
-            //console.log('after consuming list contents:\n', listContentsResult.right.listContents as any);
-            //console.log('right return type is: ', listContentsResult.right.listContents[0].returnType);
             let returnType = 'list ' + listContentsResult.right.listContents[0].returnType;
             let literalValue = {
                 _type: 'LiteralList' as const,
@@ -513,6 +510,13 @@ export function parseExpression(
                 elseBranch,
                 returnType,
             });
+        } else if (expressionContents[0].tokenType === 'chord-container') {
+            // chords are denoted by backslashes
+            // like this: \c4 e4 g4\ quarter
+            // that's a c major quarter chord
+            // we parse it as a series of literal pitches
+            console.log('unimplemented');
+            consumeChord(expressionContents);
         } else {
             return left({
                 line: expressionContents[0].value.line,

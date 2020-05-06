@@ -363,7 +363,7 @@ fn main(): list list pitch_rhythm {
   x.dynamic = f;
   x[0][2].dynamic = pp;
   return x;
-}`
+}`;
 
         let stepsResult = makeSyntaxTree(tokenize(program));
         if (isLeft(stepsResult)) {

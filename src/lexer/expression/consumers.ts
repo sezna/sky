@@ -5,6 +5,7 @@ import { Expression } from '../expression';
 import { parseExpression } from './expression';
 import { FunctionDeclaration } from '../function-declaration';
 import { VariableDeclaration } from '../variable-declaration';
+import { liftTokenIntoLiteral } from './literal/lift-token-into-literal';
 /// Consume input tokens that begin with an expression until the end of that expression.
 /// If successful, returns the remaining input with the expression removed.
 export function consumeExpression(input: Tokens): Either<ParseError, { input: Tokens; tokens: Tokens }> {
@@ -400,5 +401,62 @@ export function consumeAndLiftListContents(
         line: 0,
         column: 0,
         reason: `unimplemented.`,
+    });
+}
+
+export function consumeChord(input: Tokens): Either<ParseError, { input: Tokens; tokens: Tokens }> {
+    console.log('consuming chord');
+    let firstBackSlash = input.shift();
+    if (firstBackSlash === undefined) {
+        return left({
+            line: 0,
+            column: 0,
+            reason:
+                "Attempted to parse a chord that didn't exist. This is an error with the compiler. Please file an issue at https://github.com/sezna/sky and include the code that caused this error.",
+        });
+    }
+    if (firstBackSlash.tokenType !== 'chord-container') {
+        return left({
+            line: 0,
+            column: 0,
+            reason:
+                "Attempted to parse a chord that didn't start with a backslash. This is an error with the compiler. Please file an issue at https://github.com/sezna/sky and include the code that caused this error.",
+        });
+    }
+
+    let chordBuffer = [];
+    let chordNotOver = true;
+    while (chordNotOver) {
+        let note = input.shift();
+        if (note === undefined) {
+            return left({
+                line: firstBackSlash.value.line,
+                column: firstBackSlash.value.column,
+                reason: String.raw`Chord was never terminated. A chord should be both preceded and succeeded by a backslash ("\").`,
+            });
+        }
+        if (note.tokenType === 'chord-container') {
+            chordNotOver = false;
+            continue;
+        }
+        let parsedNoteResult = liftTokenIntoLiteral(note);
+        if (isLeft(parsedNoteResult)) {
+            return parsedNoteResult;
+        } else if (parsedNoteResult.right.returnType !== 'pitch') {
+            return left({
+                line: note.value.line,
+                column: note.value.column,
+                reason: `Chords may only contain pitches. "${note.value.value}" is of type "${parsedNoteResult.right.returnType}", not "pitch".`,
+            });
+        }
+        chordBuffer.push(parsedNoteResult.right);
+    }
+
+    console.log('CHORD CONTENTS ARE ', JSON.stringify(chordBuffer, null, 2));
+
+    return left({
+        line: 0,
+        column: 0,
+        reason: 'unimplemented',
     });
 }

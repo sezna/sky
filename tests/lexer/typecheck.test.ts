@@ -224,7 +224,7 @@ describe('function application typechecking', () => {
         expect(steps.left.reason).toBe('Operator + is not implemented for type "number" and "pitch"');
     });
     it("Should reject a function which doesn't return anything", () => {
-        let program = `fn main():song { --the lack of "song" return should get caught
+        let program = `fn main(): number { --the lack of "number" return should get caught
       pitch result = C#1;
       return false;
     }
@@ -236,7 +236,7 @@ describe('function application typechecking', () => {
         }
         expect(isLeft(steps)).toBe(true);
         expect(steps.left.reason).toBe(
-            'Function "main" is declared to return type "song" but actually returns type "boolean"',
+            'Function "main" is declared to return type "number" but actually returns type "boolean"',
         );
     });
     it('Should identify in a complicated expression an invalid function application type', () => {
@@ -245,7 +245,7 @@ describe('function application typechecking', () => {
        return false;
     }
 
-    fn main():song { --the lack of "song" return should get caught
+    fn main(): pitch { --the lack of "pitch" return should get caught
       number x = 10;
       number y = 20;
       number z = (1 + x) - (3 * y * x) + (x - other_func());
