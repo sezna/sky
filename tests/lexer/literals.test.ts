@@ -22,14 +22,14 @@ pitch outofnames = c4;
             return;
         }
         let steps = stepsResult.right;
-        expect((steps[0] as any).varBody.literalValue.midiNumber).toBe(21);
-        expect((steps[0] as any).varBody.literalValue.pitchNumber).toBe(0);
-        expect((steps[1] as any).varBody.literalValue.midiNumber).toBe(22);
-        expect((steps[1] as any).varBody.literalValue.pitchNumber).toBe(1);
-        expect((steps[2] as any).varBody.literalValue.midiNumber).toBe(34);
-        expect((steps[2] as any).varBody.literalValue.pitchNumber).toBe(13);
-        expect((steps[3] as any).varBody.literalValue.midiNumber).toBe(60);
-        expect((steps[3] as any).varBody.literalValue.pitchNumber).toBe(39);
+        expect((steps[0] as any).varBody.literalValue[0].midiNumber).toBe(21);
+        expect((steps[0] as any).varBody.literalValue[0].pitchNumber).toBe(0);
+        expect((steps[1] as any).varBody.literalValue[0].midiNumber).toBe(22);
+        expect((steps[1] as any).varBody.literalValue[0].pitchNumber).toBe(1);
+        expect((steps[2] as any).varBody.literalValue[0].midiNumber).toBe(34);
+        expect((steps[2] as any).varBody.literalValue[0].pitchNumber).toBe(13);
+        expect((steps[3] as any).varBody.literalValue[0].midiNumber).toBe(60);
+        expect((steps[3] as any).varBody.literalValue[0].pitchNumber).toBe(39);
     });
     it('Should reject an invalid pitch', () => {
         let tokens = tokenize(`pitch x = c0; -- there is no c0
@@ -61,11 +61,24 @@ pitch outofnames = c4;
             _type: 'LiteralExp',
             literalValue: {
                 _type: 'LiteralPitch',
-                accidental: 'natural',
-                midiNumber: 60,
-                noteName: 'c',
-                octave: 4,
-                pitchNumber: 39,
+                pitches: [
+                    {
+                        _type: 'Pitch',
+                        accidental: 'natural',
+                        midiNumber: 60,
+                        noteName: 'c',
+                        octave: 4,
+                        pitchNumber: 39,
+                        token: {
+                            tokenType: 'pitch-literal',
+                            value: {
+                                column: 17,
+                                line: 1,
+                                value: 'cn4',
+                            },
+                        },
+                    },
+                ],
                 returnType: 'pitch',
                 token: { tokenType: 'pitch-literal', value: { column: 17, line: 1, value: 'cn4' } },
             },
@@ -75,11 +88,24 @@ pitch outofnames = c4;
             _type: 'LiteralExp',
             literalValue: {
                 _type: 'LiteralPitch',
-                accidental: undefined,
-                midiNumber: 62,
-                noteName: 'd',
-                octave: 4,
-                pitchNumber: 41,
+                pitches: [
+                    {
+                        _type: 'Pitch',
+                        accidental: undefined,
+                        midiNumber: 62,
+                        noteName: 'd',
+                        octave: 4,
+                        pitchNumber: 41,
+                        token: {
+                            tokenType: 'pitch-literal',
+                            value: {
+                                column: 22,
+                                line: 1,
+                                value: 'd4',
+                            },
+                        },
+                    },
+                ],
                 returnType: 'pitch',
                 token: { tokenType: 'pitch-literal', value: { column: 22, line: 1, value: 'd4' } },
             },
@@ -89,11 +115,24 @@ pitch outofnames = c4;
             _type: 'LiteralExp',
             literalValue: {
                 _type: 'LiteralPitch',
-                accidental: undefined,
-                midiNumber: 60,
-                noteName: 'c',
-                octave: 4,
-                pitchNumber: 39,
+                pitches: [
+                    {
+                        _type: 'Pitch',
+                        accidental: undefined,
+                        midiNumber: 60,
+                        noteName: 'c',
+                        octave: 4,
+                        pitchNumber: 39,
+                        token: {
+                            tokenType: 'pitch-literal',
+                            value: {
+                                column: 67,
+                                line: 3,
+                                value: 'c4',
+                            },
+                        },
+                    },
+                ],
                 returnType: 'pitch',
                 token: { tokenType: 'pitch-literal', value: { column: 67, line: 3, value: 'c4' } },
             },

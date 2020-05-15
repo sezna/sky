@@ -49,19 +49,23 @@ export interface LiteralRhythm {
 
 export interface LiteralPitch {
     _type: 'LiteralPitch';
-    noteName: string;
-    accidental?: Accidental;
-    octave: number;
     token: Token;
-    midiNumber: number;
-    pitchNumber: number;
+    pitches: Pitch[];
     returnType: 'pitch';
 }
 
+export interface Pitch {
+    noteName: string;
+    accidental?: Accidental;
+    octave: number;
+    midiNumber: number;
+    pitchNumber: number;
+}
+
 export interface LiteralChord {
-  _type: 'LiteralChord';
-  notes: LiteralPitch[];
-  returnType: 'chord'; // TODO should this be a type of pitch?
+    _type: 'LiteralChord';
+    notes: LiteralPitch[];
+    returnType: 'chord'; // TODO should this be a type of pitch?
 }
 
 export interface LiteralBoolean {
@@ -73,10 +77,8 @@ export interface LiteralBoolean {
 
 export interface LiteralPitchRhythm {
     _type: 'LiteralPitchRhythm';
+    pitches: Pitch[];
     rhythm: LiteralRhythm;
-    accidental?: Accidental;
-    octave: number;
-    noteName: string;
     token: Token;
     returnType: 'pitch_rhythm';
     // TODO midiValue: number;

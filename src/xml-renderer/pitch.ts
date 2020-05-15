@@ -1,6 +1,7 @@
 import { RuntimeOutput } from '../runtime';
 import { calculateDuration } from './utils';
 import { LiteralRhythm } from '../lexer/expression/literal';
+import { renderChord } from './chord';
 
 const divisions = 144;
 export interface PitchRenderResult {
@@ -30,6 +31,12 @@ export function renderPitch(
         measureNumber: 0,
     },
 ): PitchRenderResult {
+    console.log('Input return value is: ', JSON.stringify(input.returnValue, null, 2));
+    if (input.returnValue.pitches.length === 1) {
+        input.returnValue = { ...input.returnValue, ...input.returnValue.pitches[0] };
+    } else {
+        return renderChord(input, isLast, duration, status);
+    }
     let { timeNumerator, timeDenominator, beatsThusFar, measureNumber } = status;
     let fifths = (input.properties && input.properties.key && (input.properties.key as any).keyData?.fifths) || 0;
     let mode = (input.properties && input.properties.key && (input.properties.key as any).quality) || 'major';
