@@ -495,7 +495,7 @@ export function parseExpression(
                     reason: `Branches of if expression do not return the same type. The "then" branch returns type ${thenBranch.returnType} but the "else" branch returns type ${elseBranch.returnType}`,
                 });
             }
-            // If there is no else branch, then this must return 'none'/
+            // If there is no else branch, then this must return 'none'
             let returnType;
             if (!elseBranch) {
                 returnType = 'none';
@@ -516,7 +516,19 @@ export function parseExpression(
             // that's a c major quarter chord
             // we parse it as a series of literal pitches
             console.log('unimplemented');
-            consumeChord(expressionContents);
+            let res = consumeChord(expressionContents);
+            if (isLeft(consumeChord)) {
+                return consumeChord;
+            }
+            let chordContentTokens = res.right;
+
+            // TODO fill in the function that transforms the above into this
+            expressionStack.push({
+                _type: 'ChordExp',
+                notes,
+                rhythm, // just make it an optional field
+                // convert this to a pitch or pitch rhythm at runtime?
+            });
         } else {
             return left({
                 line: expressionContents[0].value.line,
