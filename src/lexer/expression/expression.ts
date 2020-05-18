@@ -521,7 +521,11 @@ export function parseExpression(
                 return consumeChord;
             }
             let chordContentTokens = res.right;
-
+            let notesResult = parseChord(chordContentTokens);
+          let rhythm;
+            if (/* next token is a rhythm */) {
+              // lift that into a rhythm literal
+            }
             // TODO fill in the function that transforms the above into this
             expressionStack.push({
                 _type: 'ChordExp',
