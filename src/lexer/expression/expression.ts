@@ -12,7 +12,7 @@ import {
     consumeChord,
 } from './consumers';
 import { precedence, opReturnTypeMap } from './utils';
-import { LiteralExp, isLiteral, liftTokenIntoLiteral } from './literal';
+import { LiteralExp, isLiteral, liftTokenIntoLiteral, LiteralRhythm } from './literal';
 export type Expression = IfExp | VarExp | OpExp | LiteralExp | FunctionApplication;
 
 export interface IfExp {
@@ -511,28 +511,55 @@ export function parseExpression(
                 returnType,
             });
         } else if (expressionContents[0].tokenType === 'chord-container') {
+            let token = expressionContents[0];
             // chords are denoted by backslashes
             // like this: \c4 e4 g4\ quarter
             // that's a c major quarter chord
             // we parse it as a series of literal pitches
             console.log('unimplemented');
             let res = consumeChord(expressionContents);
-            if (isLeft(consumeChord)) {
-                return consumeChord;
+            if (isLeft(res)) {
+                return res;
             }
-            let chordContentTokens = res.right;
-            let notesResult = parseChord(chordContentTokens);
-          let rhythm;
-            if (/* next token is a rhythm */) {
-              // lift that into a rhythm literal
+
+            expressionContents = res.right.input;
+
+            let notes = res.right.pitches;
+            // let notesResult = parseChord(chordContentTokens);
+            //  if (isLeft(notesResult)) { return notesResult; }
+            //     let notes = notesResult.right.notes;
+            if (expressionContents[0].tokenType === 'rhythm-literal') {
+                console.log('progressing to rhythm');
+                let rhythmResult = liftTokenIntoLiteral(expressionContents[0]);
+                if (isLeft(rhythmResult)) {
+                    return rhythmResult;
+                }
+                expressionContents.shift();
+                let rhythm = rhythmResult.right.literalValue as LiteralRhythm;
+                expressionStack.push({
+                    _type: 'LiteralExp',
+                    literalValue: {
+                        _type: 'LiteralPitchRhythm',
+                        pitches: notes,
+                        rhythm,
+                        token,
+                        returnType: 'pitch_rhythm',
+                    },
+                    returnType: 'pitch_rhythm',
+                });
+            } else {
+                // TODO fill in the function that transforms the above into this
+                expressionStack.push({
+                    _type: 'LiteralExp',
+                    literalValue: {
+                        _type: 'LiteralPitch',
+                        token,
+                        pitches: notes,
+                        returnType: 'pitch',
+                    },
+                    returnType: 'pitch',
+                });
             }
-            // TODO fill in the function that transforms the above into this
-            expressionStack.push({
-                _type: 'ChordExp',
-                notes,
-                rhythm, // just make it an optional field
-                // convert this to a pitch or pitch rhythm at runtime?
-            });
         } else {
             return left({
                 line: expressionContents[0].value.line,

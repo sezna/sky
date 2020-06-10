@@ -6,6 +6,7 @@ import { parseExpression } from './expression';
 import { FunctionDeclaration } from '../function-declaration';
 import { VariableDeclaration } from '../variable-declaration';
 import { liftTokenIntoLiteral } from './literal/lift-token-into-literal';
+import { LiteralPitch, Pitch } from './literal/types';
 /// Consume input tokens that begin with an expression until the end of that expression.
 /// If successful, returns the remaining input with the expression removed.
 export function consumeExpression(input: Tokens): Either<ParseError, { input: Tokens; tokens: Tokens }> {
@@ -398,13 +399,13 @@ export function consumeAndLiftListContents(
         }
     }
     return left({
-        line: 0,
-        column: 0,
-        reason: `unimplemented.`,
+        line: firstBracket.value.line,
+        column: firstBracket.value.column,
+        reason: `Input triggered an internal compiler error in nested list parsing. Please file an issue at github.com/sezna/sky with the program that triggered this error.`,
     });
 }
 
-export function consumeChord(input: Tokens): Either<ParseError, { input: Tokens; tokens: Tokens }> {
+export function consumeChord(input: Tokens): Either<ParseError, { input: Tokens; pitches: Pitch[] }> {
     console.log('consuming chord');
     let firstBackSlash = input.shift();
     if (firstBackSlash === undefined) {
@@ -449,10 +450,14 @@ export function consumeChord(input: Tokens): Either<ParseError, { input: Tokens;
                 reason: `Chords may only contain pitches. "${note.value.value}" is of type "${parsedNoteResult.right.returnType}", not "pitch".`,
             });
         }
-        chordBuffer.push(parsedNoteResult.right);
+        // this should only ever have a length of one since we call it individually on the pitches contained within a chord
+        chordBuffer.push((parsedNoteResult.right.literalValue as LiteralPitch).pitches[0]);
     }
 
-    console.log('CHORD CONTENTS ARE ', JSON.stringify(chordBuffer, null, 2));
+    return right({
+        input,
+        pitches: chordBuffer,
+    });
 
     return left({
         line: 0,

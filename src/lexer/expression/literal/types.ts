@@ -62,11 +62,13 @@ export interface Pitch {
     pitchNumber: number;
 }
 
+/*
 export interface LiteralChord {
     _type: 'LiteralChord';
     notes: LiteralPitch[];
     returnType: 'chord'; // TODO should this be a type of pitch?
 }
+   */
 
 export interface LiteralBoolean {
     _type: 'LiteralBoolean';
