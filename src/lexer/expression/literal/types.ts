@@ -50,11 +50,12 @@ export interface LiteralRhythm {
 export interface LiteralPitch {
     _type: 'LiteralPitch';
     token: Token;
-    pitches: Pitch[];
+    pitches: (Pitch | Expression)[];
     returnType: 'pitch';
 }
 
 export interface Pitch {
+    _type: "Pitch",
     noteName: string;
     accidental?: Accidental;
     octave: number;
@@ -79,7 +80,7 @@ export interface LiteralBoolean {
 
 export interface LiteralPitchRhythm {
     _type: 'LiteralPitchRhythm';
-    pitches: Pitch[];
+    pitches: (Pitch | Expression)[];
     rhythm: LiteralRhythm;
     token: Token;
     returnType: 'pitch_rhythm';

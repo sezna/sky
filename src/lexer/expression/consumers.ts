@@ -54,7 +54,13 @@ export function consumeExpression(input: Tokens): Either<ParseError, { input: To
         let closeCurlyBracketCount = 0;
         // keep track of this for a good error message
         let prevToken = token;
-        while (closeCurlyBracketCount < openCurlyBracketCount || token.tokenType !== 'statement-terminator') {
+        console.log("consumed ", token?.value.value);
+        let insideOfChord = false;
+        while (closeCurlyBracketCount < openCurlyBracketCount || insideOfChord || token.tokenType !== 'statement-terminator') {
+            if (token.tokenType === 'chord-container') {
+                insideOfChord = !insideOfChord;
+            }
+            console.log("token is ", token.value.value);
             expressionBuffer.push(token);
             token = input.shift()!;
             if (token === undefined) {
@@ -67,7 +73,7 @@ export function consumeExpression(input: Tokens): Either<ParseError, { input: To
                 openCurlyBracketCount += 1;
             } else if (token.value.value === '}') {
                 closeCurlyBracketCount += 1;
-            }
+            } 
         }
     }
     // If there is no actual content to the expression, i.e. it has only (), {}, or ;, then it is invalid.
@@ -405,7 +411,8 @@ export function consumeAndLiftListContents(
     });
 }
 
-export function consumeChord(input: Tokens): Either<ParseError, { input: Tokens; pitches: Pitch[] }> {
+export function consumeChord(input: Tokens, functionNamespace: FunctionDeclaration[], variableNamespace: VariableDeclaration[]): Either<ParseError, { input: Tokens; pitches: (Pitch | Expression)[] }> {
+    console.log("Consuming chord on ", JSON.stringify(input, null, 2));
     let firstBackSlash = input.shift();
     if (firstBackSlash === undefined) {
         return left({
@@ -439,6 +446,15 @@ export function consumeChord(input: Tokens): Either<ParseError, { input: Tokens;
             chordNotOver = false;
             continue;
         }
+        if (note.tokenType === 'name') {
+            let thing = [note, ...input];
+            console.log("giving ", JSON.stringify(thing, null, 2), "to parseExpression");
+            let res = parseExpression([note, ...input], functionNamespace, variableNamespace);
+            if (isLeft(res)) {return res;}
+            chordBuffer.push(res.right.expression);
+            input = res.right.input;
+
+        } else {
         let parsedNoteResult = liftTokenIntoLiteral(note);
         if (isLeft(parsedNoteResult)) {
             return parsedNoteResult;
@@ -452,15 +468,10 @@ export function consumeChord(input: Tokens): Either<ParseError, { input: Tokens;
         // this should only ever have a length of one since we call it individually on the pitches contained within a chord
         chordBuffer.push((parsedNoteResult.right.literalValue as LiteralPitch).pitches[0]);
     }
+    }
 
     return right({
         input,
         pitches: chordBuffer,
-    });
-
-    return left({
-        line: 0,
-        column: 0,
-        reason: 'unimplemented',
     });
 }

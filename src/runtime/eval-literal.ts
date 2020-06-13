@@ -3,6 +3,8 @@ import { Either, right, left, isLeft } from 'fp-ts/lib/Either';
 import { Token } from '../lexer/tokenizer';
 import { RuntimeError } from './';
 import { evaluate } from './evaluate';
+import { Expression } from '../lexer/expression';
+import { Pitch } from '../lexer/expression/literal/types';
 import { FunctionEnvironment, VariableEnvironment } from './environments';
 /**
  * This function needs the environments for evaluating a list, which could contain non-literals.
@@ -26,6 +28,30 @@ export function evalLiteral(
             returnType = 'degree';
             break;
         case 'LiteralPitch':
+            if (literal.pitches.length > 1) {
+                let pitchBuffer: Pitch[] = [];
+                // If any pitches in this list are still expressions, they need to be evaluated here.
+                for (let i = 0; i < literal.pitches.length; i++) {
+                    if (literal.pitches[i]._type !== "Pitch") {
+                        if ((literal.pitches[i] as Expression).returnType !== 'pitch') {
+                            return left({
+                                line: token.value.line,
+                                column: token.value.column,
+                                reason: `Element of chord "${token.value.value}" is not of type "pitch".`
+                            })
+                        }
+                        let res = evaluate(literal.pitches[i] as Expression, functionEnvironment, variableEnvironment);
+                        if (isLeft(res)) { return res; }
+                        let evaluated = res.right.returnValue;
+                        pitchBuffer = pitchBuffer.concat(evaluated.pitches);
+                        // console.log(JSON.stringify(evaluated, null, 2));
+                    }
+                    else {
+                        pitchBuffer.push(literal.pitches[i] as Pitch);
+                    }
+                }
+                literal.pitches = pitchBuffer;
+            }
             returnValue = literal as LiteralTypes.LiteralPitch;
             returnType = 'pitch';
             break;

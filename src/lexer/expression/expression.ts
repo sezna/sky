@@ -37,7 +37,7 @@ export interface OpExp {
     returnType: string;
 }
 
-interface FunctionApplication {
+export interface FunctionApplication {
     _type: 'FunctionApplication';
     functionName: Token;
     args: Expression[];
@@ -139,6 +139,7 @@ export function parseExpression(
                         leftParens.value.value !== '(' ||
                         rightParens.value.value !== ')'
                     ) {
+                        console.log("left", leftParens, "right", rightParens);
                         return left({
                             line: name.value.line,
                             column: name.value.column,
@@ -516,7 +517,7 @@ export function parseExpression(
             // like this: \c4 e4 g4\ quarter
             // that's a c major quarter chord
             // we parse it as a series of literal pitches
-            let res = consumeChord(expressionContents);
+            let res = consumeChord(expressionContents, functionNamespace, variableNamespace);
             if (isLeft(res)) {
                 return res;
             }
@@ -527,7 +528,7 @@ export function parseExpression(
             // let notesResult = parseChord(chordContentTokens);
             //  if (isLeft(notesResult)) { return notesResult; }
             //     let notes = notesResult.right.notes;
-            if (expressionContents[0].tokenType === 'rhythm-literal') {
+            if (expressionContents[0]?.tokenType === 'rhythm-literal') {
                 let rhythmResult = liftTokenIntoLiteral(expressionContents[0]);
                 if (isLeft(rhythmResult)) {
                     return rhythmResult;

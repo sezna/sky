@@ -95,7 +95,7 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
 
                 let { midiNumber, pitchNumber } = result.right;
                 let singlePitch = {
-                    _type: 'Pitch',
+                    _type: 'Pitch' as const,
                     noteName,
                     midiNumber,
                     pitchNumber,
@@ -139,7 +139,7 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
                 let { midiNumber, pitchNumber } = result.right;
                 let rhythmName = token.value.value.split(' ')[token.value.value.split(' ').length - 1] as RhythmName;
                 let singlePitch = {
-                    _type: 'Pitch',
+                    _type: 'Pitch' as const,
                     noteName,
                     midiNumber,
                     pitchNumber,
