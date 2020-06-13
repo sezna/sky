@@ -516,7 +516,6 @@ export function parseExpression(
             // like this: \c4 e4 g4\ quarter
             // that's a c major quarter chord
             // we parse it as a series of literal pitches
-            console.log('unimplemented');
             let res = consumeChord(expressionContents);
             if (isLeft(res)) {
                 return res;
