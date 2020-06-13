@@ -406,7 +406,6 @@ export function consumeAndLiftListContents(
 }
 
 export function consumeChord(input: Tokens): Either<ParseError, { input: Tokens; pitches: Pitch[] }> {
-    console.log('consuming chord');
     let firstBackSlash = input.shift();
     if (firstBackSlash === undefined) {
         return left({

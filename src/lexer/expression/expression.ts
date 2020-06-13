@@ -529,7 +529,6 @@ export function parseExpression(
             //  if (isLeft(notesResult)) { return notesResult; }
             //     let notes = notesResult.right.notes;
             if (expressionContents[0].tokenType === 'rhythm-literal') {
-                console.log('progressing to rhythm');
                 let rhythmResult = liftTokenIntoLiteral(expressionContents[0]);
                 if (isLeft(rhythmResult)) {
                     return rhythmResult;
