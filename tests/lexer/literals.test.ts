@@ -22,14 +22,14 @@ pitch outofnames = c4;
             return;
         }
         let steps = stepsResult.right;
-        expect((steps[0] as any).varBody.literalValue[0].midiNumber).toBe(21);
-        expect((steps[0] as any).varBody.literalValue[0].pitchNumber).toBe(0);
-        expect((steps[1] as any).varBody.literalValue[0].midiNumber).toBe(22);
-        expect((steps[1] as any).varBody.literalValue[0].pitchNumber).toBe(1);
-        expect((steps[2] as any).varBody.literalValue[0].midiNumber).toBe(34);
-        expect((steps[2] as any).varBody.literalValue[0].pitchNumber).toBe(13);
-        expect((steps[3] as any).varBody.literalValue[0].midiNumber).toBe(60);
-        expect((steps[3] as any).varBody.literalValue[0].pitchNumber).toBe(39);
+        expect((steps[0] as any).varBody.literalValue.pitches[0].midiNumber).toBe(21);
+        expect((steps[0] as any).varBody.literalValue.pitches[0].pitchNumber).toBe(0);
+        expect((steps[1] as any).varBody.literalValue.pitches[0].midiNumber).toBe(22);
+        expect((steps[1] as any).varBody.literalValue.pitches[0].pitchNumber).toBe(1);
+        expect((steps[2] as any).varBody.literalValue.pitches[0].midiNumber).toBe(34);
+        expect((steps[2] as any).varBody.literalValue.pitches[0].pitchNumber).toBe(13);
+        expect((steps[3] as any).varBody.literalValue.pitches[0].midiNumber).toBe(60);
+        expect((steps[3] as any).varBody.literalValue.pitches[0].pitchNumber).toBe(39);
     });
     it('Should reject an invalid pitch', () => {
         let tokens = tokenize(`pitch x = c0; -- there is no c0

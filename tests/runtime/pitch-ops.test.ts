@@ -27,12 +27,12 @@ describe('pitch operator tests', () => {
         let variableEnvironment = result.right.variableEnvironment;
         expect((variableEnvironment['third'] as any).varType).toBe('list pitch');
         //        expect((variableEnvironment['third'] as any).value).toHaveLength(2);
-        expect((variableEnvironment['third'] as any).value[0].noteName).toBe('a');
-        expect((variableEnvironment['third'] as any).value[0].accidental).toBe('sharp');
-        expect((variableEnvironment['third'] as any).value[0].octave).toBe(2);
-        expect((variableEnvironment['third'] as any).value[1].noteName).toBe('b');
-        expect((variableEnvironment['third'] as any).value[1].accidental).toBe(undefined);
-        expect((variableEnvironment['third'] as any).value[1].octave).toBe(0);
+        expect((variableEnvironment['third'] as any).value[0].pitches[0].noteName).toBe('a');
+        expect((variableEnvironment['third'] as any).value[0].pitches[0].accidental).toBe('sharp');
+        expect((variableEnvironment['third'] as any).value[0].pitches[0].octave).toBe(2);
+        expect((variableEnvironment['third'] as any).value[1].pitches[0].noteName).toBe('b');
+        expect((variableEnvironment['third'] as any).value[1].pitches[0].accidental).toBe(undefined);
+        expect((variableEnvironment['third'] as any).value[1].pitches[0].octave).toBe(0);
     });
     it('Should be able to add a pitch into a list pitch of pitches', () => {
         let tokens = tokenize(`fn main(): number {
@@ -57,9 +57,9 @@ describe('pitch operator tests', () => {
         }
         let variableEnvironment = result.right.variableEnvironment;
         expect((variableEnvironment['fourth'] as any).varType).toBe('list pitch');
-        expect((variableEnvironment['fourth'] as any).value[2].noteName).toBe('c');
-        expect((variableEnvironment['fourth'] as any).value[2].accidental).toBe('sharp');
-        expect((variableEnvironment['fourth'] as any).value[2].octave).toBe(2);
+        expect((variableEnvironment['fourth'] as any).value[2].pitches[0].noteName).toBe('c');
+        expect((variableEnvironment['fourth'] as any).value[2].pitches[0].accidental).toBe('sharp');
+        expect((variableEnvironment['fourth'] as any).value[2].pitches[0].octave).toBe(2);
     });
     it('should not be able to subtract two pitches', () => {
         let tokens = tokenize(`fn main(): number {

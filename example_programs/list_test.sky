@@ -1,5 +1,8 @@
 
-fn main(): song {
-	list x = [c5, d4, a1];
-	list z = x + c#1;
+fn main(): list list pitch_rhythm {
+	return [
+		[c5 quarter, d4 quarter, a1 half],
+		[a4 quarter, d6 dotted half],
+		[d#5 whole],
+	];
 }

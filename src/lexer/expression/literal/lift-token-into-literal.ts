@@ -84,7 +84,7 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
                     accidental = ('natural' as const) as Accidental;
                 }
 
-                let result = pitchNumbers(noteName, octave, accidental as Accidental);
+                let result = pitchNumbers(noteName.toLowerCase(), octave, accidental as Accidental);
                 if (isLeft(result)) {
                     return left({
                         line: token.value.line,
@@ -127,7 +127,7 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
                     accidental = ('natural' as const) as Accidental;
                 }
 
-                let result = pitchNumbers(noteName, octave, accidental as Accidental);
+                let result = pitchNumbers(noteName.toLowerCase(), octave, accidental as Accidental);
                 if (isLeft(result)) {
                     return left({
                         line: token.value.line,
