@@ -454,7 +454,11 @@ export function consumeChord(input: Tokens, functionNamespace: FunctionDeclarati
             chordBuffer.push(res.right.expression);
             input = res.right.input;
 
-        } else {
+        } else if (note.tokenType == 'comma') {
+          // skip commas 
+        } 
+          else {
+          
         let parsedNoteResult = liftTokenIntoLiteral(note);
         if (isLeft(parsedNoteResult)) {
             return parsedNoteResult;
