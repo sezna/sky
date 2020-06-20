@@ -83,7 +83,7 @@ describe('pitch operator tests', () => {
 				pitch first = A#2; 
 				pitch second = b0; 
 				list pitch third = first + second; 
-                list pitch fourth = third + \\c#2 e3 g#4\\;
+                list pitch fourth = third + \\c#2, e3, g#4\\;
         return 0;
 			 }`);
         let steps = makeSyntaxTree(tokens);
