@@ -139,7 +139,6 @@ export function parseExpression(
                         leftParens.value.value !== '(' ||
                         rightParens.value.value !== ')'
                     ) {
-                        console.log("left", leftParens, "right", rightParens);
                         return left({
                             line: name.value.line,
                             column: name.value.column,

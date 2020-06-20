@@ -32,21 +32,22 @@ export function evalLiteral(
                 let pitchBuffer: Pitch[] = [];
                 // If any pitches in this list are still expressions, they need to be evaluated here.
                 for (let i = 0; i < literal.pitches.length; i++) {
-                    if (literal.pitches[i]._type !== "Pitch") {
+                    if (literal.pitches[i]._type !== 'Pitch') {
                         if ((literal.pitches[i] as Expression).returnType !== 'pitch') {
                             return left({
                                 line: token.value.line,
                                 column: token.value.column,
-                                reason: `Element of chord "${token.value.value}" is not of type "pitch".`
-                            })
+                                reason: `Element of chord "${token.value.value}" is not of type "pitch".`,
+                            });
                         }
                         let res = evaluate(literal.pitches[i] as Expression, functionEnvironment, variableEnvironment);
-                        if (isLeft(res)) { return res; }
+                        if (isLeft(res)) {
+                            return res;
+                        }
                         let evaluated = res.right.returnValue;
                         pitchBuffer = pitchBuffer.concat(evaluated.pitches);
                         // console.log(JSON.stringify(evaluated, null, 2));
-                    }
-                    else {
+                    } else {
                         pitchBuffer.push(literal.pitches[i] as Pitch);
                     }
                 }

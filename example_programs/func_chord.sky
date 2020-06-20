@@ -1,5 +1,5 @@
 fn returns_chord(): pitch {
-  return \c#3 d#3\;
+  return \c#3, d#3\;
 }
 
 

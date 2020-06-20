@@ -5,8 +5,7 @@ import { Expression } from '../expression';
 import { parseExpression } from './expression';
 import { FunctionDeclaration } from '../function-declaration';
 import { VariableDeclaration } from '../variable-declaration';
-import { liftTokenIntoLiteral } from './literal/lift-token-into-literal';
-import { LiteralPitch, Pitch } from './literal/types';
+import { Pitch } from './literal/types';
 /// Consume input tokens that begin with an expression until the end of that expression.
 /// If successful, returns the remaining input with the expression removed.
 export function consumeExpression(input: Tokens): Either<ParseError, { input: Tokens; tokens: Tokens }> {
@@ -54,14 +53,26 @@ export function consumeExpression(input: Tokens): Either<ParseError, { input: To
         let closeCurlyBracketCount = 0;
         // keep track of this for a good error message
         let prevToken = token;
-        console.log("consumed ", token?.value.value);
         let insideOfChord = false;
-        while (closeCurlyBracketCount < openCurlyBracketCount || insideOfChord || token.tokenType !== 'statement-terminator') {
+        while (
+            closeCurlyBracketCount < openCurlyBracketCount ||
+            insideOfChord ||
+            token.tokenType !== 'statement-terminator'
+        ) {
+            if (insideOfChord && ['comma', 'chord-container'].includes(token.tokenType)) {
+                expressionBuffer.push({
+                    tokenType: 'statement-terminator' as const,
+                    value: { line: token.value.line, column: token.value.column, value: ';' },
+                });
+            } else {
+                expressionBuffer.push(token);
+            }
             if (token.tokenType === 'chord-container') {
                 insideOfChord = !insideOfChord;
+                if (!insideOfChord) {
+                    expressionBuffer.push(token);
+                }
             }
-            console.log("token is ", token.value.value);
-            expressionBuffer.push(token);
             token = input.shift()!;
             if (token === undefined) {
                 return left({
@@ -73,7 +84,7 @@ export function consumeExpression(input: Tokens): Either<ParseError, { input: To
                 openCurlyBracketCount += 1;
             } else if (token.value.value === '}') {
                 closeCurlyBracketCount += 1;
-            } 
+            }
         }
     }
     // If there is no actual content to the expression, i.e. it has only (), {}, or ;, then it is invalid.
@@ -411,8 +422,11 @@ export function consumeAndLiftListContents(
     });
 }
 
-export function consumeChord(input: Tokens, functionNamespace: FunctionDeclaration[], variableNamespace: VariableDeclaration[]): Either<ParseError, { input: Tokens; pitches: (Pitch | Expression)[] }> {
-    console.log("Consuming chord on ", JSON.stringify(input, null, 2));
+export function consumeChord(
+    input: Tokens,
+    functionNamespace: FunctionDeclaration[],
+    variableNamespace: VariableDeclaration[],
+): Either<ParseError, { input: Tokens; pitches: (Pitch | Expression)[] }> {
     let firstBackSlash = input.shift();
     if (firstBackSlash === undefined) {
         return left({
@@ -432,46 +446,23 @@ export function consumeChord(input: Tokens, functionNamespace: FunctionDeclarati
     }
 
     let chordBuffer = [];
-    let chordNotOver = true;
-    while (chordNotOver) {
-        let note = input.shift();
-        if (note === undefined) {
-            return left({
-                line: firstBackSlash.value.line,
-                column: firstBackSlash.value.column,
-                reason: String.raw`Chord was never terminated. A chord should be both preceded and succeeded by a backslash ("\").`,
-            });
+    while (input.length > 0 && input[0].tokenType !== 'chord-container') {
+        let nextExprRes = parseExpression(input, functionNamespace, variableNamespace);
+        if (isLeft(nextExprRes)) {
+            return nextExprRes;
         }
-        if (note.tokenType === 'chord-container') {
-            chordNotOver = false;
-            continue;
-        }
-        if (note.tokenType === 'name') {
-            let thing = [note, ...input];
-            console.log("giving ", JSON.stringify(thing, null, 2), "to parseExpression");
-            let res = parseExpression([note, ...input], functionNamespace, variableNamespace);
-            if (isLeft(res)) {return res;}
-            chordBuffer.push(res.right.expression);
-            input = res.right.input;
-
-        } else if (note.tokenType == 'comma') {
-          // skip commas 
-        } 
-          else {
-          
-        let parsedNoteResult = liftTokenIntoLiteral(note);
-        if (isLeft(parsedNoteResult)) {
-            return parsedNoteResult;
-        } else if (parsedNoteResult.right.returnType !== 'pitch') {
-            return left({
-                line: note.value.line,
-                column: note.value.column,
-                reason: `Chords may only contain pitches. "${note.value.value}" is of type "${parsedNoteResult.right.returnType}", not "pitch".`,
-            });
-        }
-        // this should only ever have a length of one since we call it individually on the pitches contained within a chord
-        chordBuffer.push((parsedNoteResult.right.literalValue as LiteralPitch).pitches[0]);
+        let nextExpr = nextExprRes.right.expression;
+        input = nextExprRes.right.input;
+        chordBuffer.push(nextExpr);
     }
+
+    let closingChordContainer = input.shift()!;
+    if (closingChordContainer === undefined || closingChordContainer.tokenType !== 'chord-container') {
+        return left({
+            line: firstBackSlash.value.line,
+            column: firstBackSlash.value.column,
+            reason: `Internal compiler error: please file an issue at https://github.com/sezna/sky and include the code that triggered this error. Chord parsing failed.`,
+        });
     }
 
     return right({

@@ -55,7 +55,7 @@ export interface LiteralPitch {
 }
 
 export interface Pitch {
-    _type: "Pitch",
+    _type: 'Pitch';
     noteName: string;
     accidental?: Accidental;
     octave: number;
