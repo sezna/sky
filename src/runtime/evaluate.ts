@@ -7,6 +7,7 @@ import { Step } from '../lexer/parser';
 import { Either, right, left, isLeft } from 'fp-ts/lib/Either';
 import { RuntimeError } from './';
 import { evalLiteral } from './eval-literal';
+import { evalFunction } from './eval-function';
 import * as _ from 'lodash';
 export interface EvalResult {
     functionEnvironment: FunctionEnvironment;
@@ -277,12 +278,24 @@ export function evaluate(
             column: 0,
             reason: `Attempted to evaluate a return statement. This is a bug in the compiler. Please file an issue with the code that triggered this bug at https://github.com/sezna/sky.`,
         });
-    } else {
-        return left({
-            line: 0,
-            column: 0,
-            reason: `Unimplemented step: ${step._type}`,
-        });
+    } else if (step._type === 'FunctionApplication') {
+        let func = functionEnvironment[step.functionName.value.value];
+        if (func === undefined) {
+            return left({
+                line: step.functionName.value.line,
+                column: step.functionName.value.column,
+                reason: `Function "${step.functionName.value.value}" is undefined.`,
+            });
+        }
+
+        let funcAppRes = evalFunction(func, functionEnvironment, variableEnvironment);
+        if (isLeft(funcAppRes)) {
+            return funcAppRes;
+        }
+        let funcApp = funcAppRes.right;
+        returnValue = funcApp.returnValue;
+        returnType = funcApp.returnType;
+        returnProperties = funcApp.properties;
     }
     return right({
         functionEnvironment,
