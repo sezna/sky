@@ -45,8 +45,28 @@ export function evalLiteral(
                             return res;
                         }
                         let evaluated = res.right.returnValue;
+                        while (
+                            evaluated.pitches.filter((x: any) => ['LiteralExp', 'LiteralPitch'].includes(x._type))
+                                .length > 0
+                        ) {
+                            let pitchesToRemove = [];
+                            let pitchesToAdd: Pitch[] = [];
+                            for (let i = 0; i < evaluated.pitches.length; i++) {
+                                if (evaluated.pitches[i]._type === 'LiteralExp') {
+                                    evaluated.pitches[i] = evaluated.pitches[i].literalValue;
+                                }
+                                if (evaluated.pitches[i]._type === 'LiteralPitch') {
+                                    let pitch = { ...evaluated.pitches[i] };
+                                    pitchesToAdd = pitchesToAdd.concat(pitch.pitches);
+                                    pitchesToRemove.push(i);
+                                }
+                            }
+                            for (let i = pitchesToRemove.length; i >= 0; i--) {
+                                evaluated.pitches.splice(i, 1);
+                            }
+                            evaluated.pitches = [...evaluated.pitches, ...pitchesToAdd];
+                        }
                         pitchBuffer = pitchBuffer.concat(evaluated.pitches);
-                        // console.log(JSON.stringify(evaluated, null, 2));
                     } else {
                         pitchBuffer.push(literal.pitches[i] as Pitch);
                     }

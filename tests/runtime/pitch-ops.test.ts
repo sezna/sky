@@ -113,9 +113,9 @@ describe('pitch operator tests', () => {
     });
     it('Should be able to put a chord inside of a chord', () => {
         let tokens = tokenize(`fn main(): number {
-				pitch first = \\A#2 C#3\\; 
-				pitch second = \\b5 first;\\; -- ideally this flattens out into the chord 
-                list pitch third = second + \\c#2 e3 g#4\\;
+				pitch first = \\A#2, C#3\\; 
+				pitch second = \\b5, first\\; -- ideally this flattens out into the chord 
+                list pitch third = second + \\c#2, e3, g#4\\;
         return 0;
 			 }`);
         let steps = makeSyntaxTree(tokens);
@@ -147,6 +147,16 @@ describe('pitch operator tests', () => {
         expect((variableEnvironment['third'] as any).value[1].pitches[0].accidental).toBe('sharp');
         expect((variableEnvironment['third'] as any).value[1].pitches[0].octave).toBe(2);
     });
+    it('Should reject a chord that is missing commas', () => {
+        let tokens = tokenize(`fn main(): number {
+				pitch first = \\A#2 C#3\\; 
+				pitch second = \\b5 first\\; -- ideally this flattens out into the chord 
+                list pitch third = second + \\c#2 e3 g#4\\;
+        return 0;
+			 }`);
+        let steps = makeSyntaxTree(tokens);
+        expect(isLeft(steps)).toBe(true);
+    });
     it('Should be able to put a function which returns a chord inside of a chord', () => {
         let tokens = tokenize(`
         fn returnsChord(): pitch {
@@ -154,9 +164,9 @@ describe('pitch operator tests', () => {
         }
         
         fn main(): number {
-				pitch first = \\A#2 C#3\\; 
-				pitch second = \\returnsChord(); first;\\; 
-                list pitch third = second + \\c#2 e3 g#4\\;
+				pitch first = \\A#2, C#3\\; 
+				pitch second = \\returnsChord(), first\\; 
+                list pitch third = second + \\c#2, e3, g#4\\;
         return 0;
              }
         `);

@@ -21,12 +21,14 @@ export interface IfExp {
     thenBranch: Expression;
     elseBranch?: Expression;
     returnType: string;
+    token: Token;
 }
 
 export interface VarExp {
     _type: 'VarExp';
     varName: Token;
     returnType: string;
+    token: Token;
 }
 
 export interface OpExp {
@@ -35,6 +37,7 @@ export interface OpExp {
     right: Expression;
     operator: Operator;
     returnType: string;
+    token: Token;
 }
 
 export interface FunctionApplication {
@@ -42,6 +45,7 @@ export interface FunctionApplication {
     functionName: Token;
     args: Expression[];
     returnType: string;
+    token: Token;
 }
 
 export interface Operator {
@@ -112,6 +116,7 @@ export function parseExpression(
                     _type: 'VarExp',
                     varName: expressionContents[0],
                     returnType: matchingVariables[0].varType.value.value,
+                    token: expressionContents[0],
                 });
                 expressionContents.shift();
             } else if (matchingParams.length > 0) {
@@ -120,6 +125,7 @@ export function parseExpression(
                     _type: 'VarExp',
                     varName: expressionContents[0],
                     returnType,
+                    token: expressionContents[0],
                 });
                 expressionContents.shift();
             } else if (matchingFunctions.length === 1) {
@@ -279,6 +285,7 @@ export function parseExpression(
                     functionName,
                     args,
                     returnType,
+                    token: functionName,
                 });
             } else {
                 return left({
@@ -316,6 +323,7 @@ export function parseExpression(
                     right: rhs,
                     left: lhs,
                     returnType,
+                    token: newOp.value,
                 };
                 expressionStack.push(operation);
             }
@@ -371,6 +379,7 @@ export function parseExpression(
                         left: lhs,
                         right: rhs,
                         returnType,
+                        token: operator.value,
                     });
                 }
                 // This discards the opening parenthesis in the op stack.
@@ -509,11 +518,12 @@ export function parseExpression(
                 thenBranch,
                 elseBranch,
                 returnType,
+                token,
             });
         } else if (expressionContents[0].tokenType === 'chord-container') {
             let token = expressionContents[0];
             // chords are denoted by backslashes
-            // like this: \c4 e4 g4\ quarter
+            // like this: \c4, e4, g4\ quarter
             // that's a c major quarter chord
             // we parse it as a series of literal pitches
             let res = consumeChord(expressionContents, functionNamespace, variableNamespace);
@@ -596,17 +606,26 @@ export function parseExpression(
             right: rhs,
             left: lhs,
             returnType,
+            token: operator.value,
         };
         expressionStack.push(operation);
     }
-    //    const expressionBuffer = result.right.expression;
-    // Figure out what kind of expression this is and parse it accordingly
-    // TODO
     if (expressionStack.length > 1) {
+        let token =
+            expressionStack[0]._type === 'LiteralExp'
+                ? (expressionStack[0] as LiteralExp).literalValue.token
+                : (expressionStack[0] as any).token;
+        return left({
+            line: token.value.line,
+            column: token.value.column,
+            reason: `Overflowed expression. Is there a missing comma or semicolon here?`,
+        });
+        /*
         console.warn(
             'There is an overflowed expressionStack. Perhaps something is wrong?',
             JSON.stringify(expressionStack, null, 2),
         );
+         */
     }
 
     return right({
