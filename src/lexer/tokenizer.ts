@@ -42,6 +42,7 @@ type TokenType =
     | 'else'
     | 'boolean-literal'
     | 'property'
+    | 'chord-container'
     | 'name';
 
 export function tokenize(input: string): Tokens {
@@ -99,11 +100,8 @@ export function tokenize(input: string): Tokens {
                 'boolean',
                 'chord',
                 'duration',
-                'polyphony',
                 'rhythm',
                 'note',
-                'song',
-                'piece',
                 'pitch_rhythm',
                 'degree_rhythm',
             ].includes(symbolValue)
@@ -151,6 +149,11 @@ export function tokenize(input: string): Tokens {
         } else if (symbolValue === 'list') {
             listBuffer += 'list ';
             continue;
+        } else if (symbolValue === '\\') {
+            tokens.push({
+                tokenType: 'chord-container',
+                value: symbol,
+            });
         } else {
             // `name` here denotes that it is the name of either a function or a variable in the
             // environment.
@@ -214,6 +217,7 @@ function splitOnSymbol(input: string): InputSymbol[] {
             case '+':
             case '=':
             case '/':
+            case '\\':
             case ',':
             case '%':
             case '*':

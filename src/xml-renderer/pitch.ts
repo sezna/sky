@@ -1,6 +1,7 @@
 import { RuntimeOutput } from '../runtime';
 import { calculateDuration } from './utils';
 import { LiteralRhythm } from '../lexer/expression/literal';
+//import { renderChord } from './chord';
 
 const divisions = 144;
 export interface PitchRenderResult {
@@ -30,6 +31,13 @@ export function renderPitch(
         measureNumber: 0,
     },
 ): PitchRenderResult {
+    /*
+    if (input.returnValue.pitches.length === 1) {
+        input.returnValue = { ...input.returnValue, ...input.returnValue.pitches[0] };
+    } else {
+        return renderChord(input, isLast, duration, status);
+    }
+   */
     let { timeNumerator, timeDenominator, beatsThusFar, measureNumber } = status;
     let fifths = (input.properties && input.properties.key && (input.properties.key as any).keyData?.fifths) || 0;
     let mode = (input.properties && input.properties.key && (input.properties.key as any).quality) || 'major';
@@ -173,31 +181,32 @@ export function renderPitch(
                 : ``
         }`;
     }
+    let pitchTexts = [];
+    for (let i = 0; i < input.returnValue.pitches.length; i++) {
+        let pitchText = `<pitch>
+            <step>${input.returnValue.pitches[i].noteName.toUpperCase()}</step>
+            <octave>${input.returnValue.pitches[i].octave}</octave>`;
 
-    let pitchText = `<pitch>
-            <step>${input.returnValue.noteName.toUpperCase()}</step>
-            <octave>${input.returnValue.octave}</octave>`;
-
-    if (input.returnValue.accidental) {
-        let alterTagContent = 0;
-        switch (input.returnValue.accidental) {
-            case 'flat':
-                alterTagContent = -1;
-                break;
-            case 'sharp':
-                alterTagContent = 1;
-                break;
-        }
-        pitchText += `
+        if (input.returnValue.pitches[i].accidental) {
+            let alterTagContent = 0;
+            switch (input.returnValue.pitches[i].accidental) {
+                case 'flat':
+                    alterTagContent = -1;
+                    break;
+                case 'sharp':
+                    alterTagContent = 1;
+                    break;
+            }
+            pitchText += `
             <alter>${alterTagContent}</alter>`;
-    }
+        }
 
-    pitchText += `
+        pitchText += `
         </pitch>`;
 
-    let noteText = '';
-    if (dynamic) {
-        noteText += `
+        let noteText = '';
+        if (dynamic) {
+            noteText += `
     <direction placement="below">
         <direction-type>
             <dynamics default-x="56" default-y="-67" halign="left">
@@ -207,15 +216,22 @@ export function renderPitch(
         <offset sound="yes">8</offset>
         <sound dynamics="40"/>
     </direction>`;
+        }
+        noteText += `
+    <note>${
+        i === 0
+            ? ''
+            : `
+        <chord/>`
     }
-    noteText += `
-    <note>
         ${pitchText}`;
 
-    noteText += `
+        noteText += `
         <duration>${numBeats}</duration>
         <type>${duration ? (duration.isDotted ? 'dotted ' : '') + duration.rhythmName : 'quarter'}</type>
     </note>`;
+        pitchTexts.push(noteText);
+    }
 
     let closingMeasureText =
         prerender.isEndOfMeasure || isLast
@@ -223,7 +239,7 @@ export function renderPitch(
 </measure>`
             : '';
 
-    let output = newMeasureText + noteText + closingMeasureText;
+    let output = newMeasureText + pitchTexts.join('') + closingMeasureText;
     // add indentation
     output = output
         .split('\n')

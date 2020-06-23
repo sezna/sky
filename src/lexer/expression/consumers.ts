@@ -5,6 +5,7 @@ import { Expression } from '../expression';
 import { parseExpression } from './expression';
 import { FunctionDeclaration } from '../function-declaration';
 import { VariableDeclaration } from '../variable-declaration';
+import { Pitch } from './literal/types';
 /// Consume input tokens that begin with an expression until the end of that expression.
 /// If successful, returns the remaining input with the expression removed.
 export function consumeExpression(input: Tokens): Either<ParseError, { input: Tokens; tokens: Tokens }> {
@@ -52,8 +53,26 @@ export function consumeExpression(input: Tokens): Either<ParseError, { input: To
         let closeCurlyBracketCount = 0;
         // keep track of this for a good error message
         let prevToken = token;
-        while (closeCurlyBracketCount < openCurlyBracketCount || token.tokenType !== 'statement-terminator') {
-            expressionBuffer.push(token);
+        let insideOfChord = false;
+        while (
+            closeCurlyBracketCount < openCurlyBracketCount ||
+            insideOfChord ||
+            token.tokenType !== 'statement-terminator'
+        ) {
+            if (insideOfChord && ['comma', 'chord-container'].includes(token.tokenType)) {
+                expressionBuffer.push({
+                    tokenType: 'statement-terminator' as const,
+                    value: { line: token.value.line, column: token.value.column, value: ';' },
+                });
+            } else {
+                expressionBuffer.push(token);
+            }
+            if (token.tokenType === 'chord-container') {
+                insideOfChord = !insideOfChord;
+                if (!insideOfChord) {
+                    expressionBuffer.push(token);
+                }
+            }
             token = input.shift()!;
             if (token === undefined) {
                 return left({
@@ -397,8 +416,57 @@ export function consumeAndLiftListContents(
         }
     }
     return left({
-        line: 0,
-        column: 0,
-        reason: `unimplemented.`,
+        line: firstBracket.value.line,
+        column: firstBracket.value.column,
+        reason: `Input triggered an internal compiler error in nested list parsing. Please file an issue at github.com/sezna/sky with the program that triggered this error.`,
+    });
+}
+
+export function consumeChord(
+    input: Tokens,
+    functionNamespace: FunctionDeclaration[],
+    variableNamespace: VariableDeclaration[],
+): Either<ParseError, { input: Tokens; pitches: (Pitch | Expression)[] }> {
+    let firstBackSlash = input.shift();
+    if (firstBackSlash === undefined) {
+        return left({
+            line: 0,
+            column: 0,
+            reason:
+                "Attempted to parse a chord that didn't exist. This is an error with the compiler. Please file an issue at https://github.com/sezna/sky and include the code that caused this error.",
+        });
+    }
+    if (firstBackSlash.tokenType !== 'chord-container') {
+        return left({
+            line: 0,
+            column: 0,
+            reason:
+                "Attempted to parse a chord that didn't start with a backslash. This is an error with the compiler. Please file an issue at https://github.com/sezna/sky and include the code that caused this error.",
+        });
+    }
+
+    let chordBuffer = [];
+    while (input.length > 0 && input[0].tokenType !== 'chord-container') {
+        let nextExprRes = parseExpression(input, functionNamespace, variableNamespace);
+        if (isLeft(nextExprRes)) {
+            return nextExprRes;
+        }
+        let nextExpr = nextExprRes.right.expression;
+        input = nextExprRes.right.input;
+        chordBuffer.push(nextExpr);
+    }
+
+    let closingChordContainer = input.shift()!;
+    if (closingChordContainer === undefined || closingChordContainer.tokenType !== 'chord-container') {
+        return left({
+            line: firstBackSlash.value.line,
+            column: firstBackSlash.value.column,
+            reason: `Internal compiler error: please file an issue at https://github.com/sezna/sky and include the code that triggered this error. Chord parsing failed.`,
+        });
+    }
+
+    return right({
+        input,
+        pitches: chordBuffer,
     });
 }

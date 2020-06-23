@@ -9,9 +9,10 @@ import {
     consumeIfUntilThen,
     consumeThenUntilElse,
     consumeElseUntilEnd,
+    consumeChord,
 } from './consumers';
 import { precedence, opReturnTypeMap } from './utils';
-import { LiteralExp, isLiteral, liftTokenIntoLiteral } from './literal';
+import { LiteralExp, isLiteral, liftTokenIntoLiteral, LiteralRhythm } from './literal';
 export type Expression = IfExp | VarExp | OpExp | LiteralExp | FunctionApplication;
 
 export interface IfExp {
@@ -20,12 +21,14 @@ export interface IfExp {
     thenBranch: Expression;
     elseBranch?: Expression;
     returnType: string;
+    token: Token;
 }
 
 export interface VarExp {
     _type: 'VarExp';
     varName: Token;
     returnType: string;
+    token: Token;
 }
 
 export interface OpExp {
@@ -34,13 +37,15 @@ export interface OpExp {
     right: Expression;
     operator: Operator;
     returnType: string;
+    token: Token;
 }
 
-interface FunctionApplication {
+export interface FunctionApplication {
     _type: 'FunctionApplication';
     functionName: Token;
     args: Expression[];
     returnType: string;
+    token: Token;
 }
 
 export interface Operator {
@@ -73,7 +78,7 @@ export function parseExpression(
     // We continually take the first token in the expression and try to reduce it.
     while (expressionContents.length > 0 && expressionContents[0].tokenType !== 'statement-terminator') {
         if (expressionContents[0].tokenType === 'name') {
-            // If the token is some sort of identifier, it should be in either the function of variable namespace.
+            // If the token is some sort of identifier, it should be in either the function or variable namespace.
             let matchingVariables = variableNamespace.filter(
                 x => x.varName.value.value === expressionContents[0].value.value,
             );
@@ -111,6 +116,7 @@ export function parseExpression(
                     _type: 'VarExp',
                     varName: expressionContents[0],
                     returnType: matchingVariables[0].varType.value.value,
+                    token: expressionContents[0],
                 });
                 expressionContents.shift();
             } else if (matchingParams.length > 0) {
@@ -119,6 +125,7 @@ export function parseExpression(
                     _type: 'VarExp',
                     varName: expressionContents[0],
                     returnType,
+                    token: expressionContents[0],
                 });
                 expressionContents.shift();
             } else if (matchingFunctions.length === 1) {
@@ -278,6 +285,7 @@ export function parseExpression(
                     functionName,
                     args,
                     returnType,
+                    token: functionName,
                 });
             } else {
                 return left({
@@ -315,6 +323,7 @@ export function parseExpression(
                     right: rhs,
                     left: lhs,
                     returnType,
+                    token: newOp.value,
                 };
                 expressionStack.push(operation);
             }
@@ -370,6 +379,7 @@ export function parseExpression(
                         left: lhs,
                         right: rhs,
                         returnType,
+                        token: operator.value,
                     });
                 }
                 // This discards the opening parenthesis in the op stack.
@@ -385,12 +395,8 @@ export function parseExpression(
                 variableNamespace,
             );
             if (isLeft(listContentsResult)) {
-                //console.log('yo this was an error');
                 return listContentsResult;
             }
-            //console.log('this should be literalList: ', listContentsResult.right.listContents[0].returnType);
-            //console.log('after consuming list contents:\n', listContentsResult.right.listContents as any);
-            //console.log('right return type is: ', listContentsResult.right.listContents[0].returnType);
             let returnType = 'list ' + listContentsResult.right.listContents[0].returnType;
             let literalValue = {
                 _type: 'LiteralList' as const,
@@ -498,7 +504,7 @@ export function parseExpression(
                     reason: `Branches of if expression do not return the same type. The "then" branch returns type ${thenBranch.returnType} but the "else" branch returns type ${elseBranch.returnType}`,
                 });
             }
-            // If there is no else branch, then this must return 'none'/
+            // If there is no else branch, then this must return 'none'
             let returnType;
             if (!elseBranch) {
                 returnType = 'none';
@@ -512,7 +518,56 @@ export function parseExpression(
                 thenBranch,
                 elseBranch,
                 returnType,
+                token,
             });
+        } else if (expressionContents[0].tokenType === 'chord-container') {
+            let token = expressionContents[0];
+            // chords are denoted by backslashes
+            // like this: \c4, e4, g4\ quarter
+            // that's a c major quarter chord
+            // we parse it as a series of literal pitches
+            let res = consumeChord(expressionContents, functionNamespace, variableNamespace);
+            if (isLeft(res)) {
+                return res;
+            }
+
+            expressionContents = res.right.input;
+
+            let notes = res.right.pitches;
+            // let notesResult = parseChord(chordContentTokens);
+            //  if (isLeft(notesResult)) { return notesResult; }
+            //     let notes = notesResult.right.notes;
+            if (expressionContents[0]?.tokenType === 'rhythm-literal') {
+                let rhythmResult = liftTokenIntoLiteral(expressionContents[0]);
+                if (isLeft(rhythmResult)) {
+                    return rhythmResult;
+                }
+                expressionContents.shift();
+                let rhythm = rhythmResult.right.literalValue as LiteralRhythm;
+                expressionStack.push({
+                    _type: 'LiteralExp',
+                    literalValue: {
+                        _type: 'LiteralPitchRhythm',
+                        pitches: notes,
+                        rhythm,
+                        token,
+                        returnType: 'pitch_rhythm',
+                    },
+                    returnType: 'pitch_rhythm',
+                });
+            } else {
+                // TODO fill in the function that transforms the above into this
+                expressionStack.push({
+                    _type: 'LiteralExp',
+                    literalValue: {
+                        _type: 'LiteralPitch',
+                        token,
+                        pitches: notes,
+                        returnType: 'pitch',
+                    },
+                    returnType: 'pitch',
+                });
+            }
         } else {
             return left({
                 line: expressionContents[0].value.line,
@@ -551,17 +606,26 @@ export function parseExpression(
             right: rhs,
             left: lhs,
             returnType,
+            token: operator.value,
         };
         expressionStack.push(operation);
     }
-    //    const expressionBuffer = result.right.expression;
-    // Figure out what kind of expression this is and parse it accordingly
-    // TODO
     if (expressionStack.length > 1) {
+        let token =
+            expressionStack[0]._type === 'LiteralExp'
+                ? (expressionStack[0] as LiteralExp).literalValue.token
+                : (expressionStack[0] as any).token;
+        return left({
+            line: token.value.line,
+            column: token.value.column,
+            reason: `Overflowed expression. Is there a missing comma or semicolon here?`,
+        });
+        /*
         console.warn(
             'There is an overflowed expressionStack. Perhaps something is wrong?',
             JSON.stringify(expressionStack, null, 2),
         );
+         */
     }
 
     return right({

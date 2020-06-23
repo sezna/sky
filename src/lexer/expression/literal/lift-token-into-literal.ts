@@ -84,7 +84,7 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
                     accidental = ('natural' as const) as Accidental;
                 }
 
-                let result = pitchNumbers(noteName, octave, accidental as Accidental);
+                let result = pitchNumbers(noteName.toLowerCase(), octave, accidental as Accidental);
                 if (isLeft(result)) {
                     return left({
                         line: token.value.line,
@@ -94,14 +94,19 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
                 }
 
                 let { midiNumber, pitchNumber } = result.right;
-
-                literalValue = {
-                    _type: 'LiteralPitch',
+                let singlePitch = {
+                    _type: 'Pitch' as const,
                     noteName,
                     midiNumber,
                     pitchNumber,
                     accidental: accidental as Accidental,
                     octave,
+                    token,
+                };
+
+                literalValue = {
+                    _type: 'LiteralPitch',
+                    pitches: [singlePitch],
                     token,
                     returnType: 'pitch',
                 };
@@ -122,13 +127,31 @@ export function liftTokenIntoLiteral(input: Token): Either<ParseError, LiteralEx
                     accidental = ('natural' as const) as Accidental;
                 }
 
+                let result = pitchNumbers(noteName.toLowerCase(), octave, accidental as Accidental);
+                if (isLeft(result)) {
+                    return left({
+                        line: token.value.line,
+                        column: token.value.column,
+                        reason: `Invalid pitch literal: ${token.value.value} is not a valid pitch`,
+                    });
+                }
+
+                let { midiNumber, pitchNumber } = result.right;
                 let rhythmName = token.value.value.split(' ')[token.value.value.split(' ').length - 1] as RhythmName;
+                let singlePitch = {
+                    _type: 'Pitch' as const,
+                    noteName,
+                    midiNumber,
+                    pitchNumber,
+                    accidental: accidental as Accidental,
+                    octave,
+                    token,
+                };
+
                 literalValue = {
                     _type: 'LiteralPitchRhythm',
-                    noteName,
-                    accidental: accidental as Accidental,
                     rhythm: { _type: 'LiteralRhythm', rhythmName, isDotted, token, returnType: 'rhythm' },
-                    octave,
+                    pitches: [singlePitch],
                     token,
                     returnType: 'pitch_rhythm',
                 };

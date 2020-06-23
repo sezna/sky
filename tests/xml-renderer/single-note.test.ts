@@ -179,11 +179,13 @@ describe('single note XML renderer tests', () => {
         );
     });
     it('Should be able to render a pitch with a rhythm - Bb5 half', () => {
-        let program = `fn main(): pitch_rhythm { return Bb5 half; }`;
+        let program = `fn main(): pitch_rhythm { return bb5 half; }`;
         let stepsResult = makeSyntaxTree(tokenize(program));
 
         if (isLeft(stepsResult)) {
-            console.log(`Parse error at line ${stepsResult.left.line}, column ${stepsResult.left.column}`);
+            console.log(
+                `Parse error at line ${stepsResult.left.line}, column ${stepsResult.left.column}: ${stepsResult.left.reason}`,
+            );
             expect(true).toBe(false);
             return;
         }

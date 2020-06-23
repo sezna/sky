@@ -1,0 +1,8 @@
+fn returns_chord(): pitch {
+  return \c#3, d#3\;
+}
+
+
+fn main(): pitch {
+  return \e3, returns_chord()\;
+}
