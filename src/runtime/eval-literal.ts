@@ -45,10 +45,10 @@ export function evalLiteral(
                             return res;
                         }
                         let evaluated = res.right.returnValue;
-                      console.log("Evaluated is", JSON.stringify(evaluated, null, 2));
                         while (
-                            evaluated.pitches.filter((x: any) => ['LiteralExp', 'LiteralPitch', 'VarExp'].includes(x._type))
-                                .length > 0
+                            evaluated.pitches.filter((x: any) =>
+                                ['LiteralExp', 'LiteralPitch', 'VarExp'].includes(x._type),
+                            ).length > 0
                         ) {
                             let pitchesToRemove = [];
                             let pitchesToAdd: Pitch[] = [];
@@ -62,14 +62,17 @@ export function evalLiteral(
                                     pitchesToRemove.push(i);
                                 }
                                 if (evaluated.pitches[i]._type === 'VarExp') {
-                                  console.log("evaluating varexp");
-                                  let res = evaluate(literal.pitches[i] as Expression, functionEnvironment, variableEnvironment);
-                                  if (isLeft(res)) {
-                                      return res;
-                                  }
-                                  let pitch = res.right.returnValue;
-                                  pitchesToRemove.push(i);
-                                  pitchesToAdd = pitchesToAdd.concat(pitch);
+                                    let res = evaluate(
+                                        literal.pitches[i] as Expression,
+                                        functionEnvironment,
+                                        variableEnvironment,
+                                    );
+                                    if (isLeft(res)) {
+                                        return res;
+                                    }
+                                    let pitch = res.right.returnValue;
+                                    pitchesToRemove.push(i);
+                                    pitchesToAdd = pitchesToAdd.concat(pitch);
                                 }
                             }
                             for (let i = pitchesToRemove.length; i >= 0; i--) {
@@ -84,8 +87,6 @@ export function evalLiteral(
                 }
                 literal.pitches = pitchBuffer;
             }
-            console.log("literal is", JSON.stringify(literal, null, 2))
-            console.log("type is", typeof(literal));
             returnValue = literal as LiteralTypes.LiteralPitch;
             returnType = 'pitch';
             break;
@@ -121,6 +122,65 @@ export function evalLiteral(
             returnType = 'boolean';
             break;
         case 'LiteralPitchRhythm':
+            if (literal.pitches.length > 1) {
+                let pitchBuffer: Pitch[] = [];
+                // If any pitches in this list are still expressions, they need to be evaluated here.
+                for (let i = 0; i < literal.pitches.length; i++) {
+                    if (literal.pitches[i]._type !== 'Pitch') {
+                        if ((literal.pitches[i] as Expression).returnType !== 'pitch') {
+                            return left({
+                                line: token.value.line,
+                                column: token.value.column,
+                                reason: `Element of chord "${token.value.value}" is not of type "pitch".`,
+                            });
+                        }
+                        let res = evaluate(literal.pitches[i] as Expression, functionEnvironment, variableEnvironment);
+                        if (isLeft(res)) {
+                            return res;
+                        }
+                        let evaluated = res.right.returnValue;
+                        while (
+                            evaluated.pitches.filter((x: any) =>
+                                ['LiteralExp', 'LiteralPitch', 'VarExp'].includes(x._type),
+                            ).length > 0
+                        ) {
+                            let pitchesToRemove = [];
+                            let pitchesToAdd: Pitch[] = [];
+                            for (let i = 0; i < evaluated.pitches.length; i++) {
+                                if (evaluated.pitches[i]._type === 'LiteralExp') {
+                                    evaluated.pitches[i] = evaluated.pitches[i].literalValue;
+                                }
+                                if (evaluated.pitches[i]._type === 'LiteralPitch') {
+                                    let pitch = { ...evaluated.pitches[i] };
+                                    pitchesToAdd = pitchesToAdd.concat(pitch.pitches);
+                                    pitchesToRemove.push(i);
+                                }
+                                if (evaluated.pitches[i]._type === 'VarExp') {
+                                    let res = evaluate(
+                                        literal.pitches[i] as Expression,
+                                        functionEnvironment,
+                                        variableEnvironment,
+                                    );
+                                    if (isLeft(res)) {
+                                        return res;
+                                    }
+                                    let pitch = res.right.returnValue;
+                                    pitchesToRemove.push(i);
+                                    pitchesToAdd = pitchesToAdd.concat(pitch);
+                                }
+                            }
+                            for (let i = pitchesToRemove.length; i >= 0; i--) {
+                                evaluated.pitches.splice(i, 1);
+                            }
+                            evaluated.pitches = [...evaluated.pitches, ...pitchesToAdd];
+                        }
+                        pitchBuffer = pitchBuffer.concat(evaluated.pitches);
+                    } else {
+                        pitchBuffer.push(literal.pitches[i] as Pitch);
+                    }
+                }
+                literal.pitches = pitchBuffer;
+            }
             returnValue = literal;
             returnType = 'pitch_rhythm';
             break;
