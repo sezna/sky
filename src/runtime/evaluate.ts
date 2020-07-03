@@ -22,6 +22,7 @@ export function evaluate(
     functionEnvironment: FunctionEnvironment,
     variableEnvironment: VariableEnvironment,
 ): Either<RuntimeError, EvalResult> {
+    console.log("Evaluating step: ", JSON.stringify(step, null, 1));
     let returnValue;
     let returnType;
     let returnProperties;

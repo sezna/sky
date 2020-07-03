@@ -183,6 +183,7 @@ export function renderPitch(
     }
     let pitchTexts = [];
     for (let i = 0; i < input.returnValue.pitches.length; i++) {
+      console.log("rendering pitch: ", JSON.stringify(input.returnValue.pitches[i], null, 2));
         let pitchText = `<pitch>
             <step>${input.returnValue.pitches[i].noteName.toUpperCase()}</step>
             <octave>${input.returnValue.pitches[i].octave}</octave>`;

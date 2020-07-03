@@ -45,8 +45,9 @@ export function evalLiteral(
                             return res;
                         }
                         let evaluated = res.right.returnValue;
+                      console.log("Evaluated is", JSON.stringify(evaluated, null, 2));
                         while (
-                            evaluated.pitches.filter((x: any) => ['LiteralExp', 'LiteralPitch'].includes(x._type))
+                            evaluated.pitches.filter((x: any) => ['LiteralExp', 'LiteralPitch', 'VarExp'].includes(x._type))
                                 .length > 0
                         ) {
                             let pitchesToRemove = [];
@@ -59,6 +60,16 @@ export function evalLiteral(
                                     let pitch = { ...evaluated.pitches[i] };
                                     pitchesToAdd = pitchesToAdd.concat(pitch.pitches);
                                     pitchesToRemove.push(i);
+                                }
+                                if (evaluated.pitches[i]._type === 'VarExp') {
+                                  console.log("evaluating varexp");
+                                  let res = evaluate(literal.pitches[i] as Expression, functionEnvironment, variableEnvironment);
+                                  if (isLeft(res)) {
+                                      return res;
+                                  }
+                                  let pitch = res.right.returnValue;
+                                  pitchesToRemove.push(i);
+                                  pitchesToAdd = pitchesToAdd.concat(pitch);
                                 }
                             }
                             for (let i = pitchesToRemove.length; i >= 0; i--) {
@@ -73,6 +84,8 @@ export function evalLiteral(
                 }
                 literal.pitches = pitchBuffer;
             }
+            console.log("literal is", JSON.stringify(literal, null, 2))
+            console.log("type is", typeof(literal));
             returnValue = literal as LiteralTypes.LiteralPitch;
             returnType = 'pitch';
             break;
