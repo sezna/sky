@@ -534,9 +534,6 @@ export function parseExpression(
             expressionContents = res.right.input;
 
             let notes = res.right.pitches;
-            // let notesResult = parseChord(chordContentTokens);
-            //  if (isLeft(notesResult)) { return notesResult; }
-            //     let notes = notesResult.right.notes;
             if (expressionContents[0]?.tokenType === 'rhythm-literal') {
                 let rhythmResult = liftTokenIntoLiteral(expressionContents[0]);
                 if (isLeft(rhythmResult)) {
@@ -556,7 +553,6 @@ export function parseExpression(
                     returnType: 'pitch_rhythm',
                 });
             } else {
-                // TODO fill in the function that transforms the above into this
                 expressionStack.push({
                     _type: 'LiteralExp',
                     literalValue: {
