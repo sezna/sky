@@ -27,7 +27,12 @@ ${result.left.reason}`);
         return;
     }
 
-    console.log(render(result.right));
+    // write result to filename.xml
+
+    let outputFilenameSplit = filename.split('.');
+    outputFilenameSplit.pop();
+    let outputFilename = outputFilenameSplit.join('.') + '.xml';
+    fs.writeFileSync(outputFilename, render(result.right));
 }
 
 main();
