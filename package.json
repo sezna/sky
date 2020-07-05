@@ -1,6 +1,6 @@
 {
-  "name": "sky",
-  "version": "0.0.0",
+  "name": "sky-lang",
+  "version": "0.0.1",
   "description": "Musical Language",
   "main": "dist/main.js",
   "repository": "github.com/sezna/sky",
@@ -13,7 +13,11 @@
     "test-interactive": "yarn build; jest --watch",
     "watch": "nodemon -e ts -w ./src -x \"yarn build\""
   },
+  "files": [
+    "/dist"
+  ],
   "license": "GPL-3.0-only",
+  "prepublish": "tsc",
   "private": false,
   "devDependencies": {
     "@types/jest": "^24.0.19",
