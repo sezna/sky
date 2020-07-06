@@ -5,7 +5,7 @@ import { isLeft } from 'fp-ts/lib/Either';
 import { render } from './xml-renderer';
 
 export default function compile(sourceCode: string) {
-  /*
+    /*
     let args = process.argv;
     // For now, the final argument is the filename.
     let filename = args[args.length - 1];
@@ -30,7 +30,7 @@ ${result.left.reason}`);
 
     // write result to filename.xml
 
-  return render(result.right);
+    return render(result.right);
     /*
     let outputFilenameSplit = filename.split('.');
     outputFilenameSplit.pop();
@@ -38,4 +38,3 @@ ${result.left.reason}`);
     fs.writeFileSync(outputFilename, render(result.right));
      */
 }
-
