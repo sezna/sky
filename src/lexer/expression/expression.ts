@@ -541,6 +541,7 @@ export function parseExpression(
                 }
                 expressionContents.shift();
                 let rhythm = rhythmResult.right.literalValue as LiteralRhythm;
+              console.log("is pitch rhythm")
                 expressionStack.push({
                     _type: 'LiteralExp',
                     literalValue: {
@@ -553,6 +554,7 @@ export function parseExpression(
                     returnType: 'pitch_rhythm',
                 });
             } else {
+                console.log("is pitch");
                 expressionStack.push({
                     _type: 'LiteralExp',
                     literalValue: {

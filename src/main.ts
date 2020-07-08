@@ -3,34 +3,28 @@ import { makeSyntaxTree } from './lexer/parser';
 import { runtime } from './runtime';
 import { isLeft } from 'fp-ts/lib/Either';
 import { render } from './xml-renderer';
+import { RuntimeError } from './runtime';
+import { ParseError } from './lexer/parser';
 
-export default function compile(sourceCode: string) {
-    /*
-    let args = process.argv;
-    // For now, the final argument is the filename.
-    let filename = args[args.length - 1];
+type CompileOk = { isOk: true, renderedXml: String }
+type CompileErr = { isOk: false, err: RuntimeError | ParseError };
+type CompileResponse = CompileOk | CompileErr;
 
-    let input = fs.readFileSync(filename).toString();
-   */
-
+export default function compile(sourceCode: string): CompileResponse {
     let tokens = tokenize(sourceCode);
 
     let syntaxTreeResult = makeSyntaxTree(tokens);
     if (isLeft(syntaxTreeResult)) {
-        console.log(`Parse error at line ${syntaxTreeResult.left.line}, column ${syntaxTreeResult.left.column}:
-${syntaxTreeResult.left.reason}`);
-        return;
+      return { isOk: false, err: syntaxTreeResult.left! };
     }
     let result = runtime(syntaxTreeResult.right);
     if (isLeft(result)) {
-        console.log(`Compilation error at line ${result.left.line}, column ${result.left.column}:
-${result.left.reason}`);
-        return;
+      return { isOk: false, err: result.left };
     }
 
     // write result to filename.xml
 
-    return render(result.right);
+  return { isOk: true, renderedXml: render(result.right) };
     /*
     let outputFilenameSplit = filename.split('.');
     outputFilenameSplit.pop();
