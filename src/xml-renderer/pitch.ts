@@ -227,8 +227,8 @@ export function renderPitch(
         ${pitchText}`;
 
         noteText += `
-        <duration>${numBeats}</duration>
-        <type>${duration ? (duration.isDotted ? 'dotted ' : '') + duration.rhythmName : 'quarter'}</type>
+        <duration>${numBeats}</duration>${duration && duration.isDotted ? `
+        <dot/>`  : '' }
     </note>`;
         pitchTexts.push(noteText);
     }

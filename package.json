@@ -1,6 +1,6 @@
 {
   "name": "sky-lang",
-  "version": "0.0.3",
+  "version": "0.0.6",
   "description": "Musical Language",
   "main": "dist/main.js",
   "repository": "github.com/sezna/sky",
