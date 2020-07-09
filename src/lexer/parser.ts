@@ -124,7 +124,7 @@ export function makeFunctionBodySyntaxTree(
                 return left({
                     line: returnKeyword.value.line,
                     column: returnKeyword.value.column,
-                    reason: `Function "${functionNameToken.value.value}" is declared to return type "${returnType.value.value}" but actually returns type "${returnExpr.returnType}"`,
+                    reason: `Function "${functionNameToken.value.value}" is declared to return a value of type "${returnType.value.value}" but actually returns type "${returnExpr.returnType}"`,
                 });
             }
             steps.push({

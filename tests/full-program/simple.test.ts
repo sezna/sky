@@ -5,9 +5,9 @@ describe('Simple program tests', () => {
     });
     it('Should compile the first half of twinkle twinkle little star', () => {
         expect(
-            compile(
+            (compile(
                 'fn main(): list pitch_rhythm { return [d4 quarter, d4 quarter, a4 quarter, a4 quarter, b4 quarter, b4 quarter, a4 half]; }',
-            ),
+            ) as any).renderedXml,
         ).toBe(`<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE score-partwise PUBLIC
     "-//Recordare//DTD MusicXML 3.0 Partwise//EN"
@@ -97,4 +97,16 @@ describe('Simple program tests', () => {
     </part>
 </score-partwise>`);
     });
+  it('should compile a chord in a list', () => {
+    let prog = `fn main(): list pitch_rhythm {
+--  pitch_rhythm my_chord = ;
+  return [\\d4, f#4, a4\\ quarter, d4 quarter, a4 quarter, a4 quarter,
+          b4 quarter, b4 quarter, a4 half]; 
+}`;
+    let res = compile(prog);
+    if (res.isOk === false) { 
+      console.log(res.err.reason);
+    }
+    expect(res.isOk).toBe(true);
+  })
 });

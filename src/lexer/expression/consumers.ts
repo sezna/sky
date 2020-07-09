@@ -448,6 +448,10 @@ export function consumeChord(
     let chordBuffer = [];
     while (input.length > 0 && input[0].tokenType !== 'chord-container') {
         let nextExprRes = parseExpression(input, functionNamespace, variableNamespace);
+        if (input[0].tokenType === 'statement-terminator') {
+          input.shift()!;
+          break; 
+        }
         if (isLeft(nextExprRes)) {
             return nextExprRes;
         }
