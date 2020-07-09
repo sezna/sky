@@ -450,7 +450,6 @@ export function consumeChord(
         let nextExprRes = parseExpression(input, functionNamespace, variableNamespace);
         if (input[0].tokenType === 'statement-terminator') {
             input.shift()!;
-            break;
         }
         if (isLeft(nextExprRes)) {
             return nextExprRes;

@@ -130,4 +130,19 @@ describe('Simple program tests', () => {
         // there should only be 1 forte dynamic
         expect(res.renderedXml.split('<f/>').length - 1).toBe(1);
     });
+
+    it('shouldnt omit a note in the chord', () => {
+        let prog = `fn main(): list pitch_rhythm {
+  return [\\d4, f#4, c#3, a4\\ quarter, d4 quarter]; 
+}`;
+        let res = compile(prog);
+        if (res.isOk === false) {
+            console.log(JSON.stringify(res.err));
+            expect(true).toBe(false);
+            return;
+        }
+        expect(res.isOk).toBe(true);
+        // the final note in the chord should not be omitted when parsed in a list
+        expect(res.renderedXml.split('<step>A</step>').length - 1).toBe(1);
+    });
 });
