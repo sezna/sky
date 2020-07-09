@@ -120,7 +120,6 @@ export function makeFunctionBodySyntaxTree(
                 return returnExprResult;
             }
             let returnExpr = returnExprResult.right.expression;
-          console.log(JSON.stringify(returnExpr, null, 2));
             if (returnExpr.returnType !== returnType.value.value) {
                 return left({
                     line: returnKeyword.value.line,

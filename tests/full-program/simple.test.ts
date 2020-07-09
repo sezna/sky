@@ -100,7 +100,7 @@ describe('Simple program tests', () => {
   it('should compile a chord in a list', () => {
     let prog = `fn main(): list pitch_rhythm {
 --  pitch_rhythm my_chord = ;
-  return [\d4, f#4, a4\ quarter, d4 quarter, a4 quarter, a4 quarter,
+  return [\\d4, f#4, a4\\ quarter, d4 quarter, a4 quarter, a4 quarter,
           b4 quarter, b4 quarter, a4 half]; 
 }`;
     let res = compile(prog);

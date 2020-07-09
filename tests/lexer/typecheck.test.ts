@@ -161,7 +161,7 @@ describe('function application typechecking', () => {
         }
         expect(isLeft(steps)).toBe(true);
         expect(steps.left.reason).toBe(
-            `Function "other_func" is declared to return type "number" but actually returns type "pitch"`,
+            `Function "other_func" is declared to return a value of type "number" but actually returns type "pitch"`,
         );
     });
     it('should reject a function in an assignment that returns the wrong type', () => {
@@ -236,7 +236,7 @@ describe('function application typechecking', () => {
         }
         expect(isLeft(steps)).toBe(true);
         expect(steps.left.reason).toBe(
-            'Function "main" is declared to return type "number" but actually returns type "boolean"',
+            'Function "main" is declared to return a value of type "number" but actually returns type "boolean"',
         );
     });
     it('Should identify in a complicated expression an invalid function application type', () => {
