@@ -109,4 +109,20 @@ describe('Simple program tests', () => {
     }
     expect(res.isOk).toBe(true);
   })
+  it('shouldnt duplicate the first dynamic', () => {
+  
+    let prog = `fn main(): list list pitch_rhythm {
+  pitch_rhythm my_chord = \d4, f#4, a4\ quarter;
+  list list pitch_rhythm to_return = [[my_chord, d4 quarter, a4 quarter, a4 quarter,
+          b4 quarter, b4 quarter, a4 half],
+          [d3 whole, b3 half, a3 half]
+         ]; 
+   to_return[0][0].dynamic = f;
+   to_return[1].clef = bass;
+   return to_return;
+}  ` ;
+
+    expect(true).toBe(false);
+  })
 });
+
