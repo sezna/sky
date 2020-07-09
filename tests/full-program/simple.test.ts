@@ -97,22 +97,21 @@ describe('Simple program tests', () => {
     </part>
 </score-partwise>`);
     });
-  it('should compile a chord in a list', () => {
-    let prog = `fn main(): list pitch_rhythm {
+    it('should compile a chord in a list', () => {
+        let prog = `fn main(): list pitch_rhythm {
 --  pitch_rhythm my_chord = ;
   return [\\d4, f#4, a4\\ quarter, d4 quarter, a4 quarter, a4 quarter,
           b4 quarter, b4 quarter, a4 half]; 
 }`;
-    let res = compile(prog);
-    if (res.isOk === false) { 
-      console.log(res.err.reason);
-    }
-    expect(res.isOk).toBe(true);
-  })
-  it('shouldnt duplicate the first dynamic', () => {
-  
-    let prog = `fn main(): list list pitch_rhythm {
-  pitch_rhythm my_chord = \d4, f#4, a4\ quarter;
+        let res = compile(prog);
+        if (res.isOk === false) {
+            console.log(JSON.stringify(res.err));
+        }
+        expect(res.isOk).toBe(true);
+    });
+    it('shouldnt duplicate the first dynamic', () => {
+        let prog = `fn main(): list list pitch_rhythm {
+  pitch_rhythm my_chord = \\d4, f#4, a4\\ quarter;
   list list pitch_rhythm to_return = [[my_chord, d4 quarter, a4 quarter, a4 quarter,
           b4 quarter, b4 quarter, a4 half],
           [d3 whole, b3 half, a3 half]
@@ -120,9 +119,15 @@ describe('Simple program tests', () => {
    to_return[0][0].dynamic = f;
    to_return[1].clef = bass;
    return to_return;
-}  ` ;
-
-    expect(true).toBe(false);
-  })
+}  `;
+        let res = compile(prog);
+        if (res.isOk === false) {
+            console.log(JSON.stringify(res.err));
+            expect(true).toBe(false);
+            return;
+        }
+        expect(res.isOk).toBe(true);
+        // there should only be 1 forte dynamic
+        expect(res.renderedXml.split('<f/>').length - 1).toBe(1);
+    });
 });
-

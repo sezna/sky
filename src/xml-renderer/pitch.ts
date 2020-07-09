@@ -205,7 +205,7 @@ export function renderPitch(
         </pitch>`;
 
         let noteText = '';
-        if (dynamic) {
+        if (dynamic && i == 0) {
             noteText += `
     <direction placement="below">
         <direction-type>
