@@ -14,6 +14,7 @@ export function variableDeclaration(
     input: Tokens,
     functionNamespace: FunctionDeclaration[],
     variableNamespace: VariableDeclaration[],
+    params: { varName: Token; varType: Token }[],
 ): Either<ParseError, { input: Tokens; declaration: VariableDeclaration }> {
     // we know this is defined because this function is never called on an empty input
     // it is only triggered by typenames in the parser
@@ -63,7 +64,7 @@ export function variableDeclaration(
         });
     }
 
-    let parseResult = parseExpression(input, functionNamespace, variableNamespace);
+    let parseResult = parseExpression(input, functionNamespace, variableNamespace, params);
     if (isLeft(parseResult)) {
         return parseResult;
     }

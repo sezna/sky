@@ -68,7 +68,6 @@ fn main(): list list pitch {
                     <alter>1</alter>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -77,7 +76,6 @@ fn main(): list list pitch {
                     <alter>1</alter>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -85,7 +83,6 @@ fn main(): list list pitch {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -93,7 +90,6 @@ fn main(): list list pitch {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
         </measure>
     </part>
@@ -120,7 +116,6 @@ fn main(): list list pitch {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -128,7 +123,6 @@ fn main(): list list pitch {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -136,7 +130,6 @@ fn main(): list list pitch {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -144,7 +137,6 @@ fn main(): list list pitch {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
         </measure>
     </part>
@@ -220,7 +212,6 @@ fn main(): list list pitch {
                     <alter>1</alter>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -229,7 +220,6 @@ fn main(): list list pitch {
                     <alter>1</alter>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -237,7 +227,6 @@ fn main(): list list pitch {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -245,7 +234,6 @@ fn main(): list list pitch {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
         </measure>
     </part>
@@ -272,7 +260,6 @@ fn main(): list list pitch {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -280,7 +267,6 @@ fn main(): list list pitch {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -288,7 +274,6 @@ fn main(): list list pitch {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -296,7 +281,6 @@ fn main(): list list pitch {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
         </measure>
     </part>
@@ -324,7 +308,6 @@ fn main(): list list pitch {
                     <alter>1</alter>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -332,7 +315,6 @@ fn main(): list list pitch {
                     <octave>3</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -340,7 +322,6 @@ fn main(): list list pitch {
                     <octave>7</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -349,7 +330,6 @@ fn main(): list list pitch {
                     <alter>-1</alter>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
         </measure>
     </part>
@@ -424,7 +404,6 @@ fn main(): list list pitch_rhythm {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -432,7 +411,6 @@ fn main(): list list pitch_rhythm {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <direction placement="below">
                 <direction-type>
@@ -449,7 +427,6 @@ fn main(): list list pitch_rhythm {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -457,7 +434,6 @@ fn main(): list list pitch_rhythm {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
         </measure>
     </part>
@@ -493,7 +469,6 @@ fn main(): list list pitch_rhythm {
                     <octave>4</octave>
                 </pitch>
                 <duration>576</duration>
-                <type>whole</type>
             </note>
         </measure>
     </part>
@@ -568,7 +543,6 @@ fn main(): list list pitch_rhythm {
                     <alter>1</alter>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -577,7 +551,6 @@ fn main(): list list pitch_rhythm {
                     <alter>1</alter>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -585,7 +558,6 @@ fn main(): list list pitch_rhythm {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -593,7 +565,6 @@ fn main(): list list pitch_rhythm {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
         </measure>
     </part>
@@ -620,7 +591,6 @@ fn main(): list list pitch_rhythm {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -628,7 +598,6 @@ fn main(): list list pitch_rhythm {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -636,7 +605,6 @@ fn main(): list list pitch_rhythm {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -644,7 +612,6 @@ fn main(): list list pitch_rhythm {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
         </measure>
     </part>
@@ -672,7 +639,6 @@ fn main(): list list pitch_rhythm {
                     <alter>1</alter>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -680,7 +646,6 @@ fn main(): list list pitch_rhythm {
                     <octave>3</octave>
                 </pitch>
                 <duration>288</duration>
-                <type>half</type>
             </note>
         </measure>
     </part>

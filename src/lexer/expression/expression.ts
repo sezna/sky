@@ -68,7 +68,6 @@ export function parseExpression(
     if (isLeft(result)) {
         return result;
     }
-
     input = result.right.input;
 
     let expressionContents = result.right.tokens;
@@ -217,7 +216,12 @@ export function parseExpression(
                                     value: ';',
                                 },
                             });
-                            let result = parseExpression(expressionBuffer, functionNamespace, variableNamespace);
+                            let result = parseExpression(
+                                expressionBuffer,
+                                functionNamespace,
+                                variableNamespace,
+                                params,
+                            );
                             if (isLeft(result)) {
                                 return result;
                             }
@@ -270,7 +274,12 @@ export function parseExpression(
                                 },
                             });
 
-                            let result = parseExpression(expressionBuffer, functionNamespace, variableNamespace);
+                            let result = parseExpression(
+                                expressionBuffer,
+                                functionNamespace,
+                                variableNamespace,
+                                params,
+                            );
                             if (isLeft(result)) {
                                 return result;
                             }
@@ -431,6 +440,7 @@ export function parseExpression(
                 ],
                 functionNamespace,
                 variableNamespace,
+                params,
             );
             if (isLeft(conditionResult)) {
                 return conditionResult;
@@ -455,6 +465,7 @@ export function parseExpression(
                 ],
                 functionNamespace,
                 variableNamespace,
+                params,
             );
             if (isLeft(thenBranchResult)) {
                 return thenBranchResult;
@@ -481,6 +492,7 @@ export function parseExpression(
                     ],
                     functionNamespace,
                     variableNamespace,
+                    params,
                 );
                 if (isLeft(elseBranchResult)) {
                     return elseBranchResult;
