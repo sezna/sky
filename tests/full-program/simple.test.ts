@@ -41,7 +41,6 @@ describe('Simple program tests', () => {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -49,7 +48,6 @@ describe('Simple program tests', () => {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -57,7 +55,6 @@ describe('Simple program tests', () => {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -65,7 +62,6 @@ describe('Simple program tests', () => {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
         </measure>
         <measure number="2">
@@ -75,7 +71,6 @@ describe('Simple program tests', () => {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -83,7 +78,6 @@ describe('Simple program tests', () => {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
             <note>
                 <pitch>
@@ -91,7 +85,6 @@ describe('Simple program tests', () => {
                     <octave>4</octave>
                 </pitch>
                 <duration>288</duration>
-                <type>half</type>
             </note>
         </measure>
     </part>
@@ -145,4 +138,19 @@ describe('Simple program tests', () => {
         // the final note in the chord should not be omitted when parsed in a list
         expect(res.renderedXml.split('<step>A</step>').length - 1).toBe(1);
     });
+  it('should pass params down into a function', () => {
+  
+    let prog = `fn pitch_to_rhythm(olo: pitch): pitch_rhythm {
+   pitch_rhythm z = if 5 == 5 then olo quarter else c#4 quarter;
+   return z;
+   }`;
+        let res = compile(prog);
+        if (res.isOk === false) {
+            console.log(JSON.stringify(res.err));
+            expect(true).toBe(false);
+            return;
+        }
+        expect(res.isOk).toBe(true);
+
+  });
 });
