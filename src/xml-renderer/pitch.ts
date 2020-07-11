@@ -227,8 +227,12 @@ export function renderPitch(
         ${pitchText}`;
 
         noteText += `
-        <duration>${numBeats}</duration>${duration && duration.isDotted ? `
-        <dot/>`  : '' }
+        <duration>${numBeats}</duration>${
+            duration && duration.isDotted
+                ? `
+        <dot/>`
+                : ''
+        }
     </note>`;
         pitchTexts.push(noteText);
     }

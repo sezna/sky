@@ -289,7 +289,8 @@ export function evaluate(
             });
         }
 
-        let funcAppRes = evalFunction(func, functionEnvironment, variableEnvironment);
+        //  evaluate the args
+        let funcAppRes = evalFunction(func, step.args, step.functionName, functionEnvironment, variableEnvironment);
         if (isLeft(funcAppRes)) {
             return funcAppRes;
         }

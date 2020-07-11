@@ -36,7 +36,12 @@ export function runtime(steps: Steps): Either<RuntimeError, RuntimeOutput> {
         });
     }
 
-    let res = evalFunction(functionEnvironment['main'], functionEnvironment, variableEnvironment);
+  let res = evalFunction(functionEnvironment['main'], [], {tokenType: 'name', value: {
+    'value': 'main',
+    line: 0,
+    column: 0,
+
+  }}, functionEnvironment, variableEnvironment);
     if (isLeft(res)) {
         return res;
     }

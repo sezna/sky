@@ -1,5 +1,7 @@
 import { RuntimeError } from '.';
-import { Func, FunctionEnvironment, VariableEnvironment } from './environments';
+import { Variable, Func, FunctionEnvironment, VariableEnvironment } from './environments';
+import { Token } from '../lexer/tokenizer';
+import { Expression } from '../lexer/expression';
 import { evaluate } from './evaluate';
 import { isLeft, right, left, Either } from 'fp-ts/lib/Either';
 
@@ -28,12 +30,51 @@ export interface FunctionEvaluationResult {
 }
 export function evalFunction(
     func: Func,
+  paramValues: Expression[],
+  funcName: Token,
     functionEnvironment: FunctionEnvironment,
     variableEnvironment: VariableEnvironment,
 ): Either<RuntimeError, FunctionEvaluationResult> {
+  if (paramValues.length !== func.parameters.length) {
+    console.log(JSON.stringify(funcName));
+    return left({
+      line: funcName.value.line,
+      column: funcName.value.column, // TODO
+      reason: `Function "${funcName.value.value}" expected ${func.parameters.length} arguments but was called with ${paramValues.length}.`
+    });
+  }
+    // evaluate all the parameters
+    let parameterValues: Variable[] = [];
+    for (const paramExpr of paramValues) {
+        let paramRes = evaluate(paramExpr, functionEnvironment, variableEnvironment);
+      if (isLeft(paramRes)) { return paramRes; }
+      const param = paramRes.right;
+      const properties: {[propertyName: string]: string} = param.returnProperties || {};
+      parameterValues.push({ varType: param.returnType,
+        value: param.returnValue,
+        properties, 
+      });
+    }
+    
+  let paramsWithNames: VariableEnvironment = {};
+  let i = 0;
+  for (const val of parameterValues) { //parameterValues.reduce((acc: VariableEnvironment, val: any, i: number) => {
+    let param = func.parameters[i]!;
+    if (param.varType.value.value !== val.varType) {
+      return left({
+        line: funcName.value.line,
+        column: funcName.value.column,
+        reason: `Function "${funcName.value.value}" expected parameter ${i} ("${param.varName.value.value}") to be of type "${param.varType.value.value}" but it is actually of type "${val.varType}". `
+      })
+    }
+    paramsWithNames[param.varName.value.value] = val;
+    i++;
+  };
+
+  let localVariableEnvironment: VariableEnvironment = { ...variableEnvironment, ...paramsWithNames };
     for (const step of func.body) {
         if (step._type === 'Return') {
-            let res = evaluate(step.returnExpr, functionEnvironment, variableEnvironment);
+            let res = evaluate(step.returnExpr, functionEnvironment, localVariableEnvironment);
             if (isLeft(res)) {
                 return res;
             }
@@ -45,12 +86,12 @@ export function evalFunction(
             return right(funcResult);
         }
 
-        let result = evaluate(step, functionEnvironment, variableEnvironment);
+        let result = evaluate(step, functionEnvironment, localVariableEnvironment);
         if (isLeft(result)) {
             return result;
         }
         functionEnvironment = result.right.functionEnvironment;
-        variableEnvironment = result.right.variableEnvironment;
+        localVariableEnvironment = result.right.variableEnvironment;
     }
     return left({
         line: 0,

@@ -10,10 +10,10 @@ export interface Func {
     _type: 'Func';
     parameters: { varName: Token; varType: Token }[];
     body: Steps;
-    returnType: String;
+    returnType: string;
 }
 
-interface Variable {
+export interface Variable {
     varType: string;
     value: any;
     properties: { [propertyName: string]: string };
