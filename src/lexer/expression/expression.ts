@@ -359,6 +359,7 @@ export function parseExpression(
             expressionStack.push(literalExp);
             expressionContents.shift();
         } else if (expressionContents[0].tokenType === 'parens') {
+          console.log("handling parens", expressionContents.map(x => x.value.value));
             if (expressionContents[0].value.value === '(') {
                 operatorStack.push({
                     operatorType: '(',
@@ -392,7 +393,14 @@ export function parseExpression(
                     });
                 }
                 // This discards the opening parenthesis in the op stack.
-                operatorStack.pop();
+              let openParens = operatorStack.pop();
+              if (openParens && openParens.value.value.value !== "(") {
+                return left({
+                  line: 0,
+                  column: 0,
+                  reason: `Compiler error ERR001, please file an issue at https://github.com/sezna/sky with the code that triggered this error.`
+                })
+              }
             }
             // Now we have handled both parens cases and we can shift the input to the next token.
             expressionContents.shift();
@@ -538,6 +546,8 @@ export function parseExpression(
           if (isLeft(rhythmResult)) { return rhythmResult; }
           console.log("Rihgt is", JSON.stringify(rhythmResult.right));
           expressionStack.push(rhythmResult.right);
+      console.log("earlier Expression stack: ", expressionStack.map(x => {
+        if (x._type === "LiteralExp") { return x.literalValue.token.value.value } else { return x.token.value.value ; }}), "length is", expressionStack.length )
         
         } else if (expressionContents[0].tokenType === 'chord-container') {
             let token = expressionContents[0];
@@ -593,12 +603,11 @@ export function parseExpression(
     }
 
     while (operatorStack.length > 0) {
-      console.log("Expression stack: ", JSON.stringify(expressionStack), "length is", expressionStack.length )
+      console.log("Expression stack: ", expressionStack.map(x => {
+        if (x._type === "LiteralExp") { return x.literalValue.token.value.value } else { return x.token.value.value ; }}), "length is", expressionStack.length )
         let operator = operatorStack.pop()!;
-      console.log("operator is", operator);
         let rhs = expressionStack.pop()!;
         let lhs = expressionStack.pop()!;
-        console.log(JSON.stringify(rhs, null, 2));
         let returnType;
         let returnTypeResult = opReturnTypeMap(
             rhs.returnType,

@@ -7,7 +7,7 @@ import { makeSyntaxTree } from '../../src/lexer/parser';
 describe('Expression parsing tests', () => {
     it('Should not throw an error when parsing a valid expression #1', () => {
         let tokens = tokenize('number x = 20 + (10 - 4) * 3 - (2 * (1 - 4));');
-        let result = variableDeclaration(tokens, [], []);
+      let result = variableDeclaration(tokens, [], [], []);
         // If there was a parse error, print it out.
         if (isLeft(result)) {
             console.log(result.left);
@@ -16,7 +16,7 @@ describe('Expression parsing tests', () => {
     });
     it('Should not throw an error when parsing a valid expression #2', () => {
         let tokens = tokenize('number z = (10 - (10 - (10 - (10))));');
-        let result = variableDeclaration(tokens, [], []);
+        let result = variableDeclaration(tokens, [], [], []);
         if (isLeft(result)) {
             console.log(result.left);
         }
@@ -24,27 +24,27 @@ describe('Expression parsing tests', () => {
     });
     it('Should throw an error when parsing an invalid expression #1', () => {
         let tokens = tokenize('number z = ;');
-        let result = variableDeclaration(tokens, [], []);
+        let result = variableDeclaration(tokens, [], [], []);
         expect(isLeft(result)).toBe(true);
     });
     it('Should throw an error when parsing an invalid expression #2', () => {
         let tokens = tokenize('number z = ( 10');
-        let result = variableDeclaration(tokens, [], []);
+      let result = variableDeclaration(tokens, [], [], []);
         expect(isLeft(result)).toBe(true);
     });
     it('Should throw an error when parsing an invalid expression #3', () => {
         let tokens = tokenize('number z = 10 + 10');
-        let result = variableDeclaration(tokens, [], []);
+        let result = variableDeclaration(tokens, [], [], []);
         expect(isLeft(result)).toBe(true);
     });
     it('Should throw an error when parsing an invalid expression #3', () => {
         let tokens = tokenize('note z = ');
-        let result = variableDeclaration(tokens, [], []);
+        let result = variableDeclaration(tokens, [], [], []);
         expect(isLeft(result)).toBe(true);
     });
     it('Should be able to handle inline if expressions', () => {
         let tokens = tokenize('number x = if 2 < 5 then 10 else 0;');
-        let result = variableDeclaration(tokens, [], []);
+        let result = variableDeclaration(tokens, [], [], []);
         if (isLeft(result)) {
             console.log(result.left);
         }
