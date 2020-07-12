@@ -115,10 +115,6 @@ export function makeFunctionBodySyntaxTree(
                     reason: `Expected expression after "return" keyword but received end of input`,
                 });
             }
-            console.log(
-                'Parsing expression with param',
-                params.map(x => x.varName.value.value),
-            );
             let returnExprResult = parseExpression(input, functionNamespace, variableNamespace, params);
             if (isLeft(returnExprResult)) {
                 return returnExprResult;

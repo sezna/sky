@@ -138,10 +138,9 @@ describe('Simple program tests', () => {
         // the final note in the chord should not be omitted when parsed in a list
         expect(res.renderedXml.split('<step>A</step>').length - 1).toBe(1);
     });
-    it('should pass params down into a function', () => {
+    it('should pass params down into a function, and parenthesis should be handled correctly', () => {
         let prog = `fn pitch_to_rhythm(olo: pitch): pitch_rhythm {
-   pitch_rhythm z = if 5 == 5 then olo quarter else c#4 quarter;
-   return z;
+   return if 5 == 5 then (olo + quarter) else ( c#4 quarter );
    }`;
         let res = compile(prog);
         if (res.isOk === false) {

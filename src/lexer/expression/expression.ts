@@ -532,6 +532,13 @@ export function parseExpression(
                 returnType,
                 token,
             });
+        } else if (expressionContents[0].tokenType == 'rhythm-literal') {
+          let exp = expressionContents.shift()!;
+          let rhythmResult = liftTokenIntoLiteral(exp);
+          if (isLeft(rhythmResult)) { return rhythmResult; }
+          console.log("Rihgt is", JSON.stringify(rhythmResult.right));
+          expressionStack.push(rhythmResult.right);
+        
         } else if (expressionContents[0].tokenType === 'chord-container') {
             let token = expressionContents[0];
             // chords are denoted by backslashes
@@ -586,9 +593,12 @@ export function parseExpression(
     }
 
     while (operatorStack.length > 0) {
+      console.log("Expression stack: ", JSON.stringify(expressionStack), "length is", expressionStack.length )
         let operator = operatorStack.pop()!;
+      console.log("operator is", operator);
         let rhs = expressionStack.pop()!;
         let lhs = expressionStack.pop()!;
+        console.log(JSON.stringify(rhs, null, 2));
         let returnType;
         let returnTypeResult = opReturnTypeMap(
             rhs.returnType,
