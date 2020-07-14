@@ -256,6 +256,7 @@ export function consumeThenUntilElse(input: Tokens): Either<ParseError, { input:
 }
 
 export function consumeElseUntilEnd(input: Tokens): Either<ParseError, { input: Tokens; tokens: Tokens }> {
+  console.log("Me until end: ", input.map(x => x.value.value));
     let initialToken = input.shift();
     if (initialToken === undefined) {
         return left({
@@ -288,8 +289,10 @@ export function consumeElseUntilEnd(input: Tokens): Either<ParseError, { input: 
     let ifCount = 0;
     while ((!outerTerminatorSeen || closeCurlyBraceCount !== openCurlyBraceCount) && input.length > 0) {
         expressionBuffer.push(token);
+        console.log("Expression buffer is", expressionBuffer.map(x => x.value.value));
         prevToken = token;
         token = input.shift()!;
+        console.log("Looking at token: ", token.value.value);
         if (token === undefined) {
             return left({
                 line: prevToken.value.line,
@@ -300,10 +303,13 @@ export function consumeElseUntilEnd(input: Tokens): Either<ParseError, { input: 
         if (token.value.value === '{') {
             openCurlyBraceCount += 1;
         } else if (token.value.value === '(') {
+            console.log("here");
             openParensCount += 1;
         } else if (token.value.value === ')') {
+            console.log("here2");
             closeParensCount += 1;
             if (closeParensCount > openParensCount) {
+                console.log("breaking");
                 break;
             }
         } else if (token.value.value === '{') {
@@ -321,6 +327,7 @@ export function consumeElseUntilEnd(input: Tokens): Either<ParseError, { input: 
             closeCurlyBraceCount === openCurlyBraceCount &&
             ifCount <= 0
         ) {
+          console.log("here 3 ");
             outerTerminatorSeen = true;
         }
 
@@ -339,6 +346,7 @@ export function consumeElseUntilEnd(input: Tokens): Either<ParseError, { input: 
             });
         }
     }
+    console.log("Else until end result: ", expressionBuffer.map(x => x.value.value));
     return right({ input, tokens: expressionBuffer });
 }
 
