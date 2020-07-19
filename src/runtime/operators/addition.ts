@@ -21,14 +21,14 @@ export function addition(lhs: EvalResult, rhs: EvalResult): Either<RuntimeError,
         return right({ valueType: 'list pitch', value: [lhs.returnValue, ...rhs.returnValue] });
     }
     if (lhs.returnType === 'pitch' && rhs.returnType === 'rhythm') {
-      console.log(JSON.stringify(lhs, null, 2));
-    return left({
-        line: 0,
-        column: 0,
-        reason: `Addition unimplemented for types "${lhs.returnType}" and "${rhs.returnType}"`,
-    });
-      
-      //    return right({ valueType: 'pitch_rhythm', value:  });
+        console.log(JSON.stringify(lhs, null, 2));
+        return left({
+            line: 0,
+            column: 0,
+            reason: `Addition unimplemented for types "${lhs.returnType}" and "${rhs.returnType}"`,
+        });
+
+        //    return right({ valueType: 'pitch_rhythm', value:  });
     }
     return left({
         line: 0,

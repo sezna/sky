@@ -26,7 +26,7 @@ const OpMapping: { [key in Operator['operatorType']]: { [key: string]: { [key: s
         },
         degree: { degree: 'degree' },
         pitch: { 'list pitch': 'list pitch', pitch: 'list pitch', rhythm: 'pitch_rhythm' },
-        rhythm: { 'pitch': 'pitch_rhythm' }
+        rhythm: { pitch: 'pitch_rhythm' },
     },
     '-': {
         number: {
