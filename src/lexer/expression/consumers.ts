@@ -256,6 +256,7 @@ export function consumeThenUntilElse(input: Tokens): Either<ParseError, { input:
 }
 
 export function consumeElseUntilEnd(input: Tokens): Either<ParseError, { input: Tokens; tokens: Tokens }> {
+  console.log("Me until end: ", input.map(x => x.value.value));
     let initialToken = input.shift();
     if (initialToken === undefined) {
         return left({
@@ -285,6 +286,7 @@ export function consumeElseUntilEnd(input: Tokens): Either<ParseError, { input: 
     let token = input[0];
     let expressionBuffer = [];
     let ifCount = 0;
+<<<<<<< HEAD
     let count = 0;
     // TODO there are a lot of issues in this loop and a lot of pandaids
     // all it needs to do is continue to consume tokens from `else` to the end of the expression
@@ -294,16 +296,34 @@ export function consumeElseUntilEnd(input: Tokens): Either<ParseError, { input: 
             expressionBuffer.push(token);
         }
         count += 1;
+=======
+    while ((!outerTerminatorSeen || closeCurlyBraceCount !== openCurlyBraceCount) && input.length > 0) {
+        expressionBuffer.push(token);
+        console.log("Expression buffer is", expressionBuffer.map(x => x.value.value));
+        prevToken = token;
+>>>>>>> de107d4084ae3aff2eed897f8a85d896a057cbd6
         token = input.shift()!;
+        console.log("Looking at token: ", token.value.value);
         if (token === undefined) {
             break;
         }
         if (token.value.value === '{') {
             openCurlyBraceCount += 1;
         } else if (token.value.value === '(') {
+            console.log("here");
             openParensCount += 1;
         } else if (token.value.value === ')') {
+            console.log("here2");
             closeParensCount += 1;
+<<<<<<< HEAD
+=======
+            if (closeParensCount > openParensCount) {
+                console.log("breaking");
+                break;
+            }
+        } else if (token.value.value === '{') {
+            openCurlyBraceCount += 1;
+>>>>>>> de107d4084ae3aff2eed897f8a85d896a057cbd6
         } else if (token.value.value === '}') {
             closeCurlyBraceCount += 1;
         } else if (token.tokenType === 'else') {
@@ -317,6 +337,7 @@ export function consumeElseUntilEnd(input: Tokens): Either<ParseError, { input: 
             closeCurlyBraceCount === openCurlyBraceCount &&
             ifCount <= 0
         ) {
+          console.log("here 3 ");
             outerTerminatorSeen = true;
         }
 
@@ -335,6 +356,7 @@ export function consumeElseUntilEnd(input: Tokens): Either<ParseError, { input: 
             });
         }
     }
+    console.log("Else until end result: ", expressionBuffer.map(x => x.value.value));
     return right({ input, tokens: expressionBuffer });
 }
 
