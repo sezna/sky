@@ -111,7 +111,7 @@ export function evaluate(
                     reason: `Operator ${(step as OpExp).operator.value.value.value} is unimplemented`,
                 });
         }
-        let opResult = operatorFunc(lhs, rhs);
+        let opResult = operatorFunc(lhs, rhs, (step as OpExp).operator.value);
         if (isLeft(opResult)) {
             return opResult;
         }
@@ -280,6 +280,8 @@ export function evaluate(
             reason: `Attempted to evaluate a return statement. This is a bug in the compiler. Please file an issue with the code that triggered this bug at https://github.com/sezna/sky.`,
         });
     } else if (step._type === 'FunctionApplication') {
+        console.log('Function env: ', Object.keys(functionEnvironment));
+        console.log('FUNCTION APPLICATION ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++');
         let func = functionEnvironment[step.functionName.value.value];
         if (func === undefined) {
             return left({
@@ -289,7 +291,8 @@ export function evaluate(
             });
         }
 
-        let funcAppRes = evalFunction(func, functionEnvironment, variableEnvironment);
+        console.log('Variable env in eval is ', JSON.stringify(variableEnvironment));
+        let funcAppRes = evalFunction(func, step.args, functionEnvironment, variableEnvironment);
         if (isLeft(funcAppRes)) {
             return funcAppRes;
         }

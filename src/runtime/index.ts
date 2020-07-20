@@ -35,8 +35,9 @@ export function runtime(steps: Steps): Either<RuntimeError, RuntimeOutput> {
             reason: 'No main function found',
         });
     }
+    console.log('Index ts var env is ', variableEnvironment);
 
-    let res = evalFunction(functionEnvironment['main'], functionEnvironment, variableEnvironment);
+    let res = evalFunction(functionEnvironment['main'], [], functionEnvironment, variableEnvironment);
     if (isLeft(res)) {
         return res;
     }

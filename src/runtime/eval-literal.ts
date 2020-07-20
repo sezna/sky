@@ -19,6 +19,10 @@ export function evalLiteral(
     let literal = literalExp.literalValue;
     let token = literal.token!;
     switch (literal._type) {
+        case 'LiteralRhythm':
+            returnValue = literal as LiteralTypes.LiteralRhythm;
+            returnType = 'rhythm';
+            break;
         case 'LiteralNumber':
             returnValue = (literal as LiteralTypes.LiteralNumber).numericValue;
             returnType = 'number';
