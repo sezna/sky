@@ -1,8 +1,8 @@
 import { RuntimeError } from '.';
 import { Func, FunctionEnvironment, VariableEnvironment } from './environments';
+import { Expression } from '../lexer/expression';
 import { evaluate } from './evaluate';
 import { isLeft, right, left, Either } from 'fp-ts/lib/Either';
-import { Expression } from '../lexer/expression/expression';
 import { LiteralExp } from '../lexer/expression/literal';
 
 // This is a little ridiculous but there's not a dynamic way to add "list" before the typename dynamically that I know of.

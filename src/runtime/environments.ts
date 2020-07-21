@@ -13,7 +13,7 @@ export interface Func {
     returnType: string;
 }
 
-interface Variable {
+export interface Variable {
     varType: string;
     value: any;
     properties: { [propertyName: string]: string };
