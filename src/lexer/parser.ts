@@ -36,7 +36,7 @@ export function makeSyntaxTree(input: Tokens): Either<ParseError, Steps> {
                 return left(parseResult.left);
             }
         } else if (input[0].tokenType === 'type-keyword') {
-            const parseResult = variableDeclaration(input, functionNamespace, variableNamespace);
+            const parseResult = variableDeclaration(input, functionNamespace, variableNamespace, []);
             if (isRight(parseResult)) {
                 input = parseResult.right.input;
                 steps.push(parseResult.right.declaration);
@@ -98,7 +98,7 @@ export function makeFunctionBodySyntaxTree(
     }
     while (input.length > 0) {
         if (input[0].tokenType === 'type-keyword') {
-            const parseResult = variableDeclaration(input, functionNamespace, variableNamespace);
+            const parseResult = variableDeclaration(input, functionNamespace, variableNamespace, params);
             if (isRight(parseResult)) {
                 input = parseResult.right.input;
                 steps.push(parseResult.right.declaration);

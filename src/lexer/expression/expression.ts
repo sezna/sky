@@ -68,7 +68,6 @@ export function parseExpression(
     if (isLeft(result)) {
         return result;
     }
-
     input = result.right.input;
 
     let expressionContents = result.right.tokens;
@@ -393,7 +392,14 @@ export function parseExpression(
                     });
                 }
                 // This discards the opening parenthesis in the op stack.
-                operatorStack.pop();
+                let openParens = operatorStack.pop();
+                if (openParens && openParens.value.value.value !== '(') {
+                    return left({
+                        line: 0,
+                        column: 0,
+                        reason: `Compiler error ERR001, please file an issue at https://github.com/sezna/sky with the code that triggered this error.`,
+                    });
+                }
             }
             // Now we have handled both parens cases and we can shift the input to the next token.
             expressionContents.shift();
@@ -533,6 +539,13 @@ export function parseExpression(
                 returnType,
                 token,
             });
+        } else if (expressionContents[0].tokenType == 'rhythm-literal') {
+            let exp = expressionContents.shift()!;
+            let rhythmResult = liftTokenIntoLiteral(exp);
+            if (isLeft(rhythmResult)) {
+                return rhythmResult;
+            }
+            expressionStack.push(rhythmResult.right);
         } else if (expressionContents[0].tokenType === 'chord-container') {
             let token = expressionContents[0];
             // chords are denoted by backslashes

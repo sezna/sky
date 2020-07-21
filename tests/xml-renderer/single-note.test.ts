@@ -55,7 +55,6 @@ describe('single note XML renderer tests', () => {
                     <octave>4</octave>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
         </measure>
     </part>
@@ -113,7 +112,6 @@ describe('single note XML renderer tests', () => {
                     <alter>1</alter>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
         </measure>
     </part>
@@ -171,7 +169,6 @@ describe('single note XML renderer tests', () => {
                     <alter>-1</alter>
                 </pitch>
                 <duration>144</duration>
-                <type>quarter</type>
             </note>
         </measure>
     </part>
@@ -232,7 +229,6 @@ describe('single note XML renderer tests', () => {
                     <alter>-1</alter>
                 </pitch>
                 <duration>288</duration>
-                <type>half</type>
             </note>
         </measure>
     </part>
@@ -291,7 +287,7 @@ describe('single note XML renderer tests', () => {
                     <alter>1</alter>
                 </pitch>
                 <duration>432</duration>
-                <type>dotted half</type>
+                <dot/>
             </note>
         </measure>
     </part>

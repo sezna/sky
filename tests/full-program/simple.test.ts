@@ -138,6 +138,21 @@ describe('Simple program tests', () => {
         // the final note in the chord should not be omitted when parsed in a list
         expect(res.renderedXml.split('<step>A</step>').length - 1).toBe(1);
     });
+    it('should pass params down into a function, and parenthesis should be handled correctly', () => {
+        let prog = `fn pitch_to_rhythm(olo: pitch): pitch_rhythm {
+   return if 5 == 5 then (olo + quarter) else ( c#4 quarter );
+   }
+      
+      fn main(): pitch_rhythm { return pitch_to_rhythm(d#4); }`;
+
+        let res = compile(prog);
+        if (res.isOk === false) {
+            console.log(JSON.stringify(res.err));
+            expect(true).toBe(false);
+            return;
+        }
+        expect(res.isOk).toBe(true);
+    });
 
     it('should know about function parameters in a func', () => {
         let prog = `-- all sky programs need a main function which returns the contents of the music

@@ -7,7 +7,7 @@ describe('if expr tests', () => {
     it('should correctly assign its result to a variable #1', () => {
         let program = `fn main(): number {
                       number x = if 200 < 5 then 5 else 2;
-                      return 0;
+                      return x;
                    }`;
         let steps = makeSyntaxTree(tokenize(program));
 
@@ -25,12 +25,12 @@ describe('if expr tests', () => {
             expect(true).toBe(false);
             return;
         }
-        expect(result.right.variableEnvironment['x'].value).toBe(2);
+        expect(result.right.mainReturn.returnValue).toBe(2);
     });
     it('should correctly assign its result to a variable #2', () => {
         let program = `fn main(): number {
                       number x = if 200 > 5 then 6 else 3;
-                      return 0;
+                      return x;
                    }`;
         let steps = makeSyntaxTree(tokenize(program));
         if (isLeft(steps)) {
@@ -47,7 +47,7 @@ describe('if expr tests', () => {
             expect(true).toBe(false);
             return;
         }
-        expect(result.right.variableEnvironment['x'].value).toBe(6);
+        expect(result.right.mainReturn.returnValue).toBe(6);
     });
     /* TODO
     it('should handle if expressions using brackets alike to those without', () => {

@@ -52,7 +52,6 @@ export function consumeExpression(input: Tokens): Either<ParseError, { input: To
         let openCurlyBracketCount = 0;
         let closeCurlyBracketCount = 0;
         // keep track of this for a good error message
-        let prevToken = token;
         let insideOfChord = false;
         while (
             closeCurlyBracketCount < openCurlyBracketCount ||
@@ -73,6 +72,7 @@ export function consumeExpression(input: Tokens): Either<ParseError, { input: To
                     expressionBuffer.push(token);
                 }
             }
+            let prevToken = token;
             token = input.shift()!;
             if (token === undefined) {
                 return left({
@@ -282,20 +282,21 @@ export function consumeElseUntilEnd(input: Tokens): Either<ParseError, { input: 
     let openCurlyBraceCount = 0;
     let closeCurlyBraceCount = 0;
     let outerTerminatorSeen = false;
-    let prevToken = initialToken;
     let token = input[0];
     let expressionBuffer = [];
     let ifCount = 0;
-    while ((!outerTerminatorSeen || closeCurlyBraceCount !== openCurlyBraceCount) && input.length > 0) {
-        expressionBuffer.push(token);
-        prevToken = token;
+    let count = 0;
+    // TODO there are a lot of issues in this loop and a lot of pandaids
+    // all it needs to do is continue to consume tokens from `else` to the end of the expression
+    // very overdue for a rewrite
+    while ((!outerTerminatorSeen || closeCurlyBraceCount !== openCurlyBraceCount) && input.length >= 0) {
+        if (count !== 0) {
+            expressionBuffer.push(token);
+        }
+        count += 1;
         token = input.shift()!;
         if (token === undefined) {
-            return left({
-                line: prevToken.value.line,
-                column: prevToken.value.column,
-                reason: 'Unexpected EOF while parsing "else" branch of an if  expression',
-            });
+            break;
         }
         if (token.value.value === '{') {
             openCurlyBraceCount += 1;
@@ -303,11 +304,6 @@ export function consumeElseUntilEnd(input: Tokens): Either<ParseError, { input: 
             openParensCount += 1;
         } else if (token.value.value === ')') {
             closeParensCount += 1;
-            if (closeParensCount > openParensCount) {
-                break;
-            }
-        } else if (token.value.value === '{') {
-            openCurlyBraceCount += 1;
         } else if (token.value.value === '}') {
             closeCurlyBraceCount += 1;
         } else if (token.tokenType === 'else') {

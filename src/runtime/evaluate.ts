@@ -22,7 +22,6 @@ export function evaluate(
     functionEnvironment: FunctionEnvironment,
     variableEnvironment: VariableEnvironment,
 ): Either<RuntimeError, EvalResult> {
-    //    console.log("Evaluating step: ", JSON.stringify(step, null, 1));
     let returnValue;
     let returnType;
     let returnProperties;
@@ -111,7 +110,7 @@ export function evaluate(
                     reason: `Operator ${(step as OpExp).operator.value.value.value} is unimplemented`,
                 });
         }
-        let opResult = operatorFunc(lhs, rhs);
+        let opResult = operatorFunc(lhs, rhs, (step as OpExp).operator.value);
         if (isLeft(opResult)) {
             return opResult;
         }
@@ -289,8 +288,7 @@ export function evaluate(
             });
         }
 
-        //  evaluate the args
-        let funcAppRes = evalFunction(func, step.args, step.functionName, functionEnvironment, variableEnvironment);
+        let funcAppRes = evalFunction(func, step.args, functionEnvironment, variableEnvironment);
         if (isLeft(funcAppRes)) {
             return funcAppRes;
         }

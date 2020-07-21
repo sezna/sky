@@ -1,9 +1,10 @@
 import { RuntimeError } from '../';
 import { EvalResult } from '../evaluate';
 import { Either, right, left } from 'fp-ts/lib/Either';
+import { Token } from '../../lexer/tokenizer';
 import { OperationSuccess } from './operation-success';
 // Handle the && operator
-export function and(lhs: EvalResult, rhs: EvalResult): Either<RuntimeError, OperationSuccess> {
+export function and(lhs: EvalResult, rhs: EvalResult, _operatorToken: Token): Either<RuntimeError, OperationSuccess> {
     if (lhs.returnType === 'boolean' && rhs.returnType === 'boolean') {
         return right({ valueType: 'boolean', value: lhs.returnValue && rhs.returnValue });
     }

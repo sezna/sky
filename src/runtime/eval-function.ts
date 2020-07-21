@@ -1,9 +1,9 @@
 import { RuntimeError } from '.';
-import { Variable, Func, FunctionEnvironment, VariableEnvironment } from './environments';
-import { Token } from '../lexer/tokenizer';
+import { Func, FunctionEnvironment, VariableEnvironment } from './environments';
 import { Expression } from '../lexer/expression';
 import { evaluate } from './evaluate';
 import { isLeft, right, left, Either } from 'fp-ts/lib/Either';
+import { LiteralExp } from '../lexer/expression/literal';
 
 // This is a little ridiculous but there's not a dynamic way to add "list" before the typename dynamically that I know of.
 type ReturnType =
@@ -30,51 +30,55 @@ export interface FunctionEvaluationResult {
 }
 export function evalFunction(
     func: Func,
-  paramValues: Expression[],
-  funcName: Token,
+    args: Expression[],
     functionEnvironment: FunctionEnvironment,
-    variableEnvironment: VariableEnvironment,
+    globalVariableEnvironment: VariableEnvironment,
 ): Either<RuntimeError, FunctionEvaluationResult> {
-  if (paramValues.length !== func.parameters.length) {
-    console.log(JSON.stringify(funcName));
-    return left({
-      line: funcName.value.line,
-      column: funcName.value.column, // TODO
-      reason: `Function "${funcName.value.value}" expected ${func.parameters.length} arguments but was called with ${paramValues.length}.`
-    });
-  }
-    // evaluate all the parameters
-    let parameterValues: Variable[] = [];
-    for (const paramExpr of paramValues) {
-        let paramRes = evaluate(paramExpr, functionEnvironment, variableEnvironment);
-      if (isLeft(paramRes)) { return paramRes; }
-      const param = paramRes.right;
-      const properties: {[propertyName: string]: string} = param.returnProperties || {};
-      parameterValues.push({ varType: param.returnType,
-        value: param.returnValue,
-        properties, 
-      });
-    }
-    
-  let paramsWithNames: VariableEnvironment = {};
-  let i = 0;
-  for (const val of parameterValues) { //parameterValues.reduce((acc: VariableEnvironment, val: any, i: number) => {
-    let param = func.parameters[i]!;
-    if (param.varType.value.value !== val.varType) {
-      return left({
-        line: funcName.value.line,
-        column: funcName.value.column,
-        reason: `Function "${funcName.value.value}" expected parameter ${i} ("${param.varName.value.value}") to be of type "${param.varType.value.value}" but it is actually of type "${val.varType}". `
-      })
-    }
-    paramsWithNames[param.varName.value.value] = val;
-    i++;
-  };
+    // look up this function application in the environment, which should contain all declarations
 
-  let localVariableEnvironment: VariableEnvironment = { ...variableEnvironment, ...paramsWithNames };
+    let evaluatedArgs: VariableEnvironment = {};
+    for (let i = 0; i < args.length; i++) {
+        if (i >= func.parameters.length) {
+            let { line, column } =
+                args[i]._type === ('LiteralExp' as const)
+                    ? (args[i] as LiteralExp).literalValue.token
+                    : (args[i] as any).token;
+            return left({
+                line,
+                column,
+                reason: `Incorrect number of arguments. Function expected ${func.parameters.length} arguments but ${args.length} were provided.`,
+            });
+        }
+        let argExpr = args[i];
+        let param = func.parameters[i];
+        let evaluateRes = evaluate(argExpr, functionEnvironment, globalVariableEnvironment);
+        if (isLeft(evaluateRes)) {
+            return evaluateRes;
+        }
+        let evaluated = evaluateRes.right;
+        if (param.varType.value.value !== evaluated.returnType) {
+            let { line, column } =
+                args[i]._type === ('LiteralExp' as const)
+                    ? (args[i] as LiteralExp).literalValue.token
+                    : (args[i] as any).token;
+            return left({
+                line,
+                column,
+                reason: `Type mismatch in argment ${i} of function application for function application. Expected type "${param.varType.value.value}" but received type "${evaluated.returnType}"`,
+            });
+        }
+
+        evaluatedArgs[param.varName.value.value] = {
+            varType: param.varType.value.value,
+            value: evaluated.returnValue,
+            properties: evaluated.returnProperties || {},
+        };
+    }
+
+    let variableEnvironment: VariableEnvironment = { ...globalVariableEnvironment, ...evaluatedArgs };
     for (const step of func.body) {
         if (step._type === 'Return') {
-            let res = evaluate(step.returnExpr, functionEnvironment, localVariableEnvironment);
+            let res = evaluate(step.returnExpr, functionEnvironment, variableEnvironment);
             if (isLeft(res)) {
                 return res;
             }
@@ -86,12 +90,12 @@ export function evalFunction(
             return right(funcResult);
         }
 
-        let result = evaluate(step, functionEnvironment, localVariableEnvironment);
+        let result = evaluate(step, functionEnvironment, variableEnvironment);
         if (isLeft(result)) {
             return result;
         }
         functionEnvironment = result.right.functionEnvironment;
-        localVariableEnvironment = result.right.variableEnvironment;
+        variableEnvironment = result.right.variableEnvironment;
     }
     return left({
         line: 0,
