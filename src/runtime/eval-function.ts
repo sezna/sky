@@ -35,7 +35,6 @@ export function evalFunction(
     globalVariableEnvironment: VariableEnvironment,
 ): Either<RuntimeError, FunctionEvaluationResult> {
     // look up this function application in the environment, which should contain all declarations
-    console.log('Global arguments is', JSON.stringify(globalVariableEnvironment));
 
     let evaluatedArgs: VariableEnvironment = {};
     for (let i = 0; i < args.length; i++) {
@@ -50,7 +49,6 @@ export function evalFunction(
                 reason: `Incorrect number of arguments. Function expected ${func.parameters.length} arguments but ${args.length} were provided.`,
             });
         }
-        console.log('Evaluating expression');
         let argExpr = args[i];
         let param = func.parameters[i];
         let evaluateRes = evaluate(argExpr, functionEnvironment, globalVariableEnvironment);
@@ -76,11 +74,8 @@ export function evalFunction(
             properties: evaluated.returnProperties || {},
         };
     }
-    console.log('Evaluated arguments env is ', Object.keys(evaluatedArgs));
 
     let variableEnvironment: VariableEnvironment = { ...globalVariableEnvironment, ...evaluatedArgs };
-
-    console.log('total arguments env is ', Object.keys(variableEnvironment));
     for (const step of func.body) {
         if (step._type === 'Return') {
             let res = evaluate(step.returnExpr, functionEnvironment, variableEnvironment);

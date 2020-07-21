@@ -22,7 +22,6 @@ export function evaluate(
     functionEnvironment: FunctionEnvironment,
     variableEnvironment: VariableEnvironment,
 ): Either<RuntimeError, EvalResult> {
-    //    console.log("Evaluating step: ", JSON.stringify(step, null, 1));
     let returnValue;
     let returnType;
     let returnProperties;
@@ -280,8 +279,6 @@ export function evaluate(
             reason: `Attempted to evaluate a return statement. This is a bug in the compiler. Please file an issue with the code that triggered this bug at https://github.com/sezna/sky.`,
         });
     } else if (step._type === 'FunctionApplication') {
-        console.log('Function env: ', Object.keys(functionEnvironment));
-        console.log('FUNCTION APPLICATION ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++');
         let func = functionEnvironment[step.functionName.value.value];
         if (func === undefined) {
             return left({
@@ -291,7 +288,6 @@ export function evaluate(
             });
         }
 
-        console.log('Variable env in eval is ', JSON.stringify(variableEnvironment));
         let funcAppRes = evalFunction(func, step.args, functionEnvironment, variableEnvironment);
         if (isLeft(funcAppRes)) {
             return funcAppRes;
