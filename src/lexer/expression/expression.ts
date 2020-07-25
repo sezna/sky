@@ -314,8 +314,8 @@ export function parseExpression(
                 const rhs = expressionStack.pop()!;
                 const lhs = expressionStack.pop()!;
                 let returnTypeResult = opReturnTypeMap(
-                    rhs.returnType,
                     lhs.returnType,
+                    rhs.returnType,
                     newOp.value.value.value as Operator['operatorType'],
                 ); // is this a valid cast?
                 if (isLeft(returnTypeResult)) {
@@ -605,8 +605,8 @@ export function parseExpression(
         let lhs = expressionStack.pop()!;
         let returnType;
         let returnTypeResult = opReturnTypeMap(
-            rhs.returnType,
             lhs.returnType,
+            rhs.returnType,
             operator.value.value.value as Operator['operatorType'],
         ); // is this a valid cast?
         if (operator.value.value.value !== '(') {

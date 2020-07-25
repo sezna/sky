@@ -202,7 +202,7 @@ describe('function application typechecking', () => {
             return;
         }
         expect(isLeft(steps)).toBe(true);
-        expect(steps.left.reason).toBe('Operator + is not implemented for type "number" and "pitch"');
+        expect(steps.left.reason).toBe('Operator + is not implemented for type "pitch" and "number"');
     });
     it('should reject a function in an operation that returns the wrong type #2', () => {
         let program = `
@@ -221,7 +221,7 @@ describe('function application typechecking', () => {
             return;
         }
         expect(isLeft(steps)).toBe(true);
-        expect(steps.left.reason).toBe('Operator + is not implemented for type "number" and "pitch"');
+        expect(steps.left.reason).toBe('Operator + is not implemented for type "pitch" and "number"');
     });
     it("Should reject a function which doesn't return anything", () => {
         let program = `fn main(): number { --the lack of "number" return should get caught

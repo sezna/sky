@@ -200,8 +200,8 @@ fn pointless_if_comparison(num: number, other: number): pitch {
         expect(res.isOk).toBe(true);
     });
 
-  it('should know about the num variable', () => {
-    let prog = `
+    it('should know about the num variable', () => {
+        let prog = `
 -- other functions can do things too
 fn pointless_if_comparison(num: number): pitch_rhythm {
    -- ifs are expressions
@@ -222,6 +222,5 @@ fn main(): list pitch_rhythm {
             console.log(JSON.stringify(res.err));
         }
         expect(res.isOk).toBe(true);
-
-  })
+    });
 });
