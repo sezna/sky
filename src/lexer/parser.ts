@@ -234,6 +234,14 @@ export function makeFunctionBodySyntaxTree(
                     steps.push(reassignment.reassignment);
                 }
             }
+        } else if (input[0].tokenType === 'loop-keyword') {
+            console.log("can't loop yet");
+
+            return left({
+                line: 0,
+                column: 0,
+                reason: "can't loop yet -- this needs to become a step",
+            });
         } else {
             let expressionResult = parseExpression(input, functionNamespace, variableNamespace);
             if (isLeft(expressionResult)) {

@@ -590,6 +590,13 @@ export function parseExpression(
                     returnType: 'pitch',
                 });
             }
+        } else if (expressionContents[0].tokenType === 'loop-keyword') {
+            return left({
+                line: 0,
+                column: 0,
+                reason:
+                    "Internal compiler error: attempted to parse a loop as an expression, which it isn't. Please file an issue at https://github.com/sezna/sky and include the code which triggered this issue.",
+            });
         } else {
             return left({
                 line: expressionContents[0].value.line,
