@@ -7,8 +7,22 @@ import { reassignVariable, Reassignment } from './reassign-variable';
 import { propertyAssignment, PropertyAssignment } from './property-assignment';
 
 type Declaration = FunctionDeclaration | VariableDeclaration | Reassignment | PropertyAssignment;
-export type Step = Expression | Declaration | Return;
+export type Step = Expression | Declaration | Return | Loop;
 export type Steps = Step[];
+type Loop = WhileLoop | ForLoop
+
+interface ForLoop {
+  _type: "ForLoop";
+  collection: Expression;
+  iteratorVariable: VariableDeclaration;
+  body: Step[]
+}
+
+interface WhileLoop {
+  _type: "WhileLoop";
+  condition: Expression;
+  body: Step[]
+}
 
 export interface Return {
     _type: 'Return';
@@ -236,6 +250,7 @@ export function makeFunctionBodySyntaxTree(
             }
         } else if (input[0].tokenType === 'loop-keyword') {
             console.log("can't loop yet");
+          // TODO use WhileLoop and ForLoop to construct the steps
 
             return left({
                 line: 0,
