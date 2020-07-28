@@ -251,6 +251,71 @@ export function makeFunctionBodySyntaxTree(
         } else if (input[0].tokenType === 'loop-keyword') {
             console.log("can't loop yet");
           // TODO use WhileLoop and ForLoop to construct the steps
+            if (input[0].value.value === 'while') {
+              let whileLoopToken = { ...input[0] };
+              // func will return { condition: Token[], input: Token[]}
+              let res = consumeWhileCondition(input);
+              if (isLeft(res)) { return res; }
+             input = res.right.input;
+              let condition = res.right.condition;
+              
+              let bodyTokens: Tokens = [];
+              let openingBraceCount = 1;
+              let closingBraceCount = 0;
+            let token = input.shift()!;
+            if (token!.value.value !== '{') {
+                return left({
+                    line: token.value.line,
+                    column: token.value.column,
+                    reason: `Invalid while loop body. Received ${
+                        token!.value.value
+                    } but expected an opening curly bracket ('{').`,
+                });
+            }
+            if (token === undefined) {
+                return left({
+                    line: prevToken.value.line,
+                    column: prevToken.value.column,
+                    reason: `Unexpected end of input in while loop body. Expected a body enclosed in curly brackets.`,
+                });
+            }
+
+              while (closingBraceCount < openingBraceCount) {
+                  bodyTokens.push(token!);
+                  prevToken = token;
+                  token = input.shift()!;
+                  if (token.value.value === '}') {
+                      closingBraceCount += 1;
+                  } else if (token.value.value === '{') {
+                      openingBraceCount += 1;
+                  } else if (token === undefined) {
+                      return left({
+                          line: prevToken.value.line,
+                          column: prevToken.value.column,
+                          reason: `Missing closing curly bracket ('}') in function body for function "${functionName}".`,
+                      });
+                  }
+              }
+
+  // TODO make version of this func that only does the body tokens bit and doesn't care about return type
+            let bodyRes = makeFunctionBodySyntaxTree(bodyTokens, [], [], [], whileLoopToken, whileLoopToken);
+
+              steps.push({
+                _type: 'WhileLoop',
+                condition,
+                body
+              });
+
+
+  
+            } else if (input[0].value.value === 'for') {
+            return left({
+                line: 0,
+                column: 0,
+                reason: "no for loops yet sorry",
+            });
+              
+            }
 
             return left({
                 line: 0,
