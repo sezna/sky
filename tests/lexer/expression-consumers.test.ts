@@ -4,6 +4,7 @@ import {
     consumeIfUntilThen,
     consumeThenUntilElse,
     consumeAndLiftListContents,
+    consumeWhileCondition,
 } from '../../src/lexer/expression/consumers';
 import { LiteralExp } from '../../src/lexer/expression';
 
@@ -86,5 +87,26 @@ describe('consumer tests', () => {
         expect(expressions).toHaveLength(2);
         expect((expressions[0] as LiteralExp)._type).toBe('LiteralExp');
         expect((expressions[0] as LiteralExp).literalValue._type).toBe('LiteralList');
+    });
+
+    it('consume while condition should get only the condition out of a while loop', () => {
+        let tokens = tokenize('while 5 == 5 { ');
+        let whileToken = tokens.shift()!;
+
+        expect(whileToken.value).toBe('while');
+        let consumedResult = consumeWhileCondition(tokens);
+        if (isLeft(consumedResult)) {
+            console.log(JSON.stringify(consumedResult));
+            expect(true).toBe(false);
+            return;
+        }
+
+        let result = consumedResult.right;
+        expect(result.condition[0].value).toBe(['5']);
+        expect(result.condition[1].value).toBe(['==']);
+        expect(result.condition[2].value).toBe(['5']);
+        expect(result.condition[3].value).toBe([';']);
+        expect(result.condition).toHaveLength(4);
+        expect(result.input[0].value).toBe('{');
     });
 });
