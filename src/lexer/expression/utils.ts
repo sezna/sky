@@ -61,6 +61,12 @@ const OpMapping: { [key in Operator['operatorType']]: { [key: string]: { [key: s
         number: {
             number: 'boolean',
         },
+        boolean: { boolean: 'boolean' },
+    },
+    '!=': {
+        number: {
+            number: 'boolean',
+        },
     },
     '>=': {
         number: {

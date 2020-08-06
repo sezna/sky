@@ -76,6 +76,60 @@ describe('loop tests', () => {
             expect(true).toBe(false);
             return;
         }
-        expect(result.right.mainReturn.returnValue).toEqual(10);
+        expect(result.right.mainReturn.returnValue).toEqual(500);
+    });
+    it('should handle complicated conditions', () => {
+        let prog = `fn main(): number {
+      number x = 1000;
+      number y = 0;
+      boolean z = true;
+      while x != y && z {
+        x = x - 10;
+        y = y + 10;
+      }
+      return x;
+    }`;
+
+        let steps = makeSyntaxTree(tokenize(prog));
+        if (isLeft(steps)) {
+            console.log('Steps are', JSON.stringify(steps, null, 2));
+            expect(true).toBe(false);
+            return;
+        }
+        let result = runtime(steps.right);
+        if (isLeft(result)) {
+            console.log(JSON.stringify(result, null, 2));
+            // for typescript's type inference
+            expect(true).toBe(false);
+            return;
+        }
+        expect(result.right.mainReturn.returnValue).toEqual(500);
+    });
+    it('should handle complicated conditions #2', () => {
+        let prog = `fn main(): number {
+      number x = 1000;
+      number y = 0;
+      boolean z = true;
+      boolean a = true;
+      while x != y && z && a == false{
+        x = x - 10;
+        y = y + 10;
+      }
+      return x;
+    }`;
+        let steps = makeSyntaxTree(tokenize(prog));
+        if (isLeft(steps)) {
+            console.log('Steps are', JSON.stringify(steps, null, 2));
+            expect(true).toBe(false);
+            return;
+        }
+        let result = runtime(steps.right);
+        if (isLeft(result)) {
+            console.log(JSON.stringify(result, null, 2));
+            // for typescript's type inference
+            expect(true).toBe(false);
+            return;
+        }
+        expect(result.right.mainReturn.returnValue).toEqual(1000);
     });
 });

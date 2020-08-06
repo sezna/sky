@@ -1,5 +1,16 @@
 import { VariableDeclaration } from '../lexer/variable-declaration';
-import { addition, multiplication, division, subtraction, and, or, greaterThan, lessThan, equals } from './operators';
+import {
+    addition,
+    multiplication,
+    division,
+    subtraction,
+    and,
+    or,
+    greaterThan,
+    lessThan,
+    equals,
+    notEquals,
+} from './operators';
 import { FunctionDeclaration } from '../lexer/function-declaration';
 import { IfExp, LiteralExp, OpExp, VarExp } from '../lexer/expression';
 import { FunctionEnvironment, VariableEnvironment } from './environments';
@@ -102,6 +113,9 @@ export function evaluate(
                 break;
             case '==':
                 operatorFunc = equals;
+                break;
+            case '!=':
+                operatorFunc = notEquals;
                 break;
             default:
                 return left({

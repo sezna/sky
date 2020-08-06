@@ -49,7 +49,7 @@ export interface FunctionApplication {
 }
 
 export interface Operator {
-    operatorType: '+' | '-' | '/' | '%' | '(' | '*' | '==' | '>=' | '<=' | '>' | '<' | '||' | '&&';
+    operatorType: '+' | '-' | '/' | '%' | '(' | '*' | '==' | '>=' | '<=' | '>' | '<' | '||' | '&&' | '!=';
     value: Token;
 }
 
