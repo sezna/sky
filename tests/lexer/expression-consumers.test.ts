@@ -93,7 +93,7 @@ describe('consumer tests', () => {
         let tokens = tokenize('while 5 == 5 { ');
         let whileToken = tokens.shift()!;
 
-        expect(whileToken.value).toBe('while');
+        expect(whileToken.value.value).toBe('while');
         let consumedResult = consumeWhileCondition(tokens);
         if (isLeft(consumedResult)) {
             console.log(JSON.stringify(consumedResult));
@@ -102,11 +102,11 @@ describe('consumer tests', () => {
         }
 
         let result = consumedResult.right;
-        expect(result.condition[0].value).toBe(['5']);
-        expect(result.condition[1].value).toBe(['==']);
-        expect(result.condition[2].value).toBe(['5']);
-        expect(result.condition[3].value).toBe([';']);
+        expect(result.condition[0].value.value).toBe('5');
+        expect(result.condition[1].value.value).toBe('==');
+        expect(result.condition[2].value.value).toBe('5');
+        expect(result.condition[3].value.value).toBe(';');
         expect(result.condition).toHaveLength(4);
-        expect(result.input[0].value).toBe('{');
+        expect(result.input[0].value.value).toBe('{');
     });
 });

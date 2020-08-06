@@ -489,6 +489,8 @@ export function consumeWhileCondition(input: Tokens): Either<ParseError, { condi
         }
         if (token.value.value === '{') {
             if (numOpeningBrackets === numClosingBrackets) {
+                // put the { back into the input
+                let inputWithOpeningBrace = [token, ...input];
                 return right({
                     condition: [
                         ...whileConditionTokens,
@@ -501,7 +503,7 @@ export function consumeWhileCondition(input: Tokens): Either<ParseError, { condi
                             },
                         },
                     ],
-                    input,
+                    input: inputWithOpeningBrace,
                 });
             } else {
                 numOpeningBrackets++;

@@ -296,6 +296,83 @@ export function evaluate(
         returnValue = funcApp.returnValue;
         returnType = funcApp.returnType;
         returnProperties = funcApp.properties;
+    } else if (step._type === 'WhileLoop') {
+        let condition = step.condition;
+        if (condition.returnType !== 'boolean') {
+            return left({
+                line: (condition as any).token?.value.line || (condition as LiteralExp).literalValue.token.value.line,
+                column:
+                    (condition as any).token?.value.column || (condition as LiteralExp).literalValue.token.value.column,
+                reason: `While loop condition's type must be "boolean", but this one has a type of "${condition.returnType}"`,
+            });
+        }
+        let conditionFirstEvaluationResult = evaluate(condition, functionEnvironment, variableEnvironment);
+        if (isLeft(conditionFirstEvaluationResult)) {
+            return conditionFirstEvaluationResult;
+        }
+        let conditionIsTrue = conditionFirstEvaluationResult.right.returnValue;
+        /*
+export interface EvalResult {
+    functionEnvironment: FunctionEnvironment;
+    variableEnvironment: VariableEnvironment;
+    returnValue: any; // TODO
+    returnType: any;
+    returnProperties?: { [key: string]: string };
+}
+       */
+        while (conditionIsTrue) {
+            // evaluate the entire body
+            for (const bodyStep of step.body) {
+                if (bodyStep._type === 'Return') {
+                    return left({
+                        line:
+                            (bodyStep.returnExpr as any).token?.value.line ||
+                            (bodyStep.returnExpr as LiteralExp).literalValue.token.value.line,
+                        column:
+                            (bodyStep.returnExpr as any).token?.value.column ||
+                            (bodyStep.returnExpr as LiteralExp).literalValue.token.value.column,
+                        reason: `Returning from within a loop is not yet implemented.`,
+                    });
+                    /*
+                    let res = evaluate(bodyStep.returnExpr, functionEnvironment, variableEnvironment);
+                    if (isLeft(res)) {
+                        return res;
+                    }
+                    let funcResult = {
+                        returnType: res.right.returnType,
+                        returnValue: res.right.returnValue,
+                        properties: res.right.returnProperties,
+                    };
+                    return right(funcResult);
+                   */
+                }
+
+                let result = evaluate(bodyStep, functionEnvironment, variableEnvironment);
+                if (isLeft(result)) {
+                    return result;
+                }
+                functionEnvironment = result.right.functionEnvironment;
+                variableEnvironment = result.right.variableEnvironment;
+            }
+            let conditionEvalResult = evaluate(condition, functionEnvironment, variableEnvironment);
+            if (isLeft(conditionEvalResult)) {
+                return conditionEvalResult;
+            }
+            let {
+                functionEnvironment: newFuncEnv,
+                variableEnvironment: newVarEnv,
+                returnValue,
+            } = conditionEvalResult.right;
+            conditionIsTrue = returnValue;
+            functionEnvironment = newFuncEnv;
+            variableEnvironment = newVarEnv;
+        }
+    } else {
+        return left({
+            line: 0,
+            column: 0,
+            reason: `Unimplemented step: ${step._type}`,
+        });
     }
     return right({
         functionEnvironment,

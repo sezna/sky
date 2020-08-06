@@ -86,6 +86,7 @@ export function makeFunctionBodySyntaxTree(
     initialVariableNamespace: VariableDeclaration[],
     params: { varName: Token; varType: Token }[],
     functionNameToken: Token,
+    // if this is being used for a loop body, then it doesn't return anything.
     returnType: Token,
 ): Either<ParseError, Steps> {
     let functionNamespace = [...initialFunctionNamespace];
@@ -250,19 +251,21 @@ export function makeFunctionBodySyntaxTree(
                 }
             }
         } else if (input[0].tokenType === 'loop-keyword') {
-            console.log("can't loop yet");
             // TODO use WhileLoop and ForLoop to construct the steps
             if (input[0].value.value === 'while') {
-                let whileLoopToken = { ...input[0] };
+                // get rid of the 'while' token
+                let whileLoopToken = input.shift()!;
                 // func will return { condition: Token[], input: Token[]}
                 let res = consumeWhileCondition(input);
                 if (isLeft(res)) {
                     return res;
                 }
                 input = res.right.input;
-                let condition = res.right.condition;
-
-                let bodyTokens: Tokens = [];
+                let conditionResult = parseExpression(res.right.condition, functionNamespace, variableNamespace);
+                if (isLeft(conditionResult)) {
+                    return conditionResult;
+                }
+                let condition = conditionResult.right.expression;
                 let openingBraceCount = 1;
                 let closingBraceCount = 0;
                 let token = input.shift()!;
@@ -284,9 +287,9 @@ export function makeFunctionBodySyntaxTree(
                 }
 
                 // gather all the tokens in the body of the loop
+                let bodyTokens: Tokens = [token];
                 let prevToken;
                 while (closingBraceCount < openingBraceCount) {
-                    bodyTokens.push(token!);
                     prevToken = token;
                     token = input.shift()!;
                     if (token.value.value === '}') {
@@ -297,19 +300,31 @@ export function makeFunctionBodySyntaxTree(
                         return left({
                             line: prevToken.value.line,
                             column: prevToken.value.column,
-                            reason: `Missing closing curly bracket ('}') in function body for function "${functionName}".`,
+                            reason: `Missing closing curly bracket ('}') in body of while loop.`,
                         });
                     }
+                    bodyTokens.push(token!);
                 }
+                // get rid of closing bracket, b/c makeFunctionBodySyntaxTree expects an opening bracket but not a closing one
+                bodyTokens.pop();
 
-                // TODO make version of this func that only does the body tokens bit and doesn't care about return type
-                // parse every expr in the body, like the below func, and add them to the while loop body
-                // let bodyRes = makeFunctionBodySyntaxTree(bodyTokens, [], [], [], whileLoopToken, whileLoopToken);
+                let bodyRes = makeFunctionBodySyntaxTree(
+                    bodyTokens,
+                    functionNamespace,
+                    variableNamespace,
+                    [],
+                    whileLoopToken,
+                    returnType,
+                );
+                if (isLeft(bodyRes)) {
+                    return bodyRes;
+                }
+                let body = bodyRes.right;
 
                 steps.push({
-                    _type: 'WhileLoop',
+                    _type: 'WhileLoop' as const,
                     condition,
-                    body: [],
+                    body,
                 });
             } else if (input[0].value.value === 'for') {
                 return left({
@@ -318,12 +333,6 @@ export function makeFunctionBodySyntaxTree(
                     reason: 'no for loops yet sorry',
                 });
             }
-
-            return left({
-                line: 0,
-                column: 0,
-                reason: "can't loop yet -- this needs to become a step",
-            });
         } else {
             let expressionResult = parseExpression(input, functionNamespace, variableNamespace);
             if (isLeft(expressionResult)) {
