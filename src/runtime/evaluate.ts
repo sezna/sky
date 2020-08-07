@@ -20,6 +20,9 @@ import { RuntimeError } from './';
 import { evalLiteral } from './eval-literal';
 import { evalFunction } from './eval-function';
 import * as _ from 'lodash';
+
+const MAX_WHILE_ITERATIONS = 100000;
+
 export interface EvalResult {
     functionEnvironment: FunctionEnvironment;
     variableEnvironment: VariableEnvironment;
@@ -325,16 +328,9 @@ export function evaluate(
             return conditionFirstEvaluationResult;
         }
         let conditionIsTrue = conditionFirstEvaluationResult.right.returnValue;
-        /*
-export interface EvalResult {
-    functionEnvironment: FunctionEnvironment;
-    variableEnvironment: VariableEnvironment;
-    returnValue: any; // TODO
-    returnType: any;
-    returnProperties?: { [key: string]: string };
-}
-       */
-        while (conditionIsTrue) {
+      let whileIterations = 0;
+      while (conditionIsTrue) {
+        whileIterations++;
             // evaluate the entire body
             for (const bodyStep of step.body) {
                 if (bodyStep._type === 'Return') {
@@ -380,7 +376,13 @@ export interface EvalResult {
             conditionIsTrue = returnValue;
             functionEnvironment = newFuncEnv;
             variableEnvironment = newVarEnv;
+        if (whileIterations >= MAX_WHILE_ITERATIONS) {
+          return left({
+            line: 0,
+            column: 0,
+            reason: `Maximum while loop iterations (100,000) exceeded. Killing.`})
         }
+      }
     } else {
         return left({
             line: 0,
