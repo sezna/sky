@@ -237,8 +237,8 @@ fn main(): list pitch_rhythm {
         }
         expect(res.isOk).toBe(true);
     });
-  it('shouldnt break randomly', () => {
-    let prog = `fn main(): list list pitch_rhythm {
+    it('shouldnt break randomly', () => {
+        let prog = `fn main(): list list pitch_rhythm {
     list pitch_rhythm treble_part = [
         _ eighth, g4 eighth, g4 eighth, g4 eighth,
         eb4 half,
@@ -266,8 +266,8 @@ fn main(): list pitch_rhythm {
     
     return beethovens_fifth;
 
-    }`
-    // Fix this tomorrow. The list splits apart on line 255
-      expect(true).toBe(false);
-  });
+    }`;
+        // Fix this tomorrow. The list splits apart on line 255
+        expect(true).toBe(false);
+    });
 });

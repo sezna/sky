@@ -103,7 +103,7 @@ export function renderPitch(
     if (input.properties && input.properties.time) {
         let [num, denom] = input.properties.time as any; //as [number, number]; // this is definitely [number, number]. TODO figure out how to type this
         if (timeNumerator !== num || timeDenominator !== denom) {
-            if (beatsThusFar !== divisions * timeNumerator) {
+            if (beatsThusFar !== divisions * timeNumerator && beatsThusFar !== 0) {
                 console.warn('Changed time signatures before previous measure was complete.'); // TODO symbol location
             }
         }
@@ -112,6 +112,8 @@ export function renderPitch(
             beats: num,
             'beat-type': denom,
         };
+        timeNumerator = num;
+        timeDenominator = denom;
     }
 
     // Check if this beat is the end of the measure.
@@ -198,7 +200,7 @@ export function renderPitch(
         </pitch>`;
 
         // if it is a rest, none of the above mattered and we just say <rest/>
-      if (input.properties?.isRest || input.returnValue.pitches[i].noteName === '_') {
+        if (input.properties?.isRest || input.returnValue.pitches[i].noteName === '_') {
             pitchText = `<rest/>`;
         }
 
@@ -248,10 +250,12 @@ export function renderPitch(
         .map(x => `        ${x}`.replace(/\s+$/, ''))
         .join('\n');
 
+    let finalTimeDenominator = (prerender.attributes.time && prerender.attributes.time['beat-type']) || timeDenominator;
+    let finalTimeNumerator = (prerender.attributes.time && prerender.attributes.time['beat']) || timeNumerator;
     return {
         output,
-        timeDenominator,
-        timeNumerator,
+        timeDenominator: finalTimeDenominator,
+        timeNumerator: finalTimeNumerator,
         beatsThusFar,
         measureNumber,
     };
