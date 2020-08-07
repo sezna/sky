@@ -237,4 +237,37 @@ fn main(): list pitch_rhythm {
         }
         expect(res.isOk).toBe(true);
     });
+  it('shouldnt break randomly', () => {
+    let prog = `fn main(): list list pitch_rhythm {
+    list pitch_rhythm treble_part = [
+        _ eighth, g4 eighth, g4 eighth, g4 eighth,
+        eb4 half,
+        _ eighth, f4 eighth, f4 eighth, f4 eighth,
+        d4 half,
+        _ eighth, g4 eighth, g4 eighth, g4 eighth,
+        _ eighth, ab4 eighth, ab4 eighth, ab4 eighth,
+        ];
+        treble_part[0].dynamic = ff;
+        treble_part[11].dynamic = p;
+        
+    list pitch_rhythm bass_part = [
+        _ eighth, \eb5, eb4\ eighth, \eb5, eb4\ eighth, \eb5, eb4\ eighth,
+        \c5, c4\ half, \c5, c4\ half
+    ];
+
+        
+    
+    list list pitch_rhythm beethovens_fifth = [treble_part, bass_part];
+    beethovens_fifth.key = c minor;
+    beethovens_fifth.time = 2/4;
+    
+    beethovens_fifth.composer = Ludwig van Beethoven;
+    beethovens_fifth.title = Symphony No. 5 in C Minor;
+    
+    return beethovens_fifth;
+
+    }`
+    // Fix this tomorrow. The list splits apart on line 255
+      expect(true).toBe(false);
+  });
 });
