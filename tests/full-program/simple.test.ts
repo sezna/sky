@@ -237,8 +237,9 @@ fn main(): list pitch_rhythm {
         }
         expect(res.isOk).toBe(true);
     });
-    it('shouldnt break randomly', () => {
-        let prog = `fn main(): list list pitch_rhythm {
+  it('should be able to evaluate and retrieve property expressions', () => {
+
+let prog = `fn main(): list list pitch_rhythm {
     list pitch_rhythm treble_part = [
         _ eighth, g4 eighth, g4 eighth, g4 eighth,
         eb4 half,
@@ -248,14 +249,23 @@ fn main(): list pitch_rhythm {
         _ eighth, ab4 eighth, ab4 eighth, ab4 eighth,
         ];
         treble_part[0].dynamic = ff;
+        treble_part[3].fermata = true;
+        treble_part[9].fermata = true;
         treble_part[11].dynamic = p;
         
     list pitch_rhythm bass_part = [
-        _ eighth, \eb5, eb4\ eighth, \eb5, eb4\ eighth, \eb5, eb4\ eighth,
-        \c5, c4\ half, \c5, c4\ half
+        _ eighth, \g3, g2\ eighth, \g3, g2\ eighth, \g3, g2\ eighth, 
+        \eb3, eb2\ half,
+        _ eighth, \f3, f2\ eighth, \f3, f2\ eighth, \f3, f2\ eighth,
+        \d3, d2\ half,
+        _ half,
+        \c4, eb4\ half
     ];
-
-        
+    
+    bass_part[3].fermata = true;
+    if bass_part[3].fermata then { bass_part[9].fermata = true; }
+    bass_part[9].fermata = true;
+    bass_part.clef = bass;
     
     list list pitch_rhythm beethovens_fifth = [treble_part, bass_part];
     beethovens_fifth.key = c minor;
@@ -266,8 +276,12 @@ fn main(): list pitch_rhythm {
     
     return beethovens_fifth;
 
-    }`;
-        // Fix this tomorrow. The list splits apart on line 255
-        expect(true).toBe(false);
-    });
+    }`
+        let res = compile(prog);
+        if (res.isOk === false) {
+            console.log(JSON.stringify(res.err));
+        }
+        expect(res.isOk).toBe(true);
+
+  });
 });

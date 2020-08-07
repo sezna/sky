@@ -229,7 +229,7 @@ export function renderPitch(
         if (fermata && i == 0) {
             noteText += `
         <notations>
-            <fermata default-y="16" relative-x="0"/>
+            <fermata default-y="20" relative-x="0"/>
         </notations>`;
         }
 
