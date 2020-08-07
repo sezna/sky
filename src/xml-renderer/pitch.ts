@@ -40,6 +40,7 @@ export function renderPitch(
         octave: 0,
     };
     let dynamic = input.properties?.dynamic;
+    let fermata = input.properties?.fermata;
     let prerender: Prerender = {
         isNewMeasure: false,
         attributes: {},
@@ -225,6 +226,12 @@ export function renderPitch(
         <chord/>`
     }
         ${pitchText}`;
+        if (fermata && i == 0) {
+            noteText += `
+        <notations>
+            <fermata default-y="16" relative-x="0"/>
+        </notations>`;
+        }
 
         noteText += `
         <duration>${numBeats}</duration>${
