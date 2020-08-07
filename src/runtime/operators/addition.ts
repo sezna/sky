@@ -25,6 +25,9 @@ export function addition(
     if (lhs.returnType === 'pitch' && rhs.returnType === 'list pitch') {
         return right({ valueType: 'list pitch', value: [lhs.returnValue, ...rhs.returnValue] });
     }
+    if (lhs.returnType === 'list pitch_rhythm' && rhs.returnType === 'list pitch_rhythm') {
+        return right({ valueType: 'list pitch_rhythm', value: [...lhs.returnValue, ...rhs.returnValue] });
+    }
     if (lhs.returnType === 'pitch' && rhs.returnType === 'rhythm') {
         return right({
             valueType: 'pitch_rhythm',
