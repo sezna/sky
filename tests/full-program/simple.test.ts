@@ -223,4 +223,18 @@ fn main(): list pitch_rhythm {
         }
         expect(res.isOk).toBe(true);
     });
+    it('should be able to notate a rest', () => {
+        let prog = `
+        fn main(): list pitch {
+            return [c4, d4, e4, _, _];
+        }
+
+`;
+
+        let res = compile(prog);
+        if (res.isOk === false) {
+            console.log(JSON.stringify(res.err));
+        }
+        expect(res.isOk).toBe(true);
+    });
 });

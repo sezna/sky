@@ -31,13 +31,6 @@ export function renderPitch(
         measureNumber: 0,
     },
 ): PitchRenderResult {
-    /*
-    if (input.returnValue.pitches.length === 1) {
-        input.returnValue = { ...input.returnValue, ...input.returnValue.pitches[0] };
-    } else {
-        return renderChord(input, isLast, duration, status);
-    }
-   */
     let { timeNumerator, timeDenominator, beatsThusFar, measureNumber } = status;
     let fifths = (input.properties && input.properties.key && (input.properties.key as any).keyData?.fifths) || 0;
     let mode = (input.properties && input.properties.key && (input.properties.key as any).quality) || 'major';
@@ -203,6 +196,11 @@ export function renderPitch(
 
         pitchText += `
         </pitch>`;
+
+        // if it is a rest, none of the above mattered and we just say <rest/>
+        if (input.properties?.isRest) {
+            pitchText = `<rest/>`;
+        }
 
         let noteText = '';
         if (dynamic && i == 0) {

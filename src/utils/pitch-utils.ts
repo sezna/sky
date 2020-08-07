@@ -19,7 +19,7 @@ const PITCH_NUMBER_MAPPING = new Map([
 // [a-gA-G][#|b|n]?[0-9]
 
 export function isPitchLiteral(input: string): boolean {
-    return /^[a-gA-G][#|b|n]?[0-9]$/.test(input);
+    return /^([a-gA-G][#|b|n]?[0-9])|(_)$/.test(input);
 }
 
 // source: https://newt.phys.unsw.edu.au/jw/notes.html
@@ -33,6 +33,10 @@ export function pitchNumbers(
 ): Either<{}, { midiNumber: number; pitchNumber: number }> {
     // TODO when there's key knowledge, this function will be impacted.
     // However, since there are no keys right now, if there's no accidental it is assumed to be natural.
+    if (noteName === '_') {
+        // if this is a rest, pretend it is a pitch and we will handle it later
+        return right({ midiNumber: 0, pitchNumber: 0 });
+    }
     if (noteName.length > 1 || noteName.length === 0 || noteName.toLowerCase() !== noteName) {
         return left({});
     }

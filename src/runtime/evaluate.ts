@@ -66,6 +66,11 @@ export function evaluate(
         };
         // TODO validate that type matches return value
     } else if (step._type === 'LiteralExp') {
+        if (step.literalValue.token.value.value === '_') {
+            returnProperties =
+                returnProperties === undefined ? { isRest: 'true' } : { ...(returnProperties as any), isRest: 'true' };
+        }
+
         let result = evalLiteral(step as LiteralExp, functionEnvironment, variableEnvironment);
         if (isLeft(result)) {
             return result;
@@ -328,9 +333,9 @@ export function evaluate(
             return conditionFirstEvaluationResult;
         }
         let conditionIsTrue = conditionFirstEvaluationResult.right.returnValue;
-      let whileIterations = 0;
-      while (conditionIsTrue) {
-        whileIterations++;
+        let whileIterations = 0;
+        while (conditionIsTrue) {
+            whileIterations++;
             // evaluate the entire body
             for (const bodyStep of step.body) {
                 if (bodyStep._type === 'Return') {
@@ -376,13 +381,14 @@ export function evaluate(
             conditionIsTrue = returnValue;
             functionEnvironment = newFuncEnv;
             variableEnvironment = newVarEnv;
-        if (whileIterations >= MAX_WHILE_ITERATIONS) {
-          return left({
-            line: 0,
-            column: 0,
-            reason: `Maximum while loop iterations (100,000) exceeded. Killing.`})
+            if (whileIterations >= MAX_WHILE_ITERATIONS) {
+                return left({
+                    line: 0,
+                    column: 0,
+                    reason: `Maximum while loop iterations (100,000) exceeded. Killing.`,
+                });
+            }
         }
-      }
     } else {
         return left({
             line: 0,
