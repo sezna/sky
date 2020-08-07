@@ -198,7 +198,7 @@ export function renderPitch(
         </pitch>`;
 
         // if it is a rest, none of the above mattered and we just say <rest/>
-        if (input.properties?.isRest) {
+      if (input.properties?.isRest || input.returnValue.pitches[i].noteName === '_') {
             pitchText = `<rest/>`;
         }
 

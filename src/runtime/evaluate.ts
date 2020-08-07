@@ -66,7 +66,7 @@ export function evaluate(
         };
         // TODO validate that type matches return value
     } else if (step._type === 'LiteralExp') {
-        if (step.literalValue.token.value.value === '_') {
+        if (step.literalValue.token.value.value.startsWith('_')) {
             returnProperties =
                 returnProperties === undefined ? { isRest: 'true' } : { ...(returnProperties as any), isRest: 'true' };
         }
