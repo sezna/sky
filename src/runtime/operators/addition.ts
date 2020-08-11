@@ -20,18 +20,16 @@ export function addition(
     }
     // TODO make this generic, if it contains a list
     if (lhs.returnType === 'list pitch' && rhs.returnType === 'pitch') {
-        return right({ valueType: 'list pitch', value: [...lhs.returnValue, rhs.returnValue] });
+        return right({ valueType: 'list pitch', value: [...lhs.returnValue, rhs] });
     }
     if (lhs.returnType === 'pitch' && rhs.returnType === 'list pitch') {
-        return right({ valueType: 'list pitch', value: [lhs.returnValue, ...rhs.returnValue] });
+        return right({ valueType: 'list pitch', value: [lhs, ...rhs.returnValue] });
     }
     if (lhs.returnType === 'list pitch_rhythm' && rhs.returnType === 'pitch_rhythm') {
-        console.log("lhs: ", JSON.stringify(lhs.returnValue, null, 2));
-        console.log("rhs: ", JSON.stringify(rhs.returnValue, null, 2));
-        return right({ valueType: 'list pitch_rhythm', value: [...lhs.returnValue, rhs.returnValue] });
+        return right({ valueType: 'list pitch_rhythm', value: [...lhs.returnValue, rhs] });
     }
     if (lhs.returnType === 'pitch_rhythm' && rhs.returnType === 'list pitch_rhythm') {
-        return right({ valueType: 'list pitch_rhythm', value: [lhs.returnValue, ...rhs.returnValue] });
+        return right({ valueType: 'list pitch_rhythm', value: [lhs, ...rhs.returnValue] });
     }
     if (lhs.returnType === 'list pitch_rhythm' && rhs.returnType === 'list pitch_rhythm') {
         return right({ valueType: 'list pitch_rhythm', value: [...lhs.returnValue, ...rhs.returnValue] });
