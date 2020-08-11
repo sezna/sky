@@ -31,7 +31,8 @@ const OpMapping: { [key in Operator['operatorType']]: { [key: string]: { [key: s
             pitch: 'list pitch',
         },
         'list pitch_rhythm': {
-            'list pitch_rhythm': 'list pitch_rhythm',
+          'list pitch_rhythm': 'list pitch_rhythm',
+          'pitch_rhythm': 'list pitch_rhythm'
         },
     },
     '-': {
