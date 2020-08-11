@@ -237,9 +237,8 @@ fn main(): list pitch_rhythm {
         }
         expect(res.isOk).toBe(true);
     });
-  it('should be able to evaluate and retrieve property expressions', () => {
-
-let prog = `fn main(): list list pitch_rhythm {
+    it('should be able to evaluate and retrieve property expressions', () => {
+        let prog = `fn main(): list list pitch_rhythm {
     list pitch_rhythm treble_part = [
         _ eighth, g4 eighth, g4 eighth, g4 eighth,
         eb4 half,
@@ -276,12 +275,11 @@ let prog = `fn main(): list list pitch_rhythm {
     
     return beethovens_fifth;
 
-    }`
+    }`;
         let res = compile(prog);
         if (res.isOk === false) {
             console.log(JSON.stringify(res.err));
         }
         expect(res.isOk).toBe(true);
-
-  });
+    });
 });

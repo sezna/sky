@@ -12,11 +12,12 @@ import { generateHeader, generateCloser } from './utils';
  */
 export function render(input: RuntimeOutput): string {
     const mainReturnType = input.mainReturn.returnType;
+    const mainProperties = input.mainReturn.properties || {};
     let output = '';
 
     switch (mainReturnType) {
         case 'pitch':
-            output += generateHeader();
+            output += generateHeader(mainProperties);
             output += `
     <part-list>
         <score-part id="P1">
@@ -30,7 +31,7 @@ export function render(input: RuntimeOutput): string {
             output += generateCloser();
             break;
         case 'pitch_rhythm':
-            output += generateHeader();
+            output += generateHeader(mainProperties);
             output += `
     <part-list>
         <score-part id="P1">
@@ -44,16 +45,16 @@ export function render(input: RuntimeOutput): string {
             output += generateCloser();
             break;
         case 'list pitch':
-            output += generateHeader() + renderListPitch(input.mainReturn) + generateCloser();
+            output += generateHeader(mainProperties) + renderListPitch(input.mainReturn) + generateCloser();
             break;
         case 'list pitch_rhythm':
-            output += generateHeader() + renderListPitchRhythm(input.mainReturn) + generateCloser();
+            output += generateHeader(mainProperties) + renderListPitchRhythm(input.mainReturn) + generateCloser();
             break;
         case 'list list pitch':
-            output += generateHeader() + renderListListPitch(input.mainReturn) + generateCloser();
+            output += generateHeader(mainProperties) + renderListListPitch(input.mainReturn) + generateCloser();
             break;
         case 'list list pitch_rhythm':
-            output += generateHeader() + renderListListPitchRhythm(input.mainReturn) + generateCloser();
+            output += generateHeader(mainProperties) + renderListListPitchRhythm(input.mainReturn) + generateCloser();
             break;
         default:
             console.log(`Type "${mainReturnType}" cannot currently be rendered into XML. Failed to render:
