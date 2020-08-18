@@ -253,12 +253,12 @@ fn main(): list pitch_rhythm {
         treble_part[11].dynamic = p;
         
     list pitch_rhythm bass_part = [
-        _ eighth, \g3, g2\ eighth, \g3, g2\ eighth, \g3, g2\ eighth, 
-        \eb3, eb2\ half,
-        _ eighth, \f3, f2\ eighth, \f3, f2\ eighth, \f3, f2\ eighth,
-        \d3, d2\ half,
+        _ eighth, \\g3, g2\\ eighth, \\g3, g2\\ eighth, \\g3, g2\\ eighth, 
+        \\eb3, eb2\\ half,
+        _ eighth, \\f3, f2\\ eighth, \\f3, f2\\ eighth, \\f3, f2\\ eighth,
+        \\d3, d2\\ half,
         _ half,
-        \c4, eb4\ half
+        \\c4, eb4\\ half
     ];
     
     bass_part[3].fermata = true;
