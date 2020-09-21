@@ -55,8 +55,6 @@ describe('pitch operator tests', () => {
             return;
         }
         expect(result.right.mainReturn.returnType).toBe('list pitch');
-      let resWithoutVarEnv = { ...result.right.mainReturn.returnValue[2], variableEnvironment: [] };
-      console.log(JSON.stringify(resWithoutVarEnv, null, 2));
         expect(result.right.mainReturn.returnValue[2].pitches[0].noteName).toBe('c');
         expect(result.right.mainReturn.returnValue[2].pitches[0].accidental).toBe('sharp');
         expect(result.right.mainReturn.returnValue[2].pitches[0].octave).toBe(2);

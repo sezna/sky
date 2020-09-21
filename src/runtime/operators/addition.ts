@@ -20,10 +20,10 @@ export function addition(
     }
     // TODO make this generic, if it contains a list
     if (lhs.returnType === 'list pitch' && rhs.returnType === 'pitch') {
-        return right({ valueType: 'list pitch', value: [...lhs.returnValue, rhs] });
+        return right({ valueType: 'list pitch', value: [...lhs.returnValue, rhs.returnValue] });
     }
     if (lhs.returnType === 'pitch' && rhs.returnType === 'list pitch') {
-        return right({ valueType: 'list pitch', value: [lhs, ...rhs.returnValue] });
+        return right({ valueType: 'list pitch', value: [lhs.returnValue, ...rhs.returnValue] });
     }
     if (lhs.returnType === 'list pitch_rhythm' && rhs.returnType === 'pitch_rhythm') {
         return right({ valueType: 'list pitch_rhythm', value: [...lhs.returnValue, rhs] });
