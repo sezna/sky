@@ -55,9 +55,9 @@ describe('pitch operator tests', () => {
             return;
         }
         expect(result.right.mainReturn.returnType).toBe('list pitch');
-        expect(result.right.mainReturn.returnValue[2].pitches[0].noteName).toBe('c');
-        expect(result.right.mainReturn.returnValue[2].pitches[0].accidental).toBe('sharp');
-        expect(result.right.mainReturn.returnValue[2].pitches[0].octave).toBe(2);
+        expect(result.right.mainReturn.returnValue[2].returnValue.pitches[0].noteName).toBe('c');
+        expect(result.right.mainReturn.returnValue[2].returnValue.pitches[0].accidental).toBe('sharp');
+        expect(result.right.mainReturn.returnValue[2].returnValue.pitches[0].octave).toBe(2);
     });
     it('should not be able to subtract two pitches', () => {
         let tokens = tokenize(`fn main(): number {
@@ -97,15 +97,15 @@ describe('pitch operator tests', () => {
             return;
         }
         expect(result.right.mainReturn.returnType).toBe('list pitch');
-        expect(result.right.mainReturn.returnValue[2].pitches[0].noteName).toBe('c');
-        expect(result.right.mainReturn.returnValue[2].pitches[0].accidental).toBe('sharp');
-        expect(result.right.mainReturn.returnValue[2].pitches[0].octave).toBe(2);
-        expect(result.right.mainReturn.returnValue[2].pitches[1].noteName).toBe('e');
-        expect(result.right.mainReturn.returnValue[2].pitches[1].accidental).toBe(undefined);
-        expect(result.right.mainReturn.returnValue[2].pitches[1].octave).toBe(3);
-        expect(result.right.mainReturn.returnValue[2].pitches[2].noteName).toBe('g');
-        expect(result.right.mainReturn.returnValue[2].pitches[2].accidental).toBe('sharp');
-        expect(result.right.mainReturn.returnValue[2].pitches[2].octave).toBe(4);
+        expect(result.right.mainReturn.returnValue[2].returnValue.pitches[0].noteName).toBe('c');
+        expect(result.right.mainReturn.returnValue[2].returnValue.pitches[0].accidental).toBe('sharp');
+        expect(result.right.mainReturn.returnValue[2].returnValue.pitches[0].octave).toBe(2);
+        expect(result.right.mainReturn.returnValue[2].returnValue.pitches[1].noteName).toBe('e');
+        expect(result.right.mainReturn.returnValue[2].returnValue.pitches[1].accidental).toBe(undefined);
+        expect(result.right.mainReturn.returnValue[2].returnValue.pitches[1].octave).toBe(3);
+        expect(result.right.mainReturn.returnValue[2].returnValue.pitches[2].noteName).toBe('g');
+        expect(result.right.mainReturn.returnValue[2].returnValue.pitches[2].accidental).toBe('sharp');
+        expect(result.right.mainReturn.returnValue[2].returnValue.pitches[2].octave).toBe(4);
     });
     it('Should be able to put a chord inside of a chord', () => {
         let tokens = tokenize(`fn main(): list pitch {

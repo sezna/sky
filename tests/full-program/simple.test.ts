@@ -237,6 +237,29 @@ fn main(): list pitch_rhythm {
         }
         expect(res.isOk).toBe(true);
     });
+    it('should be able to count to 10 using a while loop', () => {
+        let prog = `fn main(): list pitch {
+     number num = 0; 
+     list pitch to_return = [];
+     while num < 10 {
+        num = num + 1;
+        to_return = to_return + c4;
+     }
+
+     return to_return;
+   }`;
+        let res = compile(prog);
+        if (res.isOk === false) {
+            console.log(JSON.stringify(res.err));
+        }
+        // there should be 10 instances of "c4"
+        expect(res.isOk).toBe(true);
+        if (!res.isOk) {
+            return;
+        }
+        expect(res.renderedXml.split('<step>C</step>').length - 1).toBe(10);
+        expect(res.renderedXml.split('<octave>4</octave>').length - 1).toBe(10);
+    });
     it('should be able to evaluate and retrieve property expressions', () => {
         let prog = `fn main(): list list pitch_rhythm {
     list pitch_rhythm treble_part = [

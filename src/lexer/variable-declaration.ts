@@ -77,7 +77,7 @@ export function variableDeclaration(
         varType.value.value = exprVarType;
     }
 
-    if (varType.value.value !== parseResult.right.expression.returnType) {
+    if (!typeEq(varType.value.value, parseResult.right.expression.returnType)) {
         return left({
             line: varType.value.line,
             column: varType.value.column,
@@ -94,4 +94,24 @@ export function variableDeclaration(
             varType,
         },
     });
+}
+
+export function typeEq(type1: string, type2: string): boolean {
+    // compare each part, and if one is 'any', allow it to work no matter what
+    let type1Parts = type1.split(' ');
+    let type2Parts = type2.split(' ');
+    for (let i = 0; i < type1Parts.length; i++) {
+        if (i === type2Parts.length) {
+            // if type2 is shorter than type1, return false
+            return false;
+        } else if (type1Parts[i] === 'any' || type2Parts[i] === 'any') {
+            // if either part is any, the rest of the type is OK
+            return true;
+        } else if (type1Parts[i] !== type2Parts[i]) {
+            // if the types are not equal (and not any), then return false
+            return false;
+        }
+    }
+    // if none of the above falses triggered, the types are equal
+    return true;
 }

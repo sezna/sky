@@ -413,7 +413,13 @@ export function parseExpression(
             if (isLeft(listContentsResult)) {
                 return listContentsResult;
             }
-            let returnType = 'list ' + listContentsResult.right.listContents[0].returnType;
+            let returnType;
+            if (listContentsResult.right.listContents.length === 0) {
+                // if the list is empty, this could be any type
+                returnType = 'list any';
+            } else {
+                returnType = 'list ' + listContentsResult.right.listContents[0].returnType;
+            }
             let literalValue = {
                 _type: 'LiteralList' as const,
                 listContents: listContentsResult.right.listContents,

@@ -1,4 +1,4 @@
-import { VariableDeclaration } from '../lexer/variable-declaration';
+import { VariableDeclaration, typeEq } from '../lexer/variable-declaration';
 import {
     addition,
     multiplication,
@@ -52,7 +52,7 @@ export function evaluate(
                 reason: 'Unable to assign null value to variable',
             });
         }
-        if (step.varType.value.value !== value.right.returnType) {
+        if (!typeEq(step.varType.value.value, value.right.returnType)) {
             return left({
                 line: step.varType.value.line,
                 column: step.varType.value.column,
