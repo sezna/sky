@@ -469,3 +469,53 @@ export function consumeChord(
         pitches: chordBuffer,
     });
 }
+
+export function consumeWhileCondition(input: Tokens): Either<ParseError, { condition: Tokens; input: Tokens }> {
+    // gather all the tokens until the opening {
+    let numOpeningBrackets = 0;
+    let numClosingBrackets = 0;
+    let whileConditionTokens = [];
+    let prevToken = input[0];
+    let token = input[0];
+    while (input.length > 0) {
+        prevToken = token;
+        token = input.shift()!;
+        if (token === undefined) {
+            return left({
+                line: prevToken.value.line,
+                column: prevToken.value.column,
+                reason: `Unexpected end of input in while condition parsing.`,
+            });
+        }
+        if (token.value.value === '{') {
+            if (numOpeningBrackets === numClosingBrackets) {
+                // put the { back into the input
+                let inputWithOpeningBrace = [token, ...input];
+                return right({
+                    condition: [
+                        ...whileConditionTokens,
+                        {
+                            tokenType: 'statement-terminator' as const,
+                            value: {
+                                line: 0,
+                                column: 0,
+                                value: ';',
+                            },
+                        },
+                    ],
+                    input: inputWithOpeningBrace,
+                });
+            } else {
+                numOpeningBrackets++;
+            }
+        } else if (token.value.value === '}') {
+            numClosingBrackets++;
+        }
+        whileConditionTokens.push(token);
+    }
+    return left({
+        line: prevToken.value.line,
+        column: prevToken.value.column,
+        reason: `While loop condition never terminated.`,
+    });
+}

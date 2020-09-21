@@ -31,13 +31,6 @@ export function renderPitch(
         measureNumber: 0,
     },
 ): PitchRenderResult {
-    /*
-    if (input.returnValue.pitches.length === 1) {
-        input.returnValue = { ...input.returnValue, ...input.returnValue.pitches[0] };
-    } else {
-        return renderChord(input, isLast, duration, status);
-    }
-   */
     let { timeNumerator, timeDenominator, beatsThusFar, measureNumber } = status;
     let fifths = (input.properties && input.properties.key && (input.properties.key as any).keyData?.fifths) || 0;
     let mode = (input.properties && input.properties.key && (input.properties.key as any).quality) || 'major';
@@ -47,6 +40,7 @@ export function renderPitch(
         octave: 0,
     };
     let dynamic = input.properties?.dynamic;
+    let fermata = input.properties?.fermata;
     let prerender: Prerender = {
         isNewMeasure: false,
         attributes: {},
@@ -110,7 +104,7 @@ export function renderPitch(
     if (input.properties && input.properties.time) {
         let [num, denom] = input.properties.time as any; //as [number, number]; // this is definitely [number, number]. TODO figure out how to type this
         if (timeNumerator !== num || timeDenominator !== denom) {
-            if (beatsThusFar !== divisions * timeNumerator) {
+            if (beatsThusFar !== divisions * timeNumerator && beatsThusFar !== 0) {
                 console.warn('Changed time signatures before previous measure was complete.'); // TODO symbol location
             }
         }
@@ -119,6 +113,8 @@ export function renderPitch(
             beats: num,
             'beat-type': denom,
         };
+        timeNumerator = num;
+        timeDenominator = denom;
     }
 
     // Check if this beat is the end of the measure.
@@ -204,6 +200,11 @@ export function renderPitch(
         pitchText += `
         </pitch>`;
 
+        // if it is a rest, none of the above mattered and we just say <rest/>
+        if (input.properties?.isRest || input.returnValue.pitches[i].noteName === '_') {
+            pitchText = `<rest/>`;
+        }
+
         let noteText = '';
         if (dynamic && i == 0) {
             noteText += `
@@ -225,6 +226,12 @@ export function renderPitch(
         <chord/>`
     }
         ${pitchText}`;
+        if (fermata && i == 0) {
+            noteText += `
+        <notations>
+            <fermata default-y="20" relative-x="0"/>
+        </notations>`;
+        }
 
         noteText += `
         <duration>${numBeats}</duration>${
@@ -250,10 +257,12 @@ export function renderPitch(
         .map(x => `        ${x}`.replace(/\s+$/, ''))
         .join('\n');
 
+    let finalTimeDenominator = (prerender.attributes.time && prerender.attributes.time['beat-type']) || timeDenominator;
+    let finalTimeNumerator = (prerender.attributes.time && prerender.attributes.time['beat']) || timeNumerator;
     return {
         output,
-        timeDenominator,
-        timeNumerator,
+        timeDenominator: finalTimeDenominator,
+        timeNumerator: finalTimeNumerator,
         beatsThusFar,
         measureNumber,
     };

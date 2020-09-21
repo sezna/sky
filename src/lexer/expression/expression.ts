@@ -49,7 +49,7 @@ export interface FunctionApplication {
 }
 
 export interface Operator {
-    operatorType: '+' | '-' | '/' | '%' | '(' | '*' | '==' | '>=' | '<=' | '>' | '<' | '||' | '&&';
+    operatorType: '+' | '-' | '/' | '%' | '(' | '*' | '==' | '>=' | '<=' | '>' | '<' | '||' | '&&' | '!=';
     value: Token;
 }
 
@@ -413,7 +413,13 @@ export function parseExpression(
             if (isLeft(listContentsResult)) {
                 return listContentsResult;
             }
-            let returnType = 'list ' + listContentsResult.right.listContents[0].returnType;
+            let returnType;
+            if (listContentsResult.right.listContents.length === 0) {
+                // if the list is empty, this could be any type
+                returnType = 'list any';
+            } else {
+                returnType = 'list ' + listContentsResult.right.listContents[0].returnType;
+            }
             let literalValue = {
                 _type: 'LiteralList' as const,
                 listContents: listContentsResult.right.listContents,
@@ -590,6 +596,13 @@ export function parseExpression(
                     returnType: 'pitch',
                 });
             }
+        } else if (expressionContents[0].tokenType === 'loop-keyword') {
+            return left({
+                line: 0,
+                column: 0,
+                reason:
+                    "Internal compiler error: attempted to parse a loop as an expression, which it isn't. Please file an issue at https://github.com/sezna/sky and include the code which triggered this issue.",
+            });
         } else {
             return left({
                 line: expressionContents[0].value.line,

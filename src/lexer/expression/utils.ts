@@ -30,6 +30,10 @@ const OpMapping: { [key in Operator['operatorType']]: { [key: string]: { [key: s
         'list pitch': {
             pitch: 'list pitch',
         },
+        'list pitch_rhythm': {
+            'list pitch_rhythm': 'list pitch_rhythm',
+            pitch_rhythm: 'list pitch_rhythm',
+        },
     },
     '-': {
         number: {
@@ -58,6 +62,12 @@ const OpMapping: { [key in Operator['operatorType']]: { [key: string]: { [key: s
         },
     },
     '==': {
+        number: {
+            number: 'boolean',
+        },
+        boolean: { boolean: 'boolean' },
+    },
+    '!=': {
         number: {
             number: 'boolean',
         },

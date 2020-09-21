@@ -28,12 +28,26 @@ export function timeSignatureDurationMapping(duration: LiteralRhythm, signature:
     return numBeats;
 }
 
-export function generateHeader(): string {
+export function generateHeader(mainProperties: { [key: string]: string }): string {
+    let composerText = mainProperties.composer
+        ? `
+  <creator type="composer">${mainProperties.composer}</creator>`
+        : '';
+    let copyrightText = mainProperties.copyright
+        ? `
+  <rights>${mainProperties.copyright}</rights>`
+        : '';
+    let identificationText =
+        mainProperties.composer || mainProperties.copyright
+            ? `
+<identification>${composerText}${copyrightText}
+</identification>`
+            : '';
     return `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE score-partwise PUBLIC
     "-//Recordare//DTD MusicXML 3.0 Partwise//EN"
     "http://www.musicxml.org/dtds/partwise.dtd">
-<score-partwise version="3.0">`;
+<score-partwise version="3.0">${identificationText}`;
 }
 export function generateCloser(): string {
     return `

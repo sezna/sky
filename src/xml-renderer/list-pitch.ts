@@ -25,7 +25,7 @@ export function renderListPitch(input: RuntimeOutput['mainReturn'], idOverride?:
     let status;
     let count = 0;
     for (const note of input.returnValue) {
-        status = renderPitch(note, count === input.returnValue.length - 1, note.returnValue.rhythm, status);
+        status = renderPitch(note, count === input.returnValue.length - 1, undefined, status);
         output += status.output;
         count++;
     }

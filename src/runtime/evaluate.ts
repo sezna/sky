@@ -1,5 +1,16 @@
-import { VariableDeclaration } from '../lexer/variable-declaration';
-import { addition, multiplication, division, subtraction, and, or, greaterThan, lessThan, equals } from './operators';
+import { VariableDeclaration, typeEq } from '../lexer/variable-declaration';
+import {
+    addition,
+    multiplication,
+    division,
+    subtraction,
+    and,
+    or,
+    greaterThan,
+    lessThan,
+    equals,
+    notEquals,
+} from './operators';
 import { FunctionDeclaration } from '../lexer/function-declaration';
 import { IfExp, LiteralExp, OpExp, VarExp } from '../lexer/expression';
 import { FunctionEnvironment, VariableEnvironment } from './environments';
@@ -9,6 +20,9 @@ import { RuntimeError } from './';
 import { evalLiteral } from './eval-literal';
 import { evalFunction } from './eval-function';
 import * as _ from 'lodash';
+
+const MAX_WHILE_ITERATIONS = 100000;
+
 export interface EvalResult {
     functionEnvironment: FunctionEnvironment;
     variableEnvironment: VariableEnvironment;
@@ -38,7 +52,7 @@ export function evaluate(
                 reason: 'Unable to assign null value to variable',
             });
         }
-        if (step.varType.value.value !== value.right.returnType) {
+        if (!typeEq(step.varType.value.value, value.right.returnType)) {
             return left({
                 line: step.varType.value.line,
                 column: step.varType.value.column,
@@ -52,6 +66,11 @@ export function evaluate(
         };
         // TODO validate that type matches return value
     } else if (step._type === 'LiteralExp') {
+        if (step.literalValue.token.value.value.startsWith('_')) {
+            returnProperties =
+                returnProperties === undefined ? { isRest: 'true' } : { ...(returnProperties as any), isRest: 'true' };
+        }
+
         let result = evalLiteral(step as LiteralExp, functionEnvironment, variableEnvironment);
         if (isLeft(result)) {
             return result;
@@ -102,6 +121,9 @@ export function evaluate(
                 break;
             case '==':
                 operatorFunc = equals;
+                break;
+            case '!=':
+                operatorFunc = notEquals;
                 break;
             default:
                 return left({
@@ -296,6 +318,83 @@ export function evaluate(
         returnValue = funcApp.returnValue;
         returnType = funcApp.returnType;
         returnProperties = funcApp.properties;
+    } else if (step._type === 'WhileLoop') {
+        let condition = step.condition;
+        if (condition.returnType !== 'boolean') {
+            return left({
+                line: (condition as any).token?.value.line || (condition as LiteralExp).literalValue.token.value.line,
+                column:
+                    (condition as any).token?.value.column || (condition as LiteralExp).literalValue.token.value.column,
+                reason: `While loop condition's type must be "boolean", but this one has a type of "${condition.returnType}"`,
+            });
+        }
+        let conditionFirstEvaluationResult = evaluate(condition, functionEnvironment, variableEnvironment);
+        if (isLeft(conditionFirstEvaluationResult)) {
+            return conditionFirstEvaluationResult;
+        }
+        let conditionIsTrue = conditionFirstEvaluationResult.right.returnValue;
+        let whileIterations = 0;
+        while (conditionIsTrue) {
+            whileIterations++;
+            // evaluate the entire body
+            for (const bodyStep of step.body) {
+                if (bodyStep._type === 'Return') {
+                    return left({
+                        line:
+                            (bodyStep.returnExpr as any).token?.value.line ||
+                            (bodyStep.returnExpr as LiteralExp).literalValue.token.value.line,
+                        column:
+                            (bodyStep.returnExpr as any).token?.value.column ||
+                            (bodyStep.returnExpr as LiteralExp).literalValue.token.value.column,
+                        reason: `Returning from within a loop is not yet implemented.`,
+                    });
+                    /*
+                    let res = evaluate(bodyStep.returnExpr, functionEnvironment, variableEnvironment);
+                    if (isLeft(res)) {
+                        return res;
+                    }
+                    let funcResult = {
+                        returnType: res.right.returnType,
+                        returnValue: res.right.returnValue,
+                        properties: res.right.returnProperties,
+                    };
+                    return right(funcResult);
+                   */
+                }
+
+                let result = evaluate(bodyStep, functionEnvironment, variableEnvironment);
+                if (isLeft(result)) {
+                    return result;
+                }
+                functionEnvironment = result.right.functionEnvironment;
+                variableEnvironment = result.right.variableEnvironment;
+            }
+            let conditionEvalResult = evaluate(condition, functionEnvironment, variableEnvironment);
+            if (isLeft(conditionEvalResult)) {
+                return conditionEvalResult;
+            }
+            let {
+                functionEnvironment: newFuncEnv,
+                variableEnvironment: newVarEnv,
+                returnValue,
+            } = conditionEvalResult.right;
+            conditionIsTrue = returnValue;
+            functionEnvironment = newFuncEnv;
+            variableEnvironment = newVarEnv;
+            if (whileIterations >= MAX_WHILE_ITERATIONS) {
+                return left({
+                    line: 0,
+                    column: 0,
+                    reason: `Maximum while loop iterations (100,000) exceeded. Killing.`,
+                });
+            }
+        }
+    } else {
+        return left({
+            line: 0,
+            column: 0,
+            reason: `Unimplemented step: ${step._type}`,
+        });
     }
     return right({
         functionEnvironment,

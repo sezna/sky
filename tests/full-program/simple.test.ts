@@ -223,4 +223,86 @@ fn main(): list pitch_rhythm {
         }
         expect(res.isOk).toBe(true);
     });
+    it('should be able to notate a rest', () => {
+        let prog = `
+        fn main(): list pitch {
+            return [c4, d4, e4, _, _];
+        }
+
+`;
+
+        let res = compile(prog);
+        if (res.isOk === false) {
+            console.log(JSON.stringify(res.err));
+        }
+        expect(res.isOk).toBe(true);
+    });
+    it('should be able to count to 10 using a while loop', () => {
+        let prog = `fn main(): list pitch {
+     number num = 0; 
+     list pitch to_return = [];
+     while num < 10 {
+        num = num + 1;
+        to_return = to_return + c4;
+     }
+
+     return to_return;
+   }`;
+        let res = compile(prog);
+        if (res.isOk === false) {
+            console.log(JSON.stringify(res.err));
+        }
+        // there should be 10 instances of "c4"
+        expect(res.isOk).toBe(true);
+        if (!res.isOk) {
+            return;
+        }
+        expect(res.renderedXml.split('<step>C</step>').length - 1).toBe(10);
+        expect(res.renderedXml.split('<octave>4</octave>').length - 1).toBe(10);
+    });
+    it('should be able to evaluate and retrieve property expressions', () => {
+        let prog = `fn main(): list list pitch_rhythm {
+    list pitch_rhythm treble_part = [
+        _ eighth, g4 eighth, g4 eighth, g4 eighth,
+        eb4 half,
+        _ eighth, f4 eighth, f4 eighth, f4 eighth,
+        d4 half,
+        _ eighth, g4 eighth, g4 eighth, g4 eighth,
+        _ eighth, ab4 eighth, ab4 eighth, ab4 eighth,
+        ];
+        treble_part[0].dynamic = ff;
+        treble_part[3].fermata = true;
+        treble_part[9].fermata = true;
+        treble_part[11].dynamic = p;
+        
+    list pitch_rhythm bass_part = [
+        _ eighth, \\g3, g2\\ eighth, \\g3, g2\\ eighth, \\g3, g2\\ eighth, 
+        \\eb3, eb2\\ half,
+        _ eighth, \\f3, f2\\ eighth, \\f3, f2\\ eighth, \\f3, f2\\ eighth,
+        \\d3, d2\\ half,
+        _ half,
+        \\c4, eb4\\ half
+    ];
+    
+    bass_part[3].fermata = true;
+    if bass_part[3].fermata then { bass_part[9].fermata = true; }
+    bass_part[9].fermata = true;
+    bass_part.clef = bass;
+    
+    list list pitch_rhythm beethovens_fifth = [treble_part, bass_part];
+    beethovens_fifth.key = c minor;
+    beethovens_fifth.time = 2/4;
+    
+    beethovens_fifth.composer = Ludwig van Beethoven;
+    beethovens_fifth.title = Symphony No. 5 in C Minor;
+    
+    return beethovens_fifth;
+
+    }`;
+        let res = compile(prog);
+        if (res.isOk === false) {
+            console.log(JSON.stringify(res.err));
+        }
+        expect(res.isOk).toBe(true);
+    });
 });

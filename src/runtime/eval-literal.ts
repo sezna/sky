@@ -95,6 +95,11 @@ export function evalLiteral(
             returnType = 'pitch';
             break;
         case 'LiteralList':
+            if ((literal as LiteralTypes.LiteralList).listContents.length === 0) {
+                returnValue = [];
+                returnType = 'list any';
+                break;
+            }
             let returnTypes = (literal as LiteralTypes.LiteralList).listContents.map(x => x.returnType);
             let typesMatch = returnTypes.filter(x => x === returnTypes[0]).length === returnTypes.length;
             if (!typesMatch) {

@@ -5,10 +5,25 @@ import { variableDeclaration, VariableDeclaration } from './variable-declaration
 import { Expression, parseExpression } from './expression/expression';
 import { reassignVariable, Reassignment } from './reassign-variable';
 import { propertyAssignment, PropertyAssignment } from './property-assignment';
+import { consumeWhileCondition } from './expression/consumers';
 
 type Declaration = FunctionDeclaration | VariableDeclaration | Reassignment | PropertyAssignment;
-export type Step = Expression | Declaration | Return;
+export type Step = Expression | Declaration | Return | Loop;
 export type Steps = Step[];
+type Loop = WhileLoop | ForLoop;
+
+interface ForLoop {
+    _type: 'ForLoop';
+    collection: Expression;
+    iteratorVariable: VariableDeclaration;
+    body: Step[];
+}
+
+interface WhileLoop {
+    _type: 'WhileLoop';
+    condition: Expression;
+    body: Step[];
+}
 
 export interface Return {
     _type: 'Return';
@@ -71,6 +86,7 @@ export function makeFunctionBodySyntaxTree(
     initialVariableNamespace: VariableDeclaration[],
     params: { varName: Token; varType: Token }[],
     functionNameToken: Token,
+    // if this is being used for a loop body, then it doesn't return anything.
     returnType: Token,
 ): Either<ParseError, Steps> {
     let functionNamespace = [...initialFunctionNamespace];
@@ -233,6 +249,89 @@ export function makeFunctionBodySyntaxTree(
                     input = reassignment.input;
                     steps.push(reassignment.reassignment);
                 }
+            }
+        } else if (input[0].tokenType === 'loop-keyword') {
+            // TODO use WhileLoop and ForLoop to construct the steps
+            if (input[0].value.value === 'while') {
+                // get rid of the 'while' token
+                let whileLoopToken = input.shift()!;
+                // func will return { condition: Token[], input: Token[]}
+                let res = consumeWhileCondition(input);
+                if (isLeft(res)) {
+                    return res;
+                }
+                input = res.right.input;
+                let conditionResult = parseExpression(res.right.condition, functionNamespace, variableNamespace);
+                if (isLeft(conditionResult)) {
+                    return conditionResult;
+                }
+                let condition = conditionResult.right.expression;
+                let openingBraceCount = 1;
+                let closingBraceCount = 0;
+                let token = input.shift()!;
+                if (token!.value.value !== '{') {
+                    return left({
+                        line: token.value.line,
+                        column: token.value.column,
+                        reason: `Invalid while loop body. Received ${
+                            token!.value.value
+                        } but expected an opening curly bracket ('{').`,
+                    });
+                }
+                if (token === undefined) {
+                    return left({
+                        line: whileLoopToken.value.line,
+                        column: whileLoopToken.value.column,
+                        reason: `Unexpected end of input in while loop body. Expected a body enclosed in curly brackets.`,
+                    });
+                }
+
+                // gather all the tokens in the body of the loop
+                let bodyTokens: Tokens = [token];
+                let prevToken;
+                while (closingBraceCount < openingBraceCount) {
+                    prevToken = token;
+                    token = input.shift()!;
+                    if (token.value.value === '}') {
+                        closingBraceCount += 1;
+                    } else if (token.value.value === '{') {
+                        openingBraceCount += 1;
+                    } else if (token === undefined) {
+                        return left({
+                            line: prevToken.value.line,
+                            column: prevToken.value.column,
+                            reason: `Missing closing curly bracket ('}') in body of while loop.`,
+                        });
+                    }
+                    bodyTokens.push(token!);
+                }
+                // get rid of closing bracket, b/c makeFunctionBodySyntaxTree expects an opening bracket but not a closing one
+                bodyTokens.pop();
+
+                let bodyRes = makeFunctionBodySyntaxTree(
+                    bodyTokens,
+                    functionNamespace,
+                    variableNamespace,
+                    [],
+                    whileLoopToken,
+                    returnType,
+                );
+                if (isLeft(bodyRes)) {
+                    return bodyRes;
+                }
+                let body = bodyRes.right;
+
+                steps.push({
+                    _type: 'WhileLoop' as const,
+                    condition,
+                    body,
+                });
+            } else if (input[0].value.value === 'for') {
+                return left({
+                    line: 0,
+                    column: 0,
+                    reason: 'no for loops yet sorry',
+                });
             }
         } else {
             let expressionResult = parseExpression(input, functionNamespace, variableNamespace);
