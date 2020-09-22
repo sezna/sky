@@ -41,8 +41,7 @@ type TokenType =
     | 'else'
     | 'boolean-literal'
     | 'property'
-    | 'chord-container'
-    | 'name';
+    | 'chord-container' | 'import-keyword'    | 'name';
 
 export function tokenize(input: string): Tokens {
     let symbols = splitOnSymbol(input);
@@ -95,7 +94,9 @@ export function tokenize(input: string): Tokens {
         } else if (['.'].includes(symbolValue)) {
             tokens.push({ tokenType: 'property', value: symbol });
         } else if (['true', 'false'].includes(symbolValue)) {
-            tokens.push({ tokenType: 'boolean-literal', value: symbol });
+          tokens.push({ tokenType: 'boolean-literal', value: symbol });
+        } else if (['import'].includes(symbolValue)) {
+          tokens.push({tokenType: 'import-keyword', value: symbol });
         } else if (
             [
                 'pitch',
@@ -166,6 +167,7 @@ export function tokenize(input: string): Tokens {
         listBuffer = '';
         prevSymbol = symbol;
     }
+
     return tokens;
 }
 
